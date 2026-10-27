@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Badge unlocked</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; background: #0B4A57">
+  <div aria-hidden="true" style="position: absolute; left: 0; top: 0"><dc-import name="Challenges" hint-size="360px,940px"></dc-import></div>
+  <div aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 360px; height: 800px; background: rgba(8, 30, 36, 0.6)"></div>
+
+  <section role="dialog" aria-modal="true" aria-labelledby="badgeTitle" style="position: absolute; left: 0; right: 0; bottom: 0; top: 120px; background: #FFF8EA; border-radius: 28px 28px 0 0; padding: 12px 20px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; overflow: hidden">
+    <span aria-hidden="true" style="width: 40px; height: 5px; border-radius: 3px; background: #E3D6BC"></span>
+    <svg width="360" height="300" viewBox="0 0 360 300" aria-hidden="true" style="position: absolute; left: 0; top: 10px">
+      <g fill="#F2B544" opacity="0.22"><path d="M180 150 L120 0 H150 Z"/><path d="M180 150 L210 0 H240 Z"/><path d="M180 150 L320 20 L340 50 Z"/><path d="M180 150 L40 20 L20 50 Z"/><path d="M180 150 L360 140 V170 Z"/><path d="M180 150 L0 140 V170 Z"/></g>
+    </svg>
+    <div style="position: relative; margin-top: 18px">
+      <svg width="190" height="210" viewBox="0 0 190 210" role="img" aria-label="Protein Pro badge">
+        <path d="M95 6 L182 56 V154 L95 204 L8 154 V56 Z" fill="#C98A1E"/>
+        <path d="M95 18 L170 62 V148 L95 192 L20 148 V62 Z" fill="#F2B544"/>
+        <path d="M95 30 L158 67 V143 L95 180 L32 143 V67 Z" fill="#FFF3DC"/>
+        <rect x="56" y="96" width="78" height="14" rx="5" fill="#1F4FB5"/>
+        <rect x="44" y="82" width="16" height="42" rx="5" fill="#2D2A6E"/><rect x="130" y="82" width="16" height="42" rx="5" fill="#2D2A6E"/>
+        <rect x="34" y="90" width="12" height="26" rx="4" fill="#19A39A"/><rect x="144" y="90" width="12" height="26" rx="4" fill="#19A39A"/>
+        <ellipse cx="95" cy="150" rx="9" ry="12" fill="#3FAE6E"/><ellipse cx="95" cy="149" rx="6.5" ry="8.5" fill="#F2B544"/><ellipse cx="95" cy="149.5" rx="4.5" ry="6" fill="#19A39A"/><ellipse cx="95" cy="150" rx="2.5" ry="3.4" fill="#2D2A6E"/>
+      </svg>
+      <div style="position: absolute; right: -54px; bottom: -14px"><dc-import name="Neelu" mood="joy" size="100" hint-size="100px,100px"></dc-import></div>
+    </div>
+    <p style="position: relative; margin: 6px 0 0; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7A4B05">New badge</p>
+    <h1 id="badgeTitle" style="position: relative; margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 40px; line-height: 1.05">Protein Pro</h1>
+    <p style="position: relative; margin: 0; font-size: 18px; color: #4A5A63; line-height: 1.4; max-width: 290px">Protein goal, 3 days in a row.</p>
+    <span style="position: relative; display: flex; align-items: center; gap: 6px; margin-top: 4px; background: #FFFFFF; border: 1px solid #F2D9A6; border-radius: 18px; padding: 6px 14px; font-size: 15px; font-weight: 800; color: #5C3A05"><svg width="14" height="18" viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>+50 coins</span>
+    <div style="position: relative; margin-top: auto; width: 100%; display: flex; gap: 10px">
+      <button type="button" aria-label="Share badge" style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid #0B4A57; background: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B4A57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15 V4 M7 9 L12 4 L17 9 M5 14 V20 H19 V14"/></svg></button>
+      <a href="Challenges.dc.html" style="flex: 1; height: 56px; border-radius: 28px; background: #0B4A57; color: #FFFFFF; font-size: 18px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Collect</a>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Meal logged</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #DFF1EA; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center">
+  <svg width="360" height="440" viewBox="0 0 360 440" aria-hidden="true" style="position: absolute; left: 0; top: 0">
+    <path d="M50 440 L50 210 Q50 110 180 70 Q310 110 310 210 L310 440 Z" fill="#F8F5EE" opacity="0.7"/>
+    <ellipse cx="36" cy="120" rx="7" ry="4" fill="#F2A93B" transform="rotate(30 36 120)"/><ellipse cx="322" cy="96" rx="7" ry="4" fill="#E8752A" transform="rotate(-25 322 96)"/>
+    <ellipse cx="300" cy="260" rx="6" ry="3.5" fill="#F2A93B" transform="rotate(60 300 260)"/><ellipse cx="40" cy="290" rx="6" ry="3.5" fill="#E8752A" transform="rotate(-40 40 290)"/>
+  </svg>
+  <span style="position: relative; align-self: flex-end; margin: 18px 16px 0 0; display: flex; align-items: center; gap: 6px; background: #FFFFFF; border-radius: 20px; padding: 7px 14px; font-size: 16px; font-weight: 700"><svg width="14" height="18" viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>+10 coins</span>
+  <div style="position: relative; margin-top: 10px"><dc-import name="Neelu" mood="love" size="290" hint-size="290px,290px"></dc-import></div>
+  <h1 style="position: relative; margin: 4px 0 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 44px; line-height: 1">Logged!</h1>
+  <p style="position: relative; margin: 10px 0 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 32px; line-height: 1">590 <span style="font-size: 18px; color: #4A5A63">kcal</span></p>
+  <p style="position: relative; margin: 10px 0 0; font-size: 18px; font-weight: 600; color: #155E3D">940 kcal left today</p>
+
+  <div style="position: relative; margin-top: auto; padding: 0 16px 24px; width: 100%; display: flex; flex-direction: column; gap: 6px">
+    <a href="Home.dc.html" style="position: relative; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Done
+      <span style="position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 23px; height: 23px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 L10 17 L19 7"/></svg></span></span></span>
+    </a>
+    <a href="MealDetail.dc.html" style="height: 52px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; color: #0B4A57; text-decoration: none">See details</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

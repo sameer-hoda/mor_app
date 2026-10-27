@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Meal times</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 20px 16px 0">
+    <a href="Activity.dc.html" aria-label="Back" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></a>
+    <div role="progressbar" aria-label="Step 6 of 6" aria-valuenow="6" aria-valuemin="0" aria-valuemax="6" style="flex: 1; height: 8px; border-radius: 4px; background: #E7E1D4; position: relative">
+      <div style="width: 100%; height: 8px; border-radius: 4px; background: #0B4A57"></div>
+      <svg width="16" height="20" viewBox="0 0 20 26" aria-hidden="true" style="position: absolute; left: calc(100% - 8px); top: -6px"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>
+    </div>
+  </div>
+
+  <div style="padding: 24px 20px 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 36px; line-height: 1.05">When do<br>you eat?</h1>
+    <div style="flex-shrink: 0; margin-right: -10px"><dc-import name="Neelu" mood="hungry" size="92" crop="head" hint-size="92px,92px"></dc-import></div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; padding: 24px 16px 0">
+    <sc-for list="{{meals}}" as="m" hint-placeholder-count="4">
+      <div style="display: flex; align-items: center; gap: 14px; background: #FFFFFF; border-radius: 20px; padding: 12px 14px; min-height: 80px">
+        <dc-import name="Food" kind="{{m.food}}" size="48" hint-size="48px,48px"></dc-import>
+        <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.15">
+          <strong style="font-size: 18px">{{m.name}}</strong>
+          <button type="button" aria-label="{{m.timeLabel}}" onClick="{{m.edit}}" style="align-self: flex-start; margin-top: 4px; height: 32px; border: none; border-radius: 16px; background: #E3F2EF; padding: 0 12px; font-size: 16px; font-weight: 700; color: #0B4A57; display: flex; align-items: center; gap: 6px; cursor: pointer">{{m.time}}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0B4A57" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 H8 L19 9 L15 5 L4 16 Z"/></svg></button>
+        </span>
+        <button type="button" role="switch" aria-checked="{{m.on}}" aria-label="{{m.switchLabel}}" onClick="{{m.toggle}}" style="width: 52px; height: 32px; border-radius: 16px; position: relative; flex-shrink: 0; cursor: pointer; padding: 0; background: {{m.track}}; border: 2px solid {{m.trackBd}}">
+          <span style="position: absolute; top: 2px; width: 24px; height: 24px; border-radius: 50%; left: {{m.knobX}}; background: {{m.knob}}"></span>
+        </button>
+      </div>
+    </sc-for>
+  </div>
+  <p style="margin: 14px 20px 0; font-size: 16px; color: #4A5A63">Tap a time to change it.</p>
+
+  <div style="margin-top: auto; padding: 0 16px 24px">
+    <a href="Building.dc.html" style="position: relative; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Build my plan
+      <span style="position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 23px; height: 23px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg></span></span></span>
+    </a>
+  </div>
+
+  <sc-if value="{{editing}}" hint-placeholder-val="{{false}}">
+    <button type="button" aria-label="Close" onClick="{{close}}" style="position: absolute; left: 0; top: 0; width: 360px; height: 800px; border: none; padding: 0; background: rgba(8, 30, 36, 0.55); cursor: pointer"></button>
+    <section role="dialog" aria-modal="true" aria-labelledby="tTitle" style="position: absolute; left: 0; right: 0; bottom: 0; background: #F8F5EE; border-radius: 28px 28px 0 0; padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 14px">
+      <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #D9D2C2"></span>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <dc-import name="Food" kind="{{ed.food}}" size="48" hint-size="48px,48px"></dc-import>
+        <h2 id="tTitle" style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; line-height: 1">{{ed.name}} time</h2>
+      </div>
+      <div style="position: relative; display: flex; justify-content: center; gap: 22px; height: 200px; align-items: center">
+        <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 68px; height: 64px; border-radius: 20px; background: #FFFFFF"></div>
+        <div role="spinbutton" aria-label="Hour" aria-valuenow="{{ed.h}}" style="position: relative; display: flex; flex-direction: column; align-items: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; line-height: 1">
+          <span style="font-size: 22px; color: #C9C2B2; height: 34px">{{ed.h2m}}</span><span style="font-size: 28px; color: #9E978A; height: 40px">{{ed.h1m}}</span><span style="font-size: 52px; height: 60px; padding-top: 4px">{{ed.h}}</span><span style="font-size: 28px; color: #9E978A; height: 40px; padding-top: 4px">{{ed.h1p}}</span><span style="font-size: 22px; color: #C9C2B2; height: 26px">{{ed.h2p}}</span>
+        </div>
+        <span style="position: relative; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 44px">:</span>
+        <div role="spinbutton" aria-label="Minutes" aria-valuenow="{{ed.m}}" style="position: relative; display: flex; flex-direction: column; align-items: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; line-height: 1">
+          <span style="font-size: 22px; color: #C9C2B2; height: 34px">{{ed.m2m}}</span><span style="font-size: 28px; color: #9E978A; height: 40px">{{ed.m1m}}</span><span style="font-size: 52px; height: 60px; padding-top: 4px">{{ed.m}}</span><span style="font-size: 28px; color: #9E978A; height: 40px; padding-top: 4px">{{ed.m1p}}</span><span style="font-size: 22px; color: #C9C2B2; height: 26px">{{ed.m2p}}</span>
+        </div>
+        <div role="radiogroup" aria-label="AM or PM" style="position: relative; display: flex; flex-direction: column; gap: 6px">
+          <span role="radio" aria-checked="{{ed.amOn}}" style="padding: 6px 12px; border-radius: 12px; font-size: 17px; font-weight: 700; background: {{ed.amBg}}; color: {{ed.amFg}}">AM</span>
+          <span role="radio" aria-checked="{{ed.pmOn}}" style="padding: 6px 12px; border-radius: 12px; font-size: 17px; font-weight: 700; background: {{ed.pmBg}}; color: {{ed.pmFg}}">PM</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap">
+        <sc-for list="{{ed.quick}}" as="q" hint-placeholder-count="4">
+          <button type="button" onClick="{{q.pick}}" style="height: 40px; padding: 0 12px; border-radius: 20px; font-size: 15px; font-weight: 700; cursor: pointer; background: {{q.bg}}; color: {{q.fg}}; border: 1.5px solid {{q.bd}}">{{q.t}}</button>
+        </sc-for>
+      </div>
+      <button type="button" onClick="{{close}}" style="height: 60px; border-radius: 30px; border: none; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; cursor: pointer">Save</button>
+    </section>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["list","edit"],"default":"list"},"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const off = st.off || {};
+    const times = st.times || {};
+    const editing = st.editing !== undefined ? st.editing : (this.props.state === 'edit' ? 'breakfast' : null);
+    const self = this;
+    const base = [
+      { id: 'breakfast', name: 'Breakfast', time: '8:30 AM', food: 'paratha', quick: ['7:30 AM', '8:00 AM', '8:30 AM', '9:00 AM'] },
+      { id: 'lunch', name: 'Lunch', time: '1:30 PM', food: 'thali', quick: ['12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM'] },
+      { id: 'snack', name: 'Snack', time: '5:00 PM', food: 'chai', quick: ['4:00 PM', '4:30 PM', '5:00 PM', '6:00 PM'] },
+      { id: 'dinner', name: 'Dinner', time: '9:00 PM', food: 'dal', quick: ['8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM'] }
+    ];
+    const set = function (patch) { self.setState(Object.assign({ off: off, times: times, editing: editing }, patch)); };
+    const meals = base.map(function (m) {
+      const on = !off[m.id];
+      const time = times[m.id] || m.time;
+      return Object.assign({}, m, {
+        time: time, on: on ? 'true' : 'false', timeLabel: 'Change ' + m.name + ' time, now ' + time, switchLabel: 'Remind me for ' + m.name,
+        track: on ? '#0B4A57' : '#E3DDD0', trackBd: on ? '#0B4A57' : '#8C8676', knob: on ? '#F2B544' : '#8C8676', knobX: on ? '22px' : '2px',
+        toggle: function () { const n = Object.assign({}, off); n[m.id] = on; set({ off: n }); },
+        edit: function () { set({ editing: m.id }); }
+      });
+    });
+    let ed = { quick: [] };
+    if (editing) {
+      const m = meals.filter(function (x) { return x.id === editing; })[0];
+      const mt = m.time.match(/(\d+):(\d+) (AM|PM)/);
+      const h = parseInt(mt[1], 10), mi = parseInt(mt[2], 10), pm = mt[3] === 'PM';
+      const hh = function (d) { return ((h - 1 + d + 12) % 12) + 1; };
+      const mm = function (d) { const v = (mi + d * 15 + 60) % 60; return v < 10 ? '0' + v : String(v); };
+      ed = {
+        name: m.name, food: m.food, h: h, h1m: hh(-1), h2m: hh(-2), h1p: hh(1), h2p: hh(2),
+        m: mm(0), m1m: mm(-1), m2m: mm(-2), m1p: mm(1), m2p: mm(2),
+        amOn: pm ? 'false' : 'true', pmOn: pm ? 'true' : 'false',
+        amBg: pm ? 'transparent' : '#0B4A57', amFg: pm ? '#4A5A63' : '#FFFFFF', pmBg: pm ? '#0B4A57' : 'transparent', pmFg: pm ? '#FFFFFF' : '#4A5A63',
+        quick: m.quick.map(function (t) {
+          const sel = t === m.time;
+          return { t: t, bg: sel ? '#0B4A57' : '#FFFFFF', fg: sel ? '#FFFFFF' : '#142027', bd: sel ? '#0B4A57' : '#D9D2C2', pick: function () { const n = Object.assign({}, times); n[m.id] = t; set({ times: n }); } };
+        })
+      };
+    }
+    return { meals: meals, editing: !!editing, ed: ed, close: function () { set({ editing: false }); } };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+{
+  "project": "Mor — Android calorie tracker",
+  "version": "1.0",
+  "how_to_use": [
+    "Run the image prompts in order. Generate NEELU-01 first and attach it as the reference image to every later prompt that has \"uses_reference\": true — this keeps Neelu on-model.",
+    "Image model: Nano Banana Pro. Video model: your animation model (image-to-video). Every animation starts from the matching poster PNG (first frame) so motion stays on-model.",
+    "Transparency: image models rarely output real alpha. Prompts ask for a flat chroma-green background (#00B140); remove it in post (keyer or background-removal), then export PNG/WebP with alpha.",
+    "Never put text in images unless the prompt says so — all UI text is rendered by the app.",
+    "File names and Android paths are in each entry. Raster sizes are xxxhdpi (4x dp)."
+  ],
+  "style_bible": {
+    "character": "Neelu, a chibi Indian peacock mascot: oversized round cobalt-blue head (#2463C9) and small round cobalt body (#1F4FB5), slightly lighter blue belly, three thin crest stems on top of the head each ending in a small teal (#19A39A) bulb with a gold (#F2B544) centre, big glossy black eyes with two white highlights, a short white stripe under each eye, soft pink blush cheeks, small rounded golden-yellow beak (#F5B83D), tiny orange feet, and a half-open fanned tail behind the body in green (#2B8A57 / #3FAE6E) with six large feather eyes ringed gold, teal and deep indigo (#2D2A6E).",
+    "rendering": "Clean flat vector illustration, soft cel shading with one gentle highlight, no outlines or very thin same-hue outlines, rounded friendly shapes, sticker-like clarity at small sizes. Not 3D, not realistic, not anime.",
+    "palette": "Mor Teal #0B4A57, Neel #1F4FB5, Pankh #19A39A, Panna #1E8A5A, Genda marigold #F2A93B, Gold #F2B544, Jamun #2D2A6E, Chandan ivory #F8F5EE. Accents only — never neon.",
+    "indian_motifs": "Peacock feather eyes, marigold (genda) flowers and torans, mango leaves, clay diyas, Mughal jharokha arches, steel katoris and thalis, kulhad cups. Used sparingly as accents, never as busy patterns.",
+    "negative": "no text, no letters, no watermark, no logos, no brand marks, no humans, no religious symbols or deities, no busy backgrounds, no gradients wash, no drop shadows on the background, no extra limbs, no realistic feathers, no sharp teeth"
+  },
+
+  "image_prompts": [
+    {
+      "id": "NEELU-01",
+      "name": "Character reference sheet (master)",
+      "use": "Reference image for every other prompt. Not shipped in the app.",
+      "size": "2048x2048", "aspect": "1:1", "background": "flat ivory #F8F5EE",
+      "uses_reference": false,
+      "prompt": "Character turnaround sheet of Neelu, a chibi Indian peacock mascot, shown four times in a row: front view, three-quarter view, side view, back view, all standing, same scale, evenly spaced on a flat ivory #F8F5EE background. Oversized round cobalt-blue head and small round cobalt body with a lighter blue belly, three thin crest stems on top each ending in a small teal bulb with a gold centre, big glossy black eyes with two white highlights, short white stripe under each eye, soft pink blush cheeks, small rounded golden-yellow beak, tiny orange feet, half-open fanned green tail with six large feather eyes ringed gold, teal and deep indigo. Clean flat vector illustration, soft cel shading, rounded friendly shapes, sticker clarity. Happy neutral expression.",
+      "negative": "text, labels, letters, watermark, humans, realistic feathers, 3D render, anime style, extra limbs",
+      "output": "ref/neelu_reference_sheet.png"
+    },
+    {
+      "id": "NEELU-02",
+      "name": "Expression sheet",
+      "use": "Reference for mood posters.",
+      "size": "2048x1024", "aspect": "2:1", "background": "flat ivory #F8F5EE",
+      "uses_reference": true,
+      "prompt": "Expression sheet of the same chibi peacock mascot Neelu from the reference image, seven head-and-shoulders portraits in a neat grid on flat ivory: 1 happy smile, 2 cool with black sunglasses with thin gold rims and a smirk, 3 joyful with eyes closed in happy arcs and beak wide open with tiny gold sparkles, 4 love with pink heart-shaped eyes, 5 hungry and pleading with eyes looking up and worried brows and a tiny drool drop, 6 thinking with eyes glancing up-right and one raised brow, 7 sleepy with closed eyes and two small blue Z letters floating. Keep the exact design, colours and proportions of the reference.",
+      "negative": "text, words, labels, numbers, watermark, different character design",
+      "output": "ref/neelu_expressions.png"
+    },
+    {
+      "id": "NEELU-POSE",
+      "name": "Mood posters (7 files, one per mood)",
+      "use": "Poster frame + first frame of each animation. Shown while the animation loads and when reduce-motion is on.",
+      "size": "1024x1024", "aspect": "1:1", "background": "flat chroma green #00B140 → remove to alpha",
+      "uses_reference": true,
+      "variables": { "MOOD": ["happy", "cool (black sunglasses with thin gold rims, confident smirk)", "joy (eyes closed in happy arcs, beak open, small gold sparkles)", "love (pink heart eyes, tiny hearts floating)", "hungry (looking up pleading, worried brows, tiny drool drop)", "thinking (eyes up-right, one brow raised, wing tip on beak)", "sleepy (eyes closed, two small blue Z letters)"] },
+      "prompt": "Full-body front view of the chibi peacock mascot Neelu from the reference image, standing centred, feet at 88% of the frame height, fanned tail fully visible, mood: {MOOD}. Exactly the same design, colours and proportions as the reference. Clean flat vector illustration, soft cel shading. Plain flat chroma green #00B140 background with no shadow on it, generous empty margin on all sides.",
+      "negative": "text, background scenery, floor, cast shadow, cropped tail, different proportions, extra limbs",
+      "output": "app/src/main/res/drawable-nodpi/neelu_poster_{mood}.webp (512x512 after trim, alpha)"
+    },
+    {
+      "id": "ICON-01",
+      "name": "App icon — adaptive foreground",
+      "use": "Launcher icon foreground layer (adaptive icon). Background layer is solid #0B4A57.",
+      "size": "1024x1024", "aspect": "1:1", "background": "flat chroma green #00B140 → alpha",
+      "uses_reference": true,
+      "prompt": "Head-and-crest close-up of the chibi peacock Neelu from the reference image wearing black sunglasses with thin gold rims, confident smile, facing camera, centred, occupying the central 60% of the frame so it survives circular and squircle masks. Flat vector, bold simple shapes that read at 48 px. Plain chroma green #00B140 background.",
+      "negative": "text, letters, border, frame, background details, tail cut awkwardly",
+      "output": "app/src/main/res/mipmap-*/ic_launcher_foreground (export 432x432 → densities)",
+      "notes": "Also hand-trace a one-colour silhouette for the Android 13 themed (monochrome) icon — do not generate it."
+    },
+    {
+      "id": "SPLASH-01",
+      "name": "Splash screen icon",
+      "use": "Android 12+ SplashScreen API icon on #0B4A57 background.",
+      "size": "1024x1024", "aspect": "1:1", "background": "chroma green → alpha",
+      "uses_reference": true,
+      "prompt": "Same as the app icon foreground but inside a thin gold (#F2B544) ring, Neelu head with sunglasses centred within the inner 66% of the frame. Flat vector. Plain chroma green #00B140 background.",
+      "negative": "text, wordmark, shadows",
+      "output": "drawable/splash_icon — 288x288 dp canvas (1152 px), art inside the central 192 dp circle; optional animated variant from fan_reveal"
+    },
+
+    {
+      "id": "SCENE-01",
+      "name": "Home stage — day",
+      "use": "Top 330 dp of Home behind the Neelu animation. Neelu is NOT in this image.",
+      "size": "1440x1320", "aspect": "12:11", "background": "full scene",
+      "uses_reference": false,
+      "prompt": "Minimal flat vector scene for a mobile app header, no character: a soft pale teal sky (#CFE7E1), a large cream Mughal jharokha arch (#EAF5F1) centred with a thin sage inner outline, a warm sandstone terrace strip along the bottom (#E3C394), a small pale sun top-right. Lots of calm empty space in the middle of the arch where a mascot will stand on the terrace. Very subtle, airy, premium, Indian.",
+      "negative": "text, people, animals, birds, busy patterns, strong shadows, clutter, furniture, mascot",
+      "output": "drawable-nodpi/stage_day.webp"
+    },
+    {
+      "id": "SCENE-02",
+      "name": "Home stage — night",
+      "use": "Home night summary state.",
+      "size": "1440x1320", "aspect": "12:11", "background": "full scene",
+      "uses_reference": false,
+      "prompt": "Same composition as a minimal flat jharokha arch scene but at night: deep indigo-navy sky (#1E2D4F) with a few tiny stars and a thin crescent moon top-right, arch in muted blue (#2B4170) with a soft periwinkle outline, terrace in warm dark brown (#6B5A48), one small lit clay diya glowing softly at the right edge of the terrace. Empty space in the arch for a mascot. Calm, minimal.",
+      "negative": "text, people, clutter, bright neon, mascot",
+      "output": "drawable-nodpi/stage_night.webp"
+    },
+    {
+      "id": "SCENE-03",
+      "name": "Home stage — golden evening",
+      "use": "Goal-reached and over-goal states (optional; fallback to day).",
+      "size": "1440x1320", "aspect": "12:11", "background": "full scene",
+      "uses_reference": false,
+      "prompt": "Same minimal jharokha arch scene at golden hour: warm apricot sky, arch in soft cream, terrace in sandstone, a low warm sun behind the right edge, a delicate marigold toran hanging across the top of the arch. Empty space for a mascot. Calm, minimal, celebratory but quiet.",
+      "negative": "text, people, clutter, mascot",
+      "output": "drawable-nodpi/stage_evening.webp"
+    },
+
+    {
+      "id": "ACCENT-01",
+      "name": "Feather-eye accent (high-detail)",
+      "use": "Large decorative feather eye peeking from the corner of the Scan Meal tile, Challenges header and Profile header (at 30% opacity). The small UI feather-eye stays vector.",
+      "size": "1024x1280", "aspect": "4:5", "background": "chroma green → alpha",
+      "uses_reference": false,
+      "prompt": "A single stylised peacock feather eye, flat vector: elongated green outer vane (#3FAE6E), gold ring (#F2B544), teal ring (#19A39A), deep indigo heart (#2D2A6E) with one small soft highlight, a few delicate barb strokes fanning out. Centred, vertical, crisp edges. Plain chroma green background.",
+      "negative": "realistic photo, text, shadow, multiple feathers",
+      "output": "drawable-nodpi/accent_feather_eye.webp"
+    },
+    {
+      "id": "ACCENT-02",
+      "name": "Marigold toran strip",
+      "use": "Top edge of celebration screens (plan ready, goal reached, badge).",
+      "size": "2048x320", "aspect": "32:5", "background": "chroma green → alpha",
+      "uses_reference": false,
+      "prompt": "A gently drooping horizontal garland (toran) of round marigold flowers alternating golden yellow #F2A93B and orange #E8752A, with small mango leaves hanging between them, on a thin brown string, flat vector, evenly spaced, seamless at both ends. Plain chroma green background.",
+      "negative": "text, bells, religious symbols, deities, realistic photo",
+      "output": "drawable-nodpi/accent_toran.webp"
+    },
+    {
+      "id": "ACCENT-03",
+      "name": "Marigold petals sprite sheet",
+      "use": "Particle sprites for celebration bursts (rendered by the app, not baked).",
+      "size": "1024x1024", "aspect": "1:1", "background": "chroma green → alpha",
+      "uses_reference": false,
+      "prompt": "Sprite sheet grid of 12 individual flat vector marigold petals and 4 tiny teal-and-gold feather eyes, each isolated with generous spacing, in yellow #F2A93B, orange #E8752A and teal #19A39A, slight rotation variety. Plain chroma green background.",
+      "negative": "overlapping items, text, shadows",
+      "output": "drawable-nodpi/particles_petals.webp (slice into 16 sprites)"
+    },
+    {
+      "id": "ACCENT-04",
+      "name": "Streak diya — lit and unlit",
+      "use": "Streak card, streak screen, widget. Two files.",
+      "size": "1024x512", "aspect": "2:1", "background": "chroma green → alpha",
+      "uses_reference": false,
+      "prompt": "Two flat vector clay diyas side by side: left one lit with a soft teardrop flame in marigold #F2A93B with a pale yellow core and a faint warm glow; right one unlit, the same terracotta bowl (#C4673A) with a tiny grey wick and no flame. Simple, iconic, reads at 24 px. Plain chroma green background.",
+      "negative": "text, religious symbols, deities, decoration on the bowl, realistic photo",
+      "output": "drawable-nodpi/diya_lit.webp, diya_unlit.webp"
+    },
+    {
+      "id": "ACCENT-05",
+      "name": "Mor coin",
+      "use": "Coin counter on Home, Challenges, rewards.",
+      "size": "512x512", "aspect": "1:1", "background": "chroma green → alpha",
+      "uses_reference": false,
+      "prompt": "A round flat vector gold coin (#F2B544 with a slightly darker rim #C98A1E) embossed with a single small peacock feather eye in teal and indigo at its centre, one soft highlight. Reads at 18 px. Plain chroma green background.",
+      "negative": "text, numbers, currency symbols, rupee sign",
+      "output": "drawable-nodpi/coin.webp"
+    },
+    {
+      "id": "BADGE-SET",
+      "name": "Achievement badges (one call per badge)",
+      "use": "Challenges, badge-unlocked modal, meal highlights.",
+      "size": "1024x1024", "aspect": "1:1", "background": "chroma green → alpha",
+      "uses_reference": false,
+      "variables": { "BADGE": [
+        "first_bite — a small steel plate with a single roti",
+        "three_meals — three tiny bowls in a row",
+        "protein_pro — a small dumbbell with a bowl of dal",
+        "hydrate — a clay water glass with a droplet",
+        "less_sugar — a kulhad chai cup with a small crossed sugar cube",
+        "home_cooked — a tiny house roof over a steaming pot",
+        "high_fibre — a green leaf and a sprouting moong bean",
+        "low_sugar — a sugar cube with a gentle slash",
+        "early_dinner — a crescent moon over a bowl",
+        "full_week — seven tiny diyas in an arc",
+        "locked — a simple padlock in muted grey"
+      ] },
+      "prompt": "Achievement badge, flat vector: a soft rounded hexagon medallion with a thick gold rim (#F2B544) and an ivory inner face (#FFF3DC), a small peacock feather eye at the bottom of the rim, and in the centre {BADGE}. Simple bold shapes, reads at 48 px. Plain chroma green background.",
+      "negative": "text, numbers, letters, ribbons with writing, religious symbols",
+      "output": "drawable-nodpi/badge_{key}.webp"
+    },
+    {
+      "id": "FOOD-SET",
+      "name": "Food illustrations (one call per dish, ~40)",
+      "use": "Replaces the placeholder food icons in meal rows, search, results, meal times, widgets.",
+      "size": "1024x1024", "aspect": "1:1", "background": "chroma green → alpha",
+      "uses_reference": false,
+      "variables": { "DISH": [
+        "masala chai in a clay kulhad", "poha with peas and lemon wedge in a white bowl", "two idlis with sambar and coconut chutney on a steel plate",
+        "folded masala dosa with chutneys", "dal tadka in a steel katori", "two folded rotis", "jeera rice mound on a steel plate",
+        "paneer butter masala in a katori", "two samosas with green chutney", "banana and apple", "curd in a steel katori",
+        "veg biryani with a boiled egg half", "aloo paratha with a butter cube", "moong sprouts salad", "roasted makhana in a bowl",
+        "full Indian veg thali with dal, sabzi, raita, rice, roti and salad, top-down", "rajma chawal", "chole with bhature", "upma",
+        "besan chilla", "vada pav", "pav bhaji", "khichdi", "aloo gobhi sabzi", "palak paneer", "bhindi fry", "egg bhurji", "chicken curry",
+        "fish curry", "dhokla", "pani puri", "pongal", "uttapam", "rasam with rice", "lassi in a tall glass", "gulab jamun", "jalebi",
+        "fresh fruit chaat", "buttermilk (chaas)", "boiled eggs"
+      ] },
+      "prompt": "Top-down flat vector food illustration of {DISH}, served in a simple steel or white vessel, centred in a circle composition, warm appetising colours, soft cel shading, minimal garnish, no table, no cutlery. Consistent icon style for a set. Plain chroma green background.",
+      "negative": "photo, realistic, text, hands, table texture, cutlery, logos, packaging",
+      "output": "drawable-nodpi/food_{key}.webp (256x256 after trim)"
+    },
+    {
+      "id": "EMPTY-SET",
+      "name": "Empty and error state illustrations",
+      "use": "Static fallbacks for empty inbox, empty insights, scan failed, camera denied, offline.",
+      "size": "1024x1024", "aspect": "1:1", "background": "chroma green → alpha",
+      "uses_reference": true,
+      "variables": { "SCENE": [
+        "inbox_empty — Neelu asleep curled on a small round teal cushion, two blue Z letters",
+        "insights_empty — Neelu holding a big magnifying glass, curious",
+        "scan_failed — Neelu squinting at a dark blurry plate, slightly puzzled",
+        "camera_denied — Neelu peeking from behind a large friendly camera icon, hopeful",
+        "offline — Neelu holding a small paper boat, calm"
+      ] },
+      "prompt": "The chibi peacock Neelu from the reference image: {SCENE}. Full body, centred, flat vector, same design and colours as the reference, minimal props. Plain chroma green background.",
+      "negative": "text, background scenery, extra characters",
+      "output": "drawable-nodpi/empty_{key}.webp"
+    },
+    {
+      "id": "STORE-01",
+      "name": "Play Store feature graphic",
+      "use": "Google Play listing (1024x500).",
+      "size": "2048x1000", "aspect": "~2:1", "background": "full scene",
+      "uses_reference": true,
+      "prompt": "Wide promotional banner, flat vector: Neelu the chibi peacock from the reference image standing on the right in front of a cream jharokha arch, holding a small steel thali with roti, dal and rice, deep Mor Teal (#0B4A57) background on the left two-thirds left completely empty for a headline, a delicate marigold toran across the top edge. Premium, minimal, joyful.",
+      "negative": "text, letters, logo, UI screenshots, people",
+      "output": "store/feature_graphic.png (downscale to 1024x500; add headline in design tool)"
+    }
+  ],
+
+  "animation_prompts": {
+    "pipeline": "Image-to-video from the matching poster (NEELU-POSE). Generate on chroma green #00B140, key to alpha, trim, export animated WebP 512x512 @24fps with alpha, ≤300 KB. Also keep the first frame as the PNG poster. Loops must start and end on the poster pose.",
+    "base_prompt": "Animate the chibi peacock mascot Neelu exactly as in the first frame — same design, colours and proportions, flat vector look with soft cel shading. Static camera, centred, no zoom, no background change (keep flat chroma green #00B140), no text. Motion: {ACTION}. {MODE}, {SECONDS} seconds, smooth easing, playful but gentle.",
+    "slots": [
+      { "id": "fan_reveal", "poster": "cool", "action": "starts with tail folded down, tail fans open in a quick shimmer, then sunglasses slide down onto the eyes and he gives a tiny nod", "mode": "One-shot, ends holding the final pose", "seconds": 1.5, "screens": ["Splash", "Android 12 animated splash"] },
+      { "id": "wave_hello", "poster": "happy", "action": "lifts one wing and waves twice, small hop, crest bulbs bounce", "mode": "One-shot then hand off to idle_breathe", "seconds": 1.5, "screens": ["Welcome", "Meet Neelu", "Home first day"] },
+      { "id": "idle_breathe", "poster": "happy", "action": "gentle breathing, slow blink once, crest stems sway softly, tail feathers ripple slightly", "mode": "Seamless loop", "seconds": 3, "screens": ["Home default", "Widget (static poster on widget)"] },
+      { "id": "idle_bob", "poster": "happy", "action": "small curious head bob left and right, one blink", "mode": "Seamless loop", "seconds": 2, "screens": ["Onboarding questions", "Weight sheet"] },
+      { "id": "peek_sheet", "poster": "happy", "action": "rises up from below the bottom edge, peeks with a quick blink, settles", "mode": "One-shot", "seconds": 1, "screens": ["Log-a-meal sheet"] },
+      { "id": "think_scan", "poster": "thinking", "action": "taps beak with a wing tip, eyes dart left and right, tiny question mark pops above the head and fades", "mode": "Seamless loop", "seconds": 2, "screens": ["Analysing", "Building plan", "Empty insights"] },
+      { "id": "happy_hop", "poster": "love", "action": "two little hops, small pink hearts pop around the head and fade", "mode": "One-shot", "seconds": 1.5, "screens": ["Meal logged"] },
+      { "id": "dance_celebrate", "poster": "joy", "action": "shimmies the fanned tail side to side, gold sparkles twinkle, ends with wings up", "mode": "One-shot", "seconds": 2, "screens": ["Goal reached", "Plan ready", "Badge unlocked"] },
+      { "id": "hungry_tummy", "poster": "hungry", "action": "rubs belly with one wing, looks up pleading, slight sway", "mode": "Seamless loop", "seconds": 2, "screens": ["Home missed meal", "Meal times question"] },
+      { "id": "shrug_okay", "poster": "thinking", "action": "shrugs both wings, small reassuring smile, settles", "mode": "One-shot", "seconds": 1.5, "screens": ["Home over goal"] },
+      { "id": "sleep_zzz", "poster": "sleepy", "action": "dozes with slow breathing, head dips slightly, two small blue Z letters drift up and fade", "mode": "Seamless loop", "seconds": 3, "screens": ["Home night", "Empty inbox"] },
+      { "id": "sad_droop", "poster": "hungry", "action": "crest stems droop, small sigh, then crest perks back up hopefully", "mode": "Seamless loop", "seconds": 2, "screens": ["Scan failed", "Camera denied"] },
+      { "id": "listen_ear", "poster": "happy", "action": "leans head toward the viewer as if listening, nods twice, crest bulbs bob", "mode": "Seamless loop", "seconds": 2, "screens": ["Voice logging"] },
+      { "id": "shades_flip", "poster": "cool", "action": "flips sunglasses down from the crest onto the eyes with a confident smirk", "mode": "One-shot", "seconds": 1.2, "screens": ["Streak", "Profile header"] },
+      { "id": "ring_bell", "poster": "happy", "action": "holds a small brass bell in one wing and rings it twice, little motion lines", "mode": "Seamless loop", "seconds": 2, "screens": ["Reminder permission"] }
+    ]
+  },
+
+  "keep_as_vector_not_generated": [
+    "UI feather-eye glyph (progress knob, selected marker, CTA badge)",
+    "Veg / egg / non-veg marks",
+    "All UI icons (back, plus, camera, search, mic, bell, nav icons)",
+    "Calorie ring, macro bars, streak dots",
+    "Themed monochrome launcher icon"
+  ]
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Insights</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: {{rootH}}; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden">
+  <div style="padding: 22px 16px 0; display: flex; align-items: center; justify-content: space-between">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 34px">Insights</h1>
+    <div role="tablist" aria-label="Range" style="display: flex; background: #EFE9DC; border-radius: 14px; padding: 3px">
+      <button type="button" role="tab" aria-selected="true" style="height: 38px; padding: 0 16px; border: none; border-radius: 11px; background: #FFFFFF; font-size: 15px; font-weight: 700; color: #0B4A57; box-shadow: 0 1px 3px rgba(20,32,39,0.15)">Week</button>
+      <button type="button" role="tab" aria-selected="false" style="height: 38px; padding: 0 16px; border: none; border-radius: 11px; background: transparent; font-size: 15px; font-weight: 600; color: #4A5A63">Month</button>
+    </div>
+  </div>
+
+  <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+    <div style="padding: 40px 24px 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px">
+      <dc-import name="Neelu" mood="thinking" size="240" hint-size="240px,240px"></dc-import>
+      <h2 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.1">Log 3 days to unlock</h2>
+      <div role="img" aria-label="1 of 3 days logged" style="display: flex; gap: 10px">
+        <span style="width: 60px; height: 10px; border-radius: 5px; background: #F2A93B"></span>
+        <span style="width: 60px; height: 10px; border-radius: 5px; background: #E7E1D4"></span>
+        <span style="width: 60px; height: 10px; border-radius: 5px; background: #E7E1D4"></span>
+      </div>
+      <a href="AddSheet.dc.html" style="margin-top: 14px; width: 100%; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Log a meal</a>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{filled}}" hint-placeholder-val="{{true}}">
+    <div style="padding: 14px 16px 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <button type="button" aria-label="Previous week" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></button>
+        <strong style="font-size: 18px">19 – 25 Oct</strong>
+        <button type="button" aria-label="Next week" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5 L16 12 L9 19"/></svg></button>
+      </div>
+
+      <section style="background: #FFFFFF; border-radius: 24px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end">
+          <span style="display: flex; flex-direction: column; line-height: 1"><strong style="font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 44px">1,790</strong><span style="font-size: 16px; color: #4A5A63; font-weight: 600">avg kcal / day</span></span>
+          <span style="padding: 4px 12px; border-radius: 999px; background: #DDF1E6; color: #155E3D; font-size: 15px; font-weight: 700">5/7 on track</span>
+        </div>
+        <div role="img" aria-label="Daily calories: Mon 1720, Tue 1910, Wed 1650, Thu 1840, Fri 2050, Sat 1980, Sun 1380. Goal 1850." style="position: relative; height: 160px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: end">
+          <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 132px; border-top: 2px dashed #8C8676"></div>
+          <sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+              <span style="width: 100%; border-radius: 8px 8px 4px 4px; height: {{b.h}}; background: {{b.c}}"></span>
+              <span style="font-size: 14px; color: #4A5A63; font-weight: 700">{{b.d}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <a href="Weight.dc.html" style="background: #FFFFFF; border-radius: 24px; padding: 18px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: #142027">
+        <span style="display: flex; flex-direction: column; line-height: 1; flex-shrink: 0"><strong style="font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 36px">71.8<span style="font-size: 17px; color: #5E6D75"> kg</span></strong><span style="font-size: 16px; color: #155E3D; font-weight: 700; margin-top: 4px">−0.6 this week</span></span>
+        <svg width="140" height="64" viewBox="0 0 150 64" role="img" aria-label="Weight trending down" style="flex: 1"><path d="M4 14 L28 18 L52 16 L76 28 L100 34 L124 40 L146 48" stroke="#1E8A5A" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="146" cy="48" r="5" fill="#FFFFFF" stroke="#1E8A5A" stroke-width="3"/></svg>
+      </a>
+
+      <section style="background: #FFFFFF; border-radius: 24px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline"><strong style="font-size: 20px">Protein</strong><span style="font-size: 17px; color: #4A5A63"><strong style="color: #142027">58</strong> / 75 g</span></div>
+        <div style="height: 12px; border-radius: 6px; background: #F3EEE3"><div style="width: 77%; height: 12px; border-radius: 6px; background: #1F4FB5"></div></div>
+        <span style="font-size: 16px; color: #4A5A63">Lowest at breakfast</span>
+      </section>
+    </div>
+  </sc-if>
+
+  <div style="position: absolute; left: 0; bottom: 0">
+    <dc-import name="Nav" active="insights" hint-size="360px,84px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["filled","empty"],"default":"filled"},"$preview":{"width":360,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const empty = this.props.state === 'empty';
+    const vals = [1720, 1910, 1650, 1840, 2050, 1980, 1380];
+    const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const bars = vals.map(function (v, i) { return { d: days[i], h: Math.round(v / 1850 * 132) + 'px', c: v > 1850 ? '#F2A93B' : '#0B4A57' }; });
+    return { empty: empty, filled: !empty, rootH: empty ? '800px' : '1040px', bars: bars };
+  }
+}
+</script>
+</body>
+</html>

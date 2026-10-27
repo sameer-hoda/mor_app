@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>About you</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button,input{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 20px 16px 0">
+    <a href="Diet.dc.html" aria-label="Back" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></a>
+    <div role="progressbar" aria-label="Step 3 of 6" aria-valuenow="3" aria-valuemin="0" aria-valuemax="6" style="flex: 1; height: 8px; border-radius: 4px; background: #E7E1D4; position: relative">
+      <div style="width: 50%; height: 8px; border-radius: 4px; background: #0B4A57"></div>
+      <svg width="16" height="20" viewBox="0 0 20 26" aria-hidden="true" style="position: absolute; left: calc(50% - 8px); top: -6px"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>
+    </div>
+  </div>
+
+  <div style="padding: 24px 20px 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 36px; line-height: 1.05">About you</h1>
+    <div style="flex-shrink: 0; margin-right: -10px"><dc-import name="Neelu" mood="{{mood}}" size="92" crop="head" hint-size="92px,92px"></dc-import></div>
+  </div>
+
+  <div style="padding: 24px 16px 0; display: flex; flex-direction: column; gap: 12px">
+    <div role="radiogroup" aria-label="Sex" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #EFE9DC; border-radius: 18px; padding: 4px; gap: 4px">
+      <button type="button" role="radio" aria-checked="true" style="height: 50px; border: none; border-radius: 14px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(20,32,39,0.15); font-size: 17px; font-weight: 700; color: #0B4A57">Female</button>
+      <button type="button" role="radio" aria-checked="false" style="height: 50px; border: none; border-radius: 14px; background: transparent; font-size: 17px; font-weight: 600; color: #4A5A63">Male</button>
+      <button type="button" role="radio" aria-checked="false" style="height: 50px; border: none; border-radius: 14px; background: transparent; font-size: 17px; font-weight: 600; color: #4A5A63">Other</button>
+    </div>
+
+    <label style="display: flex; align-items: center; justify-content: space-between; height: 72px; padding: 0 20px; border-radius: 20px; background: {{ageBg}}; border: {{ageBorder}}">
+      <span style="font-size: 18px; font-weight: 600; color: {{ageLabel}}">Age</span>
+      <input type="text" inputmode="numeric" value="{{age}}" aria-invalid="{{ageInvalid}}" style="width: 90px; border: none; background: transparent; text-align: right; font-family: 'Baloo 2', sans-serif; font-size: 30px; font-weight: 800; color: #142027">
+    </label>
+    <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+      <p role="alert" style="margin: -4px 4px 0; font-size: 16px; font-weight: 600; color: #B23A2F">You must be 18 or older.</p>
+    </sc-if>
+
+    <label style="display: flex; align-items: center; justify-content: space-between; height: 72px; padding: 0 20px; border-radius: 20px; background: #FFFFFF; border: 2px solid #FFFFFF">
+      <span style="font-size: 18px; font-weight: 600; color: #4A5A63">Height</span>
+      <span style="display: flex; align-items: baseline; gap: 6px"><input type="text" value="5′ 7″" style="width: 100px; border: none; background: transparent; text-align: right; font-family: 'Baloo 2', sans-serif; font-size: 30px; font-weight: 800; color: #142027"><span style="font-size: 14px; font-weight: 700; color: #0B4A57; text-decoration: underline">cm</span></span>
+    </label>
+
+    <label style="display: flex; align-items: center; justify-content: space-between; height: 72px; padding: 0 20px; border-radius: 20px; background: #FFFFFF; border: 2px solid #FFFFFF">
+      <span style="font-size: 18px; font-weight: 600; color: #4A5A63">Weight</span>
+      <span style="display: flex; align-items: baseline; gap: 6px"><input type="text" value="72" style="width: 70px; border: none; background: transparent; text-align: right; font-family: 'Baloo 2', sans-serif; font-size: 30px; font-weight: 800; color: #142027"><span style="font-size: 16px; color: #4A5A63">kg</span></span>
+    </label>
+  </div>
+
+  <div style="margin-top: auto; padding: 0 16px 24px">
+    <sc-if value="{{isOk}}" hint-placeholder-val="{{true}}">
+      <a href="Target.dc.html" style="position: relative; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Next
+        <span style="position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 23px; height: 23px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg></span></span></span>
+      </a>
+    </sc-if>
+    <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+      <button type="button" disabled style="width: 100%; height: 60px; border-radius: 30px; border: none; background: #E3DDD0; color: #5A564D; font-size: 19px; font-weight: 600">Next</button>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["filled","error"],"default":"filled"},"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const err = this.props.state === 'error';
+    return {
+      isError: err, isOk: !err,
+      mood: err ? 'thinking' : 'happy',
+      age: err ? '12' : '28',
+      ageInvalid: err ? 'true' : 'false',
+      ageLabel: err ? '#B23A2F' : '#4A5A63',
+      ageBorder: err ? '2px solid #D9483B' : '2px solid #FFFFFF',
+      ageBg: err ? '#FFF6F5' : '#FFFFFF'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Splash</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<a href="Welcome.dc.html" aria-label="Mor — tap to continue" style="width: 360px; height: 800px; background: #0B4A57; font-family: 'Mukta', sans-serif; color: #FFFFFF; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-decoration: none">
+  <svg width="360" height="800" viewBox="0 0 360 800" aria-hidden="true" style="position: absolute; left: 0; top: 0">
+    <g fill="none" stroke="#F2B544" stroke-width="1.5" opacity="0.18">
+      <ellipse cx="180" cy="330" rx="150" ry="190"/><ellipse cx="180" cy="330" rx="200" ry="250"/><ellipse cx="180" cy="330" rx="250" ry="310"/><ellipse cx="180" cy="330" rx="300" ry="370"/>
+    </g>
+    <g opacity="0.16"><ellipse cx="30" cy="740" rx="40" ry="52" fill="#19A39A"/><ellipse cx="30" cy="740" rx="22" ry="30" fill="#2D2A6E"/><ellipse cx="335" cy="70" rx="34" ry="44" fill="#19A39A"/><ellipse cx="335" cy="70" rx="18" ry="24" fill="#2D2A6E"/></g>
+  </svg>
+  <span style="position: relative; width: 196px; height: 196px; border-radius: 50%; background: #0F5D6C; border: 4px solid #F2B544; display: flex; align-items: center; justify-content: center; overflow: hidden">
+    <dc-import name="Neelu" mood="cool" size="190" crop="head" hint-size="190px,190px"></dc-import>
+  </span>
+  <span style="position: relative; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 72px; line-height: 1; margin-top: 18px">Mor</span>
+  <span style="position: relative; font-size: 20px; color: #CDE8E4">Eat well, the Indian way.</span>
+  <span aria-hidden="true" style="position: absolute; bottom: 72px; display: flex; gap: 8px">
+    <span style="width: 8px; height: 8px; border-radius: 50%; background: #F2B544"></span>
+    <span style="width: 8px; height: 8px; border-radius: 50%; background: #19A39A"></span>
+    <span style="width: 8px; height: 8px; border-radius: 50%; background: #FFFFFF; opacity: 0.5"></span>
+  </span>
+</a>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

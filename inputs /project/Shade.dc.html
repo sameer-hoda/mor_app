@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Push notifications</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@300;400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #12343C; font-family: 'Mukta', sans-serif; color: #FFFFFF; position: relative; overflow: hidden">
+  <svg width="360" height="800" viewBox="0 0 360 800" aria-hidden="true" style="position: absolute; left: 0; top: 0">
+    <g fill="none" stroke="#F2B544" stroke-opacity="0.12" stroke-width="1.5"><ellipse cx="300" cy="120" rx="120" ry="150"/><ellipse cx="300" cy="120" rx="80" ry="100"/><ellipse cx="300" cy="120" rx="40" ry="52"/></g>
+    <g opacity="0.12"><ellipse cx="40" cy="720" rx="60" ry="76" fill="#19A39A"/><ellipse cx="40" cy="720" rx="30" ry="40" fill="#2D2A6E"/></g>
+  </svg>
+  <div style="position: relative; padding: 48px 24px 0">
+    <p style="margin: 0; font-size: 76px; font-weight: 300; line-height: 1">4:12</p>
+    <p style="margin: 4px 0 0; font-size: 16px; color: #CFE3E6">Tuesday, 27 October</p>
+  </div>
+
+  <div style="position: relative; margin: 26px 12px 0; display: flex; flex-direction: column; gap: 4px">
+    <div style="background: #F4F6F6; color: #142027; border-radius: 26px 26px 8px 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; gap: 12px; align-items: flex-start">
+        <span style="width: 36px; height: 36px; border-radius: 50%; background: #0B4A57; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><dc-import name="Neelu" mood="hungry" size="42" crop="head" hint-size="42px,42px"></dc-import></span>
+        <div style="flex: 1; line-height: 1.3">
+          <span style="font-size: 12.5px; color: #4A5A63">Mor · now</span>
+          <p style="margin: 0; font-size: 17px; font-weight: 700">Missed lunch?</p>
+          <p style="margin: 0; font-size: 14px; color: #3C4A51">Neelu’s hungry. Log it in 10 seconds.</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; padding-left: 48px">
+        <span style="height: 36px; padding: 0 14px; border-radius: 18px; background: #0B4A57; color: #FFFFFF; font-size: 14px; font-weight: 700; display: flex; align-items: center">Log lunch</span>
+        <span style="height: 36px; padding: 0 14px; border-radius: 18px; background: #E1E8E9; color: #142027; font-size: 14px; font-weight: 600; display: flex; align-items: center">Skipped</span>
+      </div>
+    </div>
+    <sc-for list="{{rest}}" as="n" hint-placeholder-count="4">
+      <div style="background: #F4F6F6; color: #142027; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; border-radius: {{n.r}}">
+        <span style="width: 36px; height: 36px; border-radius: 50%; background: #0B4A57; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><dc-import name="Neelu" mood="{{n.mood}}" size="42" crop="head" hint-size="42px,42px"></dc-import></span>
+        <div style="flex: 1; line-height: 1.3">
+          <span style="font-size: 12.5px; color: #4A5A63">Mor · {{n.when}}</span>
+          <p style="margin: 0; font-size: 15px; font-weight: 700">{{n.title}}</p>
+          <p style="margin: 0; font-size: 13.5px; color: #3C4A51">{{n.body}}</p>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 34px; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #CFE3E6; font-size: 13px">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CFE3E6" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11 V8 Q8 4 12 4 Q16 4 16 8 V11"/></svg>
+    Swipe up to open
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const list = [
+      { mood: 'happy', when: '1h', title: 'Water break', body: '3 glasses to go.' },
+      { mood: 'sleepy', when: 'Mon 10:05 PM', title: 'Your streak is at risk', body: 'Log dinner before 11 PM.' },
+      { mood: 'happy', when: 'Mon 8:30 AM', title: 'Breakfast time', body: 'What’s on your plate?' },
+      { mood: 'cool', when: 'Sun', title: 'Weekly report is ready', body: '5 of 7 days on track.' }
+    ];
+    return { rest: list.map(function (n, i) { return Object.assign({}, n, { r: i === list.length - 1 ? '8px 8px 26px 26px' : '8px' }); }) };
+  }
+}
+</script>
+</body>
+</html>

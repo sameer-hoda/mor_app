@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notification inbox</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 10px; padding: 18px 16px 0">
+    <a href="Home.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; border: 1px solid #E7E1D4; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></a>
+    <h1 style="flex: 1; margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 26px">Notifications</h1>
+    <a href="Reminders.dc.html" aria-label="Reminder settings" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; border: 1px solid #E7E1D4; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2 V5 M12 19 V22 M2 12 H5 M19 12 H22 M4.9 4.9 L7 7 M17 17 L19.1 19.1 M4.9 19.1 L7 17 M17 7 L19.1 4.9"/></svg></a>
+  </div>
+
+  <sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}">
+    <div style="padding: 10px 16px 0; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: flex-end"><button type="button" style="border: none; background: none; font-size: 14px; font-weight: 700; color: #0B4A57; padding: 6px 0">Mark all read</button></div>
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 13px; font-weight: 700; color: #4A5A63; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 2px">{{g.label}}</span>
+          <div style="background: #FFFFFF; border: 1px solid #EDE7DA; border-radius: 20px; padding: 0 12px">
+            <sc-for list="{{g.items}}" as="n" hint-placeholder-count="3">
+              <a href="{{n.href}}" style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: {{n.bt}}; text-decoration: none; color: #142027">
+                <span style="width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: {{n.tint}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{n.ink}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"/></svg></span>
+                <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.3; min-width: 0">
+                  <span style="display: flex; justify-content: space-between; gap: 8px"><strong style="font-size: 17px">{{n.title}}</strong><span style="font-size: 12px; color: #5E6D75; white-space: nowrap">{{n.time}}</span></span>
+                  <span style="font-size: 15px; color: #4A5A63">{{n.body}}</span>
+                </span>
+                <sc-if value="{{n.unread}}" hint-placeholder-val="{{false}}"><span aria-label="Unread" style="width: 9px; height: 9px; border-radius: 50%; background: #D9483B; margin-top: 6px; flex-shrink: 0"></span></sc-if>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div style="padding: 70px 24px 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px">
+      <dc-import name="Neelu" mood="sleepy" size="200" hint-size="200px,200px"></dc-import>
+      <h2 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 32px">All caught up</h2>
+      <p style="margin: 0; font-size: 18px; color: #4A5A63; line-height: 1.45">Nothing new for now.</p>
+      <a href="Reminders.dc.html" style="margin-top: 10px; height: 48px; padding: 0 20px; border-radius: 24px; border: 1.5px solid #0B4A57; color: #0B4A57; font-size: 15.5px; font-weight: 600; text-decoration: none; display: flex; align-items: center">Reminder settings</a>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["items","empty"],"default":"items"},"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const empty = this.props.state === 'empty';
+    const IC = {
+      meal: { icon: 'M5 11 A7 7 0 0 0 19 11 Z M3 11 H21 M9 7 Q9 5 11 5 M13 6 Q13 4 15 4', tint: '#FBE1DE', ink: '#9A2A20' },
+      water: { icon: 'M12 3 Q19 11 19 15 A7 7 0 0 1 5 15 Q5 11 12 3 Z', tint: '#DDF3F1', ink: '#0F7F78' },
+      badge: { icon: 'M12 3 L20 7.5 V16.5 L12 21 L4 16.5 V7.5 Z M9 12 L11 14 L15 10', tint: '#FFF3DC', ink: '#7A4B05' },
+      streak: { icon: 'M12 3 Q17 9 12 14 Q7 9 12 3 Z M4 15 Q12 24 20 15 Z', tint: '#FDEBC8', ink: '#7A4B05' },
+      report: { icon: 'M5 20 V12 M12 20 V5 M19 20 V9', tint: '#E3F2EF', ink: '#0B4A57' }
+    };
+    const n = function (type, title, body, time, href, unread) { return Object.assign({ title: title, body: body, time: time, href: href, unread: !!unread }, IC[type]); };
+    const groups = [
+      { label: 'Today', items: [
+        n('meal', 'Missed lunch?', 'Log it or mark skipped.', '3:15 PM', 'Home_missed.dc.html', true),
+        n('water', 'Water break', '3 glasses to go.', '12:00 PM', 'Home.dc.html', true),
+        n('badge', 'New badge: Protein Pro', '+50 coins', '9:02 AM', 'Badge.dc.html', false)
+      ] },
+      { label: 'Yesterday', items: [
+        n('streak', 'Streak saved', 'Dinner logged at 10:40 PM.', '10:05 PM', 'Streak.dc.html', false),
+        n('meal', 'Dinner time', 'What are you having?', '9:00 PM', 'AddSheet.dc.html', false),
+        n('report', 'Weekly report', '5 of 7 days on track.', '9:00 AM', 'Insights.dc.html', false)
+      ] }
+    ].map(function (g) { return Object.assign({}, g, { items: g.items.map(function (it, i) { return Object.assign({}, it, { bt: i === 0 ? 'none' : '1px solid #F1ECE1' }); }) }); });
+    return { hasItems: !empty, isEmpty: empty, groups: groups };
+  }
+}
+</script>
+</body>
+</html>

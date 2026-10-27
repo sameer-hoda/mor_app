@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Food portion</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="background: #FFE8DC; padding: 18px 16px 18px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between">
+      <a href="Search_results.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></a>
+      <button type="button" aria-label="Save to Meri thali" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3 H18 V21 L12 16 L6 21 Z"/></svg></button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px">
+      <dc-import name="Food" kind="paneer" size="96" hint-size="96px,96px"></dc-import>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.1; display: flex; gap: 8px; align-items: center">Paneer butter masala</h1>
+        <div style="display: flex; gap: 6px; align-items: center">
+          <svg width="16" height="16" viewBox="0 0 20 20" role="img" aria-label="Veg"><rect x="1" y="1" width="18" height="18" rx="2" fill="#fff" stroke="#1E8A5A" stroke-width="2"/><circle cx="10" cy="10" r="5" fill="#1E8A5A"/></svg>
+          <span style="padding: 2px 8px; border-radius: 10px; background: #FFFFFF; color: #0B4A57; font-size: 12.5px; font-weight: 700">Verified</span>
+          <span style="font-size: 12.5px; color: #5C3A05">Home-style</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 16px 16px 0; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13.5px; font-weight: 600; color: #4A5A63">How much?</span>
+      <div role="radiogroup" aria-label="Unit" style="display: flex; gap: 8px; flex-wrap: wrap">
+        <button type="button" role="radio" aria-checked="true" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid #0B4A57; background: #0B4A57; color: #FFFFFF; font-size: 14px; font-weight: 700">Bowl</button>
+        <button type="button" role="radio" aria-checked="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid #D9D2C2; background: #FFFFFF; color: #142027; font-size: 14px; font-weight: 600">Plate</button>
+        <button type="button" role="radio" aria-checked="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid #D9D2C2; background: #FFFFFF; color: #142027; font-size: 14px; font-weight: 600">Spoon</button>
+        <button type="button" role="radio" aria-checked="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid #D9D2C2; background: #FFFFFF; color: #142027; font-size: 14px; font-weight: 600">Grams</button>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #EDE7DA; border-radius: 18px; padding: 6px">
+        <button type="button" aria-label="Less" onClick="{{less}}" style="width: 52px; height: 52px; border-radius: 14px; border: none; background: #EFE9DC; font-size: 26px; color: #0B4A57; cursor: pointer">−</button>
+        <span aria-live="polite" style="display: flex; flex-direction: column; align-items: center; line-height: 1.05"><strong style="font-family: 'Baloo 2', sans-serif; font-size: 30px">{{qtyLabel}}</strong><span style="font-size: 13px; color: #4A5A63">bowls · {{grams}} g</span></span>
+        <button type="button" aria-label="More" onClick="{{more}}" style="width: 52px; height: 52px; border-radius: 14px; border: none; background: #0B4A57; font-size: 26px; color: #FFFFFF; cursor: pointer">+</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13.5px; font-weight: 600; color: #4A5A63">Oil &amp; ghee</span>
+      <div role="radiogroup" aria-label="Oil level" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: #EFE9DC; border-radius: 16px; padding: 4px; gap: 4px">
+        <sc-for list="{{oils}}" as="o" hint-placeholder-count="4">
+          <button type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: 44px; border: none; border-radius: 12px; font-size: 13.5px; cursor: pointer; background: {{o.bg}}; color: {{o.fg}}; font-weight: {{o.fw}}; box-shadow: {{o.sh}}">{{o.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #EDE7DA; border-radius: 20px; padding: 14px 16px; display: flex; align-items: center; gap: 16px">
+      <span style="display: flex; flex-direction: column; line-height: 1.05"><span style="font-size: 13px; color: #4A5A63; font-weight: 600">Calories</span><strong aria-live="polite" style="font-family: 'Baloo 2', sans-serif; font-size: 36px">{{kcal}}</strong></span>
+      <div style="flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 12.5px">
+        <span style="display: flex; flex-direction: column; gap: 3px"><span style="color: #4A5A63">Carbs</span><strong style="font-size: 15px">{{c}} g</strong><span style="height: 4px; border-radius: 2px; background: #F2A93B"></span></span>
+        <span style="display: flex; flex-direction: column; gap: 3px"><span style="color: #4A5A63">Protein</span><strong style="font-size: 15px">{{p}} g</strong><span style="height: 4px; border-radius: 2px; background: #1F4FB5"></span></span>
+        <span style="display: flex; flex-direction: column; gap: 3px"><span style="color: #4A5A63">Fat</span><strong style="font-size: 15px">{{f}} g</strong><span style="height: 4px; border-radius: 2px; background: #19A39A"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: auto; padding: 0 16px 24px; display: flex; flex-direction: column; gap: 10px">
+    <button type="button" style="height: 44px; border-radius: 14px; border: 1.5px solid #D9D2C2; background: #FFFFFF; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-size: 15px; color: #142027"><span>Add to</span><strong style="display: flex; align-items: center; gap: 6px">Dinner · 9:00 PM<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 9 L12 15 L18 9"/></svg></strong></button>
+    <a href="Search_results.dc.html" style="position: relative; height: 56px; border-radius: 28px; background: #0B4A57; color: #FFFFFF; font-size: 18px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; padding-right: 36px">Add · {{kcal}} kcal
+      <span style="position: absolute; right: 8px; top: 8px; width: 40px; height: 40px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 30px; height: 30px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 22px; height: 22px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5 V19 M5 12 H19"/></svg></span></span></span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const qty = st.qty !== undefined ? st.qty : 1.5;
+    const oil = st.oil || 'normal';
+    const self = this;
+    const mult = { kam: 0.85, normal: 1, zyada: 1.15, rest: 1.3 };
+    const fatMult = { kam: 0.75, normal: 1, zyada: 1.25, rest: 1.5 };
+    const oils = [{ id: 'kam', label: 'Less' }, { id: 'normal', label: 'Normal' }, { id: 'zyada', label: 'More' }, { id: 'rest', label: 'Hotel' }].map(function (o) {
+      const on = o.id === oil;
+      return Object.assign({}, o, { on: on ? 'true' : 'false', bg: on ? '#FFFFFF' : 'transparent', fg: on ? '#0B4A57' : '#4A5A63', fw: on ? 700 : 600, sh: on ? '0 1px 3px rgba(20,32,39,0.15)' : 'none', pick: function () { self.setState({ oil: o.id, qty: qty }); } });
+    });
+    const whole = Math.floor(qty), half = qty - whole >= 0.5;
+    const qtyLabel = (whole > 0 ? String(whole) : '') + (half ? '½' : '') || '0';
+    return {
+      oils: oils,
+      qtyLabel: qtyLabel,
+      grams: Math.round(qty * 150),
+      kcal: Math.round(260 * qty * mult[oil]),
+      c: Math.round(10 * qty), p: Math.round(11 * qty), f: Math.round(18 * qty * fatMult[oil]),
+      less: function () { self.setState({ qty: Math.max(0.5, qty - 0.5), oil: oil }); },
+      more: function () { self.setState({ qty: Math.min(5, qty + 0.5), oil: oil }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

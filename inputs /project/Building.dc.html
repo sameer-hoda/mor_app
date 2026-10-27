@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Building your plan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center">
+  <svg width="360" height="800" viewBox="0 0 360 800" aria-hidden="true" style="position: absolute; left: 0; top: 0">
+    <g fill="none" stroke="#0B4A57" stroke-opacity="0.07" stroke-width="2"><circle cx="180" cy="300" r="150"/><circle cx="180" cy="300" r="210"/></g>
+  </svg>
+  <div style="position: relative; margin-top: 120px">
+    <dc-import name="Neelu" mood="thinking" size="300" hint-size="300px,300px"></dc-import>
+  </div>
+  <h1 style="position: relative; margin: 24px 0 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 34px; line-height: 1.1; text-align: center">Building<br>your plan…</h1>
+  <div role="progressbar" aria-label="Building your plan" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" style="position: relative; margin-top: 26px; width: 260px; height: 10px; border-radius: 5px; background: #E7E1D4">
+    <div style="width: 68%; height: 10px; border-radius: 5px; background: #0B4A57"></div>
+    <svg width="18" height="22" viewBox="0 0 20 26" aria-hidden="true" style="position: absolute; left: calc(68% - 9px); top: -6px"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>
+  </div>
+  <a href="Plan.dc.html" style="position: relative; margin-top: auto; margin-bottom: 32px; font-size: 15px; color: #0B4A57; font-weight: 600">Skip</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

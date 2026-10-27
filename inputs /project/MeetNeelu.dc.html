@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Meet Neelu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #E6F3EF; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <svg width="360" height="800" viewBox="0 0 360 800" aria-hidden="true" style="position: absolute; left: 0; top: 0">
+    <g fill="none" stroke="#0B4A57" stroke-opacity="0.07" stroke-width="2"><circle cx="180" cy="360" r="160"/><circle cx="180" cy="360" r="230"/></g>
+    <ellipse cx="180" cy="528" rx="100" ry="12" fill="#0B4A57" opacity="0.1"/>
+  </svg>
+  <div style="position: relative; padding: 20px 16px 0">
+    <a href="Welcome.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></a>
+  </div>
+  <div style="position: relative; display: flex; justify-content: center; margin-top: 30px">
+    <dc-import name="Neelu" mood="happy" size="320" hint-size="320px,320px"></dc-import>
+  </div>
+  <div style="position: relative; padding: 18px 24px 0; text-align: center">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 40px; line-height: 1.05">Hi, I'm Neelu.</h1>
+    <p style="margin: 8px 0 0; font-size: 19px; color: #2E4A50">I'm happiest when you eat well.</p>
+  </div>
+  <div style="position: relative; margin-top: auto; padding: 0 16px 24px">
+    <a href="Goal.dc.html" style="position: relative; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Let's go
+      <span style="position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 23px; height: 23px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg></span></span></span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

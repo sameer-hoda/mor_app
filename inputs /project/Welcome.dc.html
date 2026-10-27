@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Welcome</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="position: relative; height: 470px">
+    <svg width="360" height="470" viewBox="0 0 360 470" aria-hidden="true" style="position: absolute; left: 0; top: 0">
+      <path d="M40 470 L40 210 Q40 90 180 40 Q320 90 320 210 L320 470 Z" fill="#DDEFEA"/>
+      <path d="M58 470 L58 216 Q58 110 180 64 Q302 110 302 216 L302 470" fill="none" stroke="#0B4A57" stroke-opacity="0.18" stroke-width="2"/>
+      <ellipse cx="180" cy="430" rx="96" ry="12" fill="#0B4A57" opacity="0.1"/>
+    </svg>
+    <div style="position: absolute; left: 30px; top: 140px">
+      <dc-import name="Neelu" mood="happy" size="300" hint-size="300px,300px"></dc-import>
+    </div>
+    <div style="position: absolute; right: 18px; top: 120px; display: flex; align-items: center; gap: 8px; background: #FFFFFF; border-radius: 18px; padding: 8px 14px 8px 8px; box-shadow: 0 8px 20px rgba(20,32,39,0.10)">
+      <dc-import name="Food" kind="thali" size="38" hint-size="38px,38px"></dc-import>
+      <strong style="font-size: 17px">590 kcal</strong>
+    </div>
+  </div>
+
+  <div style="padding: 20px 24px 0">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 38px; line-height: 1.05">Snap your meal.<br>Know your calories.</h1>
+  </div>
+
+  <div style="margin-top: auto; padding: 0 16px 24px; display: flex; flex-direction: column; gap: 12px">
+    <a href="MeetNeelu.dc.html" style="position: relative; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Get started
+      <span style="position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 23px; height: 23px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg></span></span></span>
+    </a>
+    <p style="margin: 0; text-align: center; font-size: 15px; color: #4A5A63">No sign-up needed</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

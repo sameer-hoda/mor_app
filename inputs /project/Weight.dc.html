@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Log weight</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; background: #F8F5EE">
+  <div aria-hidden="true" style="position: absolute; left: 0; top: 0"><dc-import name="Insights" state="filled" hint-size="360px,1040px"></dc-import></div>
+  <a href="Insights.dc.html" aria-label="Close" style="position: absolute; left: 0; top: 0; width: 360px; height: 800px; background: rgba(8, 30, 36, 0.55)"></a>
+  <div style="position: absolute; right: 26px; top: 190px"><dc-import name="Neelu" mood="happy" size="110" crop="head" hint-size="110px,110px"></dc-import></div>
+
+  <section role="dialog" aria-modal="true" aria-labelledby="wTitle" style="position: absolute; left: 0; right: 0; bottom: 0; top: 280px; background: #F8F5EE; border-radius: 28px 28px 0 0; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 10px">
+    <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #D9D2C2"></span>
+    <h1 id="wTitle" style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 32px">Today’s weight</h1>
+    <p style="margin: -6px 0 0; font-size: 17px; color: #4A5A63">Last: 72.1 kg</p>
+    <div style="position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; height: 210px">
+      <div aria-hidden="true" style="position: absolute; left: 8px; right: 8px; top: 72px; height: 66px; border-radius: 18px; background: #FFFFFF; border: 2px solid #0B4A57"></div>
+      <div role="spinbutton" aria-label="Weight in kilograms" aria-valuenow="71.8" style="position: relative; display: flex; flex-direction: column; align-items: flex-end; font-family: 'Baloo 2', sans-serif; font-weight: 700; line-height: 1">
+        <span style="font-size: 22px; color: #B9B3A4; height: 30px">69</span><span style="font-size: 30px; color: #8C8676; height: 42px">70</span><span style="font-size: 54px; height: 70px; padding-top: 6px">71</span><span style="font-size: 30px; color: #8C8676; height: 42px">72</span><span style="font-size: 22px; color: #B9B3A4; height: 30px">73</span>
+      </div>
+      <div aria-hidden="true" style="position: relative; display: flex; flex-direction: column; align-items: flex-start; font-family: 'Baloo 2', sans-serif; font-weight: 700; line-height: 1">
+        <span style="font-size: 22px; color: #B9B3A4; height: 30px">.6</span><span style="font-size: 30px; color: #8C8676; height: 42px">.7</span><span style="font-size: 54px; height: 70px; padding-top: 6px">.8</span><span style="font-size: 30px; color: #8C8676; height: 42px">.9</span><span style="font-size: 22px; color: #B9B3A4; height: 30px">.0</span>
+      </div>
+      <span style="position: relative; font-size: 18px; font-weight: 700; color: #4A5A63">kg</span>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center; background: #DDF1E6; border-radius: 14px; padding: 10px 12px; font-size: 17px; color: #155E3D"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#155E3D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 V20 M6 14 L12 20 L18 14"/></svg><strong>−0.3 kg</strong> since last time</div>
+    <a href="Insights.dc.html" style="margin-top: auto; height: 56px; border-radius: 28px; background: #0B4A57; color: #FFFFFF; font-size: 18px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Save</a>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

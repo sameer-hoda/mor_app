@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Streak</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #FFF3DC; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="display: flex; justify-content: space-between; padding: 18px 16px 0">
+    <a href="Home.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></a>
+    <button type="button" aria-label="Share streak" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15 V4 M7 9 L12 4 L17 9 M5 14 V20 H19 V14"/></svg></button>
+  </div>
+
+  <div style="display: flex; align-items: flex-end; justify-content: center; gap: 0; margin-top: 4px; position: relative; height: 170px">
+    <svg width="130" height="150" viewBox="0 0 130 150" aria-hidden="true">
+      <circle cx="65" cy="62" r="50" fill="#F2A93B" opacity="0.18"/>
+      <path d="M65 8 Q88 44 65 78 Q42 44 65 8 Z" fill="#F2A93B"/>
+      <path d="M65 32 Q76 52 65 72 Q54 52 65 32 Z" fill="#FFD86B"/>
+      <path d="M14 84 Q65 150 116 84 Z" fill="#C4673A"/>
+      <path d="M14 84 L116 84" stroke="#8A4A22" stroke-width="6" stroke-linecap="round"/>
+      <path d="M40 104 Q65 118 90 104" stroke="#F2B544" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div style="margin-left: -20px; margin-bottom: -6px"><dc-import name="Neelu" mood="cool" size="140" hint-size="140px,140px"></dc-import></div>
+  </div>
+
+  <div style="text-align: center; padding: 0 20px">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 56px; line-height: 1">6 days</h1>
+    <p style="margin: 2px 0 0; font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 22px; color: #5C3A05">streak!</p>
+  </div>
+
+  <div style="margin: 14px 16px 0; background: #FFFFFF; border-radius: 22px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <strong style="font-size: 16px">October 2026</strong>
+      <span style="font-size: 13px; color: #4A5A63">Best: 8 days</span>
+    </div>
+    <div role="grid" aria-label="October 2026 streak calendar" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center">
+      <sc-for list="{{heads}}" as="h" hint-placeholder-count="7"><span style="font-size: 11.5px; font-weight: 700; color: #5E6D75; padding-bottom: 2px">{{h}}</span></sc-for>
+      <sc-for list="{{cells}}" as="c" hint-placeholder-count="35">
+        <span aria-label="{{c.aria}}" style="height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: {{c.bg}}; color: {{c.fg}}; border: 2px solid {{c.bd}}">{{c.n}}</span>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin: 10px 16px 0; background: #FFFFFF; border-radius: 20px; padding: 12px 14px; display: flex; align-items: center; gap: 12px">
+    <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.25"><strong style="font-size: 17px">Streak freeze ×2</strong><span style="font-size: 15px; color: #4A5A63">Saves a missed day</span></span>
+    <svg width="34" height="38" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 2 L32 8 V18 Q32 30 17 36 Q2 30 2 18 V8 Z" fill="#E3F2EF" stroke="#0B4A57" stroke-width="2"/><path d="M17 10 Q22 17 17 24 Q12 17 17 10 Z" fill="#F2A93B"/></svg>
+    <svg width="34" height="38" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 2 L32 8 V18 Q32 30 17 36 Q2 30 2 18 V8 Z" fill="#E3F2EF" stroke="#0B4A57" stroke-width="2"/><path d="M17 10 Q22 17 17 24 Q12 17 17 10 Z" fill="#F2A93B"/></svg>
+  </div>
+
+  <div style="margin-top: auto; padding: 0 16px 24px">
+    <a href="Home.dc.html" style="position: relative; height: 56px; border-radius: 28px; background: #0B4A57; color: #FFFFFF; font-size: 18px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Keep it going
+      <span style="position: absolute; right: 8px; top: 8px; width: 40px; height: 40px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 30px; height: 30px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 22px; height: 22px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg></span></span></span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const cells = [];
+    for (let i = 0; i < 3; i++) cells.push({ n: '', aria: '', bg: 'transparent', fg: 'transparent', bd: 'transparent' });
+    for (let d = 1; d <= 31; d++) {
+      const lit = (d >= 8 && d <= 15) || (d >= 22 && d <= 27);
+      const today = d === 27;
+      const future = d > 27;
+      cells.push({
+        n: d,
+        aria: 'October ' + d + (lit ? ', logged' : future ? '' : ', not logged') + (today ? ', today' : ''),
+        bg: lit ? '#F2A93B' : 'transparent',
+        fg: lit ? '#142027' : (future ? '#B9B3A4' : '#5E6D75'),
+        bd: today ? '#0B4A57' : 'transparent'
+      });
+    }
+    while (cells.length % 7) cells.push({ n: '', aria: '', bg: 'transparent', fg: 'transparent', bd: 'transparent' });
+    return { heads: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], cells: cells };
+  }
+}
+</script>
+</body>
+</html>

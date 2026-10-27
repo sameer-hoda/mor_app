@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Profile and settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 960px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden">
+  <div style="background: #0B4A57; color: #FFFFFF; padding: 24px 16px 40px; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden">
+    <svg width="160" height="160" viewBox="0 0 160 160" aria-hidden="true" style="position: absolute; right: -40px; top: -30px; opacity: 0.16"><ellipse cx="80" cy="80" rx="60" ry="76" fill="#3FAE6E"/><ellipse cx="80" cy="76" rx="42" ry="54" fill="#F2B544"/><ellipse cx="80" cy="78" rx="28" ry="36" fill="#19A39A"/><ellipse cx="80" cy="80" rx="16" ry="21" fill="#2D2A6E"/></svg>
+    <span style="width: 72px; height: 72px; border-radius: 50%; background: #0F5D6C; border: 3px solid #F2B544; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><dc-import name="Neelu" mood="cool" size="80" crop="head" hint-size="80px,80px"></dc-import></span>
+    <div style="position: relative; display: flex; flex-direction: column; line-height: 1.15">
+      <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 26px">Guest</h1>
+      <span style="font-size: 16px; color: #BFE0DD">6-day streak · 160 coins</span>
+    </div>
+  </div>
+
+  <div style="margin: -24px 16px 0; position: relative; background: #FFFFFF; border: 1.5px dashed #C9B98F; border-radius: 22px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; gap: 10px; align-items: flex-start">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A4B05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M7 18 A5 5 0 0 1 7 8 A6 6 0 0 1 18 9 A4.5 4.5 0 0 1 17 18 Z M12 11 V16 M10 13 L12 11 L14 13"/></svg>
+      <span style="display: flex; flex-direction: column; line-height: 1.3"><strong style="font-size: 18px">Save your progress</strong><span style="font-size: 15px; color: #4A5A63">Sign-in is coming soon.</span></span>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <button type="button" disabled style="flex: 1; height: 42px; border-radius: 21px; border: none; background: #E3DDD0; color: #5A564D; font-size: 14.5px; font-weight: 700">Sign in · soon</button>
+      <button type="button" style="flex: 1; height: 42px; border-radius: 21px; border: 1.5px solid #0B4A57; background: #FFFFFF; color: #0B4A57; font-size: 14.5px; font-weight: 700">Backup file</button>
+    </div>
+  </div>
+
+  <div style="padding: 16px 16px 110px; display: flex; flex-direction: column; gap: 14px">
+    <sc-for list="{{sections}}" as="s" hint-placeholder-count="4">
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <h2 style="margin: 0; padding: 0 4px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #4A5A63">{{s.title}}</h2>
+        <div style="background: #FFFFFF; border: 1px solid #EDE7DA; border-radius: 20px; padding: 0 14px">
+          <sc-for list="{{s.rows}}" as="r" hint-placeholder-count="3">
+            <a href="{{r.href}}" style="display: flex; align-items: center; gap: 12px; min-height: 54px; border-top: {{r.bt}}; text-decoration: none; color: {{r.color}}">
+              <span style="flex: 1; font-size: 17px; font-weight: 600">{{r.label}}</span>
+              <span style="font-size: 16px; color: #4A5A63; text-align: right">{{r.value}}</span>
+              <sc-if value="{{r.chev}}" hint-placeholder-val="{{true}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8C8676" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5 L16 12 L9 19"/></svg></sc-if>
+              <sc-if value="{{r.toggle}}" hint-placeholder-val="{{false}}"><span role="switch" aria-checked="true" aria-label="{{r.label}}" style="width: 48px; height: 28px; border-radius: 14px; background: #0B4A57; position: relative; flex-shrink: 0"><span style="position: absolute; right: 4px; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: #F2B544"></span></span></sc-if>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+    <p style="margin: 4px 0 0; text-align: center; font-size: 12.5px; color: #5E6D75">Mor v0.1</p>
+  </div>
+
+  <div style="position: absolute; left: 0; bottom: 0">
+    <dc-import name="Nav" active="profile" hint-size="360px,84px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const row = function (label, value, href, opts) {
+      opts = opts || {};
+      return { label: label, value: value || '', href: href || '#', chev: !opts.toggle, toggle: !!opts.toggle, color: opts.danger ? '#B23A2F' : '#142027' };
+    };
+    const sec = function (title, rows) { return { title: title, rows: rows.map(function (r, i) { return Object.assign({}, r, { bt: i === 0 ? 'none' : '1px solid #F1ECE1' }); }) }; };
+    return {
+      sections: [
+        sec('Plan', [row('Goal', '72 → 66 kg', 'Target.dc.html'), row('Daily target', '1,850 kcal', 'Plan.dc.html'), row('Diet', 'Vegetarian', 'Diet.dc.html')]),
+        sec('App', [row('Reminders', '4 on', 'Reminders.dc.html'), row('Units', 'kg · ft', '#'), row('Steps (Health Connect)', '', '#', { toggle: true })]),
+        sec('Data', [row('Export data', '', '#'), row('Delete all data', '', '#', { danger: true })])
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

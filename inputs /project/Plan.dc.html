@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your plan is ready</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #E6F3EF; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center">
+  <svg width="360" height="300" viewBox="0 0 360 300" aria-hidden="true" style="position: absolute; left: 0; top: 0">
+    <ellipse cx="40" cy="60" rx="7" ry="4" fill="#F2A93B" transform="rotate(30 40 60)"/><ellipse cx="318" cy="48" rx="7" ry="4" fill="#E8752A" transform="rotate(-20 318 48)"/>
+    <ellipse cx="300" cy="200" rx="6" ry="3.5" fill="#F2A93B" transform="rotate(60 300 200)"/><ellipse cx="58" cy="230" rx="6" ry="3.5" fill="#E8752A" transform="rotate(-40 58 230)"/>
+    <ellipse cx="210" cy="24" rx="5" ry="3" fill="#19A39A"/><ellipse cx="120" cy="30" rx="4" ry="2.5" fill="#1F4FB5" transform="rotate(70 120 30)"/>
+  </svg>
+  <div style="position: relative; margin-top: 40px"><dc-import name="Neelu" mood="joy" size="230" hint-size="230px,230px"></dc-import></div>
+  <p style="position: relative; margin: 10px 0 0; font-size: 18px; font-weight: 600; color: #2E4A50">Your daily target</p>
+  <p style="position: relative; margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 76px; line-height: 1">1,850</p>
+  <p style="position: relative; margin: 0; font-size: 20px; font-weight: 600; color: #4A5A63">kcal</p>
+
+  <div style="position: relative; display: flex; gap: 8px; margin-top: 22px">
+    <span style="display: flex; flex-direction: column; align-items: center; background: #FFFFFF; border-radius: 16px; padding: 8px 16px"><strong style="font-size: 20px">75 g</strong><span style="font-size: 14px; color: #4A5A63; display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F4FB5"></span>Protein</span></span>
+    <span style="display: flex; flex-direction: column; align-items: center; background: #FFFFFF; border-radius: 16px; padding: 8px 16px"><strong style="font-size: 20px">250 g</strong><span style="font-size: 14px; color: #4A5A63; display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #F2A93B"></span>Carbs</span></span>
+    <span style="display: flex; flex-direction: column; align-items: center; background: #FFFFFF; border-radius: 16px; padding: 8px 16px"><strong style="font-size: 20px">60 g</strong><span style="font-size: 14px; color: #4A5A63; display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #19A39A"></span>Fat</span></span>
+  </div>
+  <p style="position: relative; margin: 20px 0 0; font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 8px"><svg width="16" height="20" viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>66 kg by 19 Jan</p>
+
+  <div style="position: relative; margin-top: auto; padding: 0 16px 24px; width: 100%">
+    <a href="Notify.dc.html" style="position: relative; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Start
+      <span style="position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 23px; height: 23px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg></span></span></span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

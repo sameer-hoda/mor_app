@@ -1,0 +1,19 @@
+{
+  "name": "mor_app",
+  "version": "1.0.0",
+  "description": "Mobile-format web app (360×800) with a local backend. Scan food photos with the camera; a Gemini model on the **server** returns a strict CSV that is parsed, corrected for oil level, and logged. All user data lives in the backend (SQLite).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
+}

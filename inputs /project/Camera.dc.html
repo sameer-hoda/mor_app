@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Thali scanner</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #0A0F12; font-family: 'Mukta', sans-serif; color: #FFFFFF; position: relative; overflow: hidden">
+  <sc-if value="{{live}}" hint-placeholder-val="{{true}}">
+    <div aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 360px; height: 800px; background: #3B2B21">
+      <svg width="360" height="800" viewBox="0 0 360 800" style="position: absolute; left: 0; top: 0"><g stroke="#4A372A" stroke-width="2" fill="none"><path d="M0 120 Q180 140 360 110"/><path d="M0 260 Q180 280 360 250"/><path d="M0 560 Q180 585 360 550"/><path d="M0 690 Q180 710 360 680"/></g><ellipse cx="180" cy="350" rx="170" ry="160" fill="#000000" opacity="0.18"/></svg>
+      <div style="position: absolute; left: 40px; top: 210px"><dc-import name="Food" kind="thali" size="280" hint-size="280px,280px"></dc-import></div>
+      <div style="position: absolute; left: 268px; top: 190px; transform: rotate(-10deg)"><dc-import name="Food" kind="chai" size="70" hint-size="70px,70px"></dc-import></div>
+    </div>
+    <svg width="312" height="312" viewBox="0 0 312 312" aria-hidden="true" style="position: absolute; left: 24px; top: 194px">
+      <path d="M2 50 V14 Q2 2 14 2 H50 M262 2 H298 Q310 2 310 14 V50 M310 262 V298 Q310 310 298 310 H262 M50 310 H14 Q2 310 2 298 V262" stroke="#F2B544" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div style="position: absolute; left: 0; right: 0; top: 524px; display: flex; justify-content: center">
+      <span style="display: flex; align-items: center; gap: 8px; background: rgba(10, 15, 18, 0.72); border-radius: 22px; padding: 6px 16px 6px 6px; font-size: 17px; font-weight: 600">
+        <span style="width: 30px; height: 30px; border-radius: 50%; background: #0B4A57; overflow: hidden; display: flex; align-items: center; justify-content: center"><dc-import name="Neelu" mood="cool" size="36" crop="head" hint-size="36px,36px"></dc-import></span>
+        Fit the whole plate
+      </span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{denied}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; left: 20px; right: 20px; top: 150px; background: #142027; border-radius: 28px; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px">
+      <dc-import name="Neelu" mood="hungry" size="150" hint-size="150px,150px"></dc-import>
+      <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.1">Camera access needed</h1>
+      <p style="margin: 0; font-size: 17px; color: #C3D1D4; line-height: 1.45">Neelu needs to see your food.</p>
+      <button type="button" style="margin-top: 8px; width: 100%; height: 52px; border-radius: 26px; border: none; background: #F2B544; color: #142027; font-size: 17px; font-weight: 700">Open settings</button>
+      <a href="Search.dc.html" style="width: 100%; height: 48px; border-radius: 24px; border: 1.5px solid #3E5560; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Search food instead</a>
+    </div>
+  </sc-if>
+
+  <div style="position: absolute; left: 16px; right: 16px; top: 18px; display: flex; align-items: center; justify-content: space-between">
+    <a href="AddSheet.dc.html" aria-label="Close scanner" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></a>
+    <div role="tablist" aria-label="Scan mode" style="display: flex; background: rgba(10,15,18,0.6); border-radius: 20px; padding: 3px">
+      <button type="button" role="tab" aria-selected="true" style="height: 34px; padding: 0 14px; border: none; border-radius: 17px; background: #FFFFFF; color: #142027; font-size: 14px; font-weight: 700">Meal</button>
+      <button type="button" role="tab" aria-selected="false" style="height: 34px; padding: 0 12px; border: none; border-radius: 17px; background: transparent; color: #E5ECEE; font-size: 14px; font-weight: 600">Label</button>
+      <button type="button" role="tab" aria-selected="false" style="height: 34px; padding: 0 12px; border: none; border-radius: 17px; background: transparent; color: #E5ECEE; font-size: 14px; font-weight: 600">Barcode</button>
+    </div>
+    <button type="button" aria-label="Flash off" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 L5 13 H12 L11 21 L19 11 H12 Z M3 3 L21 21"/></svg></button>
+  </div>
+
+  <sc-if value="{{live}}" hint-placeholder-val="{{true}}">
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 170px; background: #0A0F12; display: flex; align-items: center; justify-content: space-around; padding: 0 24px 24px">
+      <a href="Scanning.dc.html" aria-label="Pick from gallery" style="width: 52px; height: 52px; border-radius: 14px; background: #2A3A40; border: 2px solid #FFFFFF; overflow: hidden; display: flex; align-items: center; justify-content: center"><dc-import name="Food" kind="dosa" size="48" hint-size="48px,48px"></dc-import></a>
+      <a href="Scanning.dc.html" aria-label="Take photo" style="width: 84px; height: 84px; border-radius: 50%; border: 4px solid #FFFFFF; display: flex; align-items: center; justify-content: center">
+        <span style="width: 66px; height: 66px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 50px; height: 50px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 30px; height: 30px; border-radius: 50%; background: #2D2A6E"></span></span></span>
+      </a>
+      <a href="Search.dc.html" aria-label="Search instead" style="width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16 L20 20"/></svg></a>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["live","denied"],"default":"live"},"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { const d = this.props.state === 'denied'; return { live: !d, denied: d }; }
+}
+</script>
+</body>
+</html>

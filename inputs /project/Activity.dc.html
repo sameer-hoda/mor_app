@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Activity level</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 20px 16px 0">
+    <a href="Target.dc.html" aria-label="Back" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></a>
+    <div role="progressbar" aria-label="Step 5 of 6" aria-valuenow="5" aria-valuemin="0" aria-valuemax="6" style="flex: 1; height: 8px; border-radius: 4px; background: #E7E1D4; position: relative">
+      <div style="width: 83.3%; height: 8px; border-radius: 4px; background: #0B4A57"></div>
+      <svg width="16" height="20" viewBox="0 0 20 26" aria-hidden="true" style="position: absolute; left: calc(83.3% - 8px); top: -6px"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>
+    </div>
+  </div>
+
+  <div style="padding: 24px 20px 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 36px; line-height: 1.05">How active<br>are you?</h1>
+    <div style="flex-shrink: 0; margin-right: -10px"><dc-import name="Neelu" mood="cool" size="92" crop="head" hint-size="92px,92px"></dc-import></div>
+  </div>
+
+  <div role="radiogroup" aria-label="Activity level" style="display: flex; flex-direction: column; gap: 12px; padding: 24px 16px 0">
+    <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
+      <button type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="display: flex; align-items: center; gap: 16px; min-height: 72px; padding: 12px 18px; border-radius: 20px; text-align: left; color: #142027; cursor: pointer; background: {{o.bg}}; border: 2px solid {{o.bd}}">
+        <svg width="32" height="28" viewBox="0 0 30 26" aria-hidden="true" style="flex-shrink: 0"><rect x="1" y="18" width="5" height="7" rx="1.5" fill="{{o.b1}}"/><rect x="9" y="12" width="5" height="13" rx="1.5" fill="{{o.b2}}"/><rect x="17" y="6" width="5" height="19" rx="1.5" fill="{{o.b3}}"/><rect x="25" y="0" width="5" height="25" rx="1.5" fill="{{o.b4}}"/></svg>
+        <strong style="flex: 1; font-size: 19px; font-weight: 600">{{o.title}}</strong>
+        <sc-if value="{{o.sel}}" hint-placeholder-val="{{false}}">
+          <svg width="22" height="28" viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>
+        </sc-if>
+        <sc-if value="{{o.unsel}}" hint-placeholder-val="{{true}}">
+          <span style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CFC8B8; flex-shrink: 0"></span>
+        </sc-if>
+      </button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top: auto; padding: 0 16px 24px">
+    <a href="MealTimes.dc.html" style="position: relative; height: 60px; border-radius: 30px; background: #0B4A57; color: #FFFFFF; font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Next
+      <span style="position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #19A39A; display: flex; align-items: center; justify-content: center"><span style="width: 23px; height: 23px; border-radius: 50%; background: #2D2A6E; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg></span></span></span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sel = (this.state || {}).sel || 'light';
+    const self = this;
+    const opts = [
+      { id: 'sit', n: 1, title: 'Mostly sitting' },
+      { id: 'light', n: 2, title: 'Lightly active' },
+      { id: 'active', n: 3, title: 'Active' },
+      { id: 'very', n: 4, title: 'Very active' }
+    ].map(function (o) {
+      const on = o.id === sel;
+      const fill = function (i) { return i <= o.n ? '#0B4A57' : '#E3DDD0'; };
+      return Object.assign({}, o, { on: on ? 'true' : 'false', sel: on, unsel: !on, bg: on ? '#E3F2EF' : '#FFFFFF', bd: on ? '#0B4A57' : '#FFFFFF', b1: fill(1), b2: fill(2), b3: fill(3), b4: fill(4), pick: function () { self.setState({ sel: o.id }); } });
+    });
+    return { opts: opts };
+  }
+}
+</script>
+</body>
+</html>

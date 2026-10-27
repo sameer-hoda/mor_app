@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search food</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}button,input{font-family:inherit}</style>
+</helmet>
+<div style="width: 360px; height: 800px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 10px; padding: 18px 16px 0">
+    <a href="AddSheet.dc.html" aria-label="Close" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: #FFFFFF; border: 1px solid #E7E1D4; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142027" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></a>
+    <div style="flex: 1; position: relative">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6D75" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 14px; top: 15px"><circle cx="11" cy="11" r="6"/><path d="M16 16 L20 20"/></svg>
+      <input type="search" aria-label="Search food" placeholder="Search food" value="{{q}}" style="width: 100%; height: 48px; border-radius: 24px; border: 2px solid {{inputBd}}; background: #FFFFFF; padding: 0 48px 0 40px; font-size: 16px; color: #142027">
+      <a href="Search_voice.dc.html" aria-label="Search by voice" style="position: absolute; right: 4px; top: 4px; width: 40px; height: 40px; border-radius: 50%; background: #E3F2EF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B4A57" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11 A7 7 0 0 0 19 11 M12 18 V21"/></svg></a>
+    </div>
+  </div>
+
+  <div role="tablist" aria-label="Food lists" style="display: flex; gap: 8px; padding: 14px 16px 0">
+    <button type="button" role="tab" aria-selected="true" style="height: 36px; padding: 0 14px; border-radius: 18px; border: none; background: #0B4A57; color: #FFFFFF; font-size: 14px; font-weight: 700">{{tab1}}</button>
+    <button type="button" role="tab" aria-selected="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid #D9D2C2; background: #FFFFFF; color: #142027; font-size: 14px; font-weight: 600">Saved</button>
+    <button type="button" role="tab" aria-selected="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid #D9D2C2; background: #FFFFFF; color: #142027; font-size: 14px; font-weight: 600">Restaurant</button>
+  </div>
+
+  <sc-if value="{{hasList}}" hint-placeholder-val="{{true}}">
+    <div style="padding: 10px 16px 0">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 4px 2px 6px"><span style="font-size: 13.5px; font-weight: 700; color: #4A5A63">{{listTitle}}</span><span style="font-size: 13px; color: #0B4A57; font-weight: 600">{{listAction}}</span></div>
+      <div style="background: #FFFFFF; border: 1px solid #EDE7DA; border-radius: 20px; padding: 0 12px">
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 62px; border-top: {{r.bt}}">
+            <dc-import name="Food" kind="{{r.k}}" size="40" hint-size="40px,40px"></dc-import>
+            <a href="FoodItem.dc.html" style="flex: 1; display: flex; flex-direction: column; line-height: 1.25; text-decoration: none; color: #142027; min-width: 0">
+              <span style="display: flex; align-items: center; gap: 6px; font-size: 15.5px; font-weight: 700"><svg width="12" height="12" viewBox="0 0 20 20" aria-label="Veg" role="img"><rect x="1" y="1" width="18" height="18" rx="2" fill="#fff" stroke="#1E8A5A" stroke-width="2.4"/><circle cx="10" cy="10" r="5" fill="#1E8A5A"/></svg>{{r.name}}</span>
+              <span style="font-size: 13px; color: #4A5A63">{{r.portion}} · {{r.kcal}} kcal</span>
+            </a>
+            <button type="button" aria-label="{{r.addLabel}}" style="width: 40px; height: 40px; border-radius: 50%; border: none; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{r.btnBg}}">
+              <sc-if value="{{r.added}}" hint-placeholder-val="{{false}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F2B544" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12 L10 17 L19 7"/></svg></sc-if>
+              <sc-if value="{{r.notAdded}}" hint-placeholder-val="{{true}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B4A57" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5 V19 M5 12 H19"/></svg></sc-if>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+
+  <sc-if value="{{isResults}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -8px 24px rgba(20,32,39,0.10); padding: 14px 16px 22px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <dc-import name="Food" kind="paneer" size="36" hint-size="36px,36px"></dc-import>
+        <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.2"><strong style="font-size: 15px">Dinner · 1 item</strong><span style="font-size: 13px; color: #4A5A63">Paneer tikka, 6 pcs</span></span>
+        <span style="font-size: 13px; padding: 2px 8px; border-radius: 10px; background: #EFE9DC; font-weight: 700">×1</span>
+      </div>
+      <a href="Logged.dc.html" style="height: 54px; border-radius: 27px; background: #0B4A57; color: #FFFFFF; font-size: 17px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Log <span style="opacity: 0.75; margin-left: 6px">260 kcal</span></a>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isNone}}" hint-placeholder-val="{{false}}">
+    <div style="padding: 20px 20px 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px">
+      <dc-import name="Neelu" mood="thinking" size="150" hint-size="150px,150px"></dc-import>
+      <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.1">No match for “grandma’s halwa”</h1>
+      <p style="margin: 0; font-size: 18px; color: #4A5A63; line-height: 1.4">Tell Neelu what’s in it.</p>
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 10px">
+        <button type="button" style="height: 54px; border-radius: 27px; border: none; background: #0B4A57; color: #FFFFFF; font-size: 16.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L13.8 9 L21 11 L13.8 13 L12 20 L10.2 13 L3 11 L10.2 9 Z" fill="#F2B544"/></svg>Estimate with Neelu</button>
+        <button type="button" style="height: 50px; border-radius: 25px; border: 1.5px solid #0B4A57; background: #FFFFFF; color: #0B4A57; font-size: 16px; font-weight: 600">Create custom food</button>
+        <a href="Camera.dc.html" style="height: 46px; display: flex; align-items: center; justify-content: center; color: #0B4A57; font-size: 15px; font-weight: 600">Scan the dish instead</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isVoice}}" hint-placeholder-val="{{false}}">
+    <div aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 360px; height: 800px; background: rgba(8, 30, 36, 0.5)"></div>
+    <section role="dialog" aria-modal="true" aria-label="Voice logging" style="position: absolute; left: 0; right: 0; bottom: 0; top: 240px; background: #0B4A57; color: #FFFFFF; border-radius: 28px 28px 0 0; padding: 18px 20px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+      <span style="display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 14px; background: rgba(255,255,255,0.12); font-size: 13.5px; font-weight: 600">English<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 9 L12 15 L18 9"/></svg></span>
+      <div style="width: 120px; height: 120px; border-radius: 50%; background: rgba(242,181,68,0.18); display: flex; align-items: center; justify-content: center; border: 3px solid #F2B544">
+        <dc-import name="Neelu" mood="happy" size="112" crop="head" hint-size="112px,112px"></dc-import>
+      </div>
+      <strong style="font-size: 14px; color: #F2B544; letter-spacing: 0.06em; text-transform: uppercase">Listening…</strong>
+      <p aria-live="polite" style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 23px; line-height: 1.3">“Two rotis, a bowl of dal and some bhindi<span style="opacity: 0.5">…</span>”</p>
+      <div aria-hidden="true" style="display: flex; align-items: center; gap: 4px; height: 40px">
+        <span style="width: 5px; height: 12px; border-radius: 3px; background: #19A39A"></span><span style="width: 5px; height: 24px; border-radius: 3px; background: #19A39A"></span><span style="width: 5px; height: 36px; border-radius: 3px; background: #F2B544"></span><span style="width: 5px; height: 20px; border-radius: 3px; background: #19A39A"></span><span style="width: 5px; height: 30px; border-radius: 3px; background: #F2B544"></span><span style="width: 5px; height: 14px; border-radius: 3px; background: #19A39A"></span><span style="width: 5px; height: 26px; border-radius: 3px; background: #19A39A"></span><span style="width: 5px; height: 10px; border-radius: 3px; background: #19A39A"></span>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center">
+        <span style="padding: 4px 12px; border-radius: 14px; background: #FFFFFF; color: #142027; font-size: 13.5px; font-weight: 700">Roti ×2</span>
+        <span style="padding: 4px 12px; border-radius: 14px; background: #FFFFFF; color: #142027; font-size: 13.5px; font-weight: 700">Dal · 1 bowl</span>
+        <span style="padding: 4px 12px; border-radius: 14px; border: 1.5px dashed #BFE0DD; color: #DCEFEC; font-size: 13.5px; font-weight: 600">Bhindi…</span>
+      </div>
+      <a href="Result.dc.html" aria-label="Stop and review" style="margin-top: auto; width: 76px; height: 76px; border-radius: 50%; background: #F2B544; display: flex; align-items: center; justify-content: center"><span style="width: 26px; height: 26px; border-radius: 6px; background: #142027"></span></a>
+    </section>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["recent","results","none","voice"],"default":"recent"},"$preview":{"width":360,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state || 'recent';
+    const mk = function (list, addedIdx) {
+      return list.map(function (r, i) {
+        const added = i === addedIdx;
+        return Object.assign({}, r, { bt: i === 0 ? 'none' : '1px solid #F1ECE1', added: added, notAdded: !added, btnBg: added ? '#0B4A57' : '#E3F2EF', addLabel: (added ? 'Added ' : 'Add ') + r.name });
+      });
+    };
+    const recent = mk([
+      { k: 'chai', name: 'Masala chai', portion: '1 cup', kcal: 70 },
+      { k: 'poha', name: 'Poha', portion: '1 plate', kcal: 250 },
+      { k: 'idli', name: 'Idli sambar', portion: '2 idli', kcal: 220 },
+      { k: 'dal', name: 'Dal tadka', portion: '1 bowl', kcal: 150 },
+      { k: 'fruit', name: 'Banana', portion: '1 medium', kcal: 105 }
+    ], -1);
+    const results = mk([
+      { k: 'paneer', name: 'Paneer butter masala', portion: '1 bowl', kcal: 320 },
+      { k: 'paneer', name: 'Paneer tikka', portion: '6 pcs', kcal: 260 },
+      { k: 'curd', name: 'Palak paneer', portion: '1 bowl', kcal: 240 },
+      { k: 'paratha', name: 'Paneer paratha', portion: '1 pc', kcal: 290 },
+      { k: 'sprouts', name: 'Paneer bhurji', portion: '1 bowl', kcal: 280 }
+    ], 1);
+    return {
+      q: s === 'results' ? 'paneer' : (s === 'none' ? 'grandma’s halwa' : ''),
+      inputBd: (s === 'results' || s === 'none') ? '#0B4A57' : '#E7E1D4',
+      tab1: s === 'results' || s === 'none' ? 'All results' : 'Recent',
+      hasList: s === 'recent' || s === 'results' || s === 'voice',
+      listTitle: s === 'results' ? 'Results' : 'Recent',
+      listAction: s === 'results' ? 'Filter' : 'Clear',
+      rows: s === 'results' ? results : recent,
+      isRecent: s === 'recent', isResults: s === 'results', isNone: s === 'none', isVoice: s === 'voice'
+    };
+  }
+}
+</script>
+</body>
+</html>

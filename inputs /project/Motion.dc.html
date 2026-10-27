@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Neelu motion library</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width: 1520px; height: 1180px; background: #F8F5EE; font-family: 'Mukta', sans-serif; color: #142027; padding: 48px; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 40px">
+    <div>
+      <p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #5E6D75">Mascot · animation slots</p>
+      <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 46px; line-height: 1.05">Neelu motion library</h1>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; flex: 1; max-width: 860px">
+      <div style="background: #FFFFFF; border: 1px solid #E7E1D4; border-radius: 16px; padding: 12px 14px"><span style="font-size: 12px; color: #5E6D75; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Format</span><br><strong style="font-size: 15px">Animated WebP + alpha</strong><br><span style="font-size: 13px; color: #4A5A63">PNG poster fallback</span></div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E1D4; border-radius: 16px; padding: 12px 14px"><span style="font-size: 12px; color: #5E6D75; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Canvas</span><br><strong style="font-size: 15px">512 × 512 px</strong><br><span style="font-size: 13px; color: #4A5A63">Transparent, centred</span></div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E1D4; border-radius: 16px; padding: 12px 14px"><span style="font-size: 12px; color: #5E6D75; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Length</span><br><strong style="font-size: 15px">Loops 2–3 s</strong><br><span style="font-size: 13px; color: #4A5A63">One-shots ≤ 2 s</span></div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E1D4; border-radius: 16px; padding: 12px 14px"><span style="font-size: 12px; color: #5E6D75; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Playback</span><br><strong style="font-size: 15px">24 fps · muted</strong><br><span style="font-size: 13px; color: #4A5A63">Respect reduce-motion</span></div>
+    </div>
+  </div>
+
+  <div style="background: #0B4A57; color: #FFFFFF; border-radius: 20px; padding: 18px 22px; display: flex; gap: 20px; align-items: flex-start">
+    <span style="flex-shrink: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #F2B544; padding-top: 3px">Gemini prompt</span>
+    <p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; color: #E4F2EF">Chibi peacock mascot "Neelu": round cobalt-blue head and body, three teal crest plumes with gold tips, big glossy black eyes, small golden beak, fanned green tail with gold-teal-indigo feather eyes. Flat vector style, soft shading. Transparent background, static camera, mascot centred. Action: <span style="color: #F2B544">{action}</span>. <span style="color: #F2B544">{seamless loop | one-shot}</span>, <span style="color: #F2B544">{seconds}</span> s.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; flex: 1">
+    <sc-for list="{{slots}}" as="s" hint-placeholder-count="15">
+      <div style="background: #FFFFFF; border: 1px solid #E7E1D4; border-radius: 22px; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px">
+        <div style="position: relative; height: 128px; border-radius: 16px; background: #EAF5F1; display: flex; align-items: center; justify-content: center; overflow: hidden">
+          <dc-import name="Neelu" mood="{{s.mood}}" size="124" hint-size="124px,124px"></dc-import>
+          <span style="position: absolute; right: 8px; top: 8px; padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 700; background: {{s.badgeBg}}; color: {{s.badgeFg}}">{{s.mode}}</span>
+        </div>
+        <strong style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500; margin-top: 4px">{{s.id}}</strong>
+        <span style="font-size: 14px; line-height: 1.3">{{s.action}}</span>
+        <span style="font-size: 12.5px; color: #5E6D75; line-height: 1.3; margin-top: auto">{{s.where}}</span>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1520,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = function (id, mood, action, where, mode) {
+      const loop = mode.indexOf('Loop') === 0;
+      return { id: id, mood: mood, action: action, where: where, mode: mode, badgeBg: loop ? '#D3EBE6' : '#FDEBC8', badgeFg: loop ? '#0B4A57' : '#7A4B05' };
+    };
+    return {
+      slots: [
+        s('fan_reveal', 'cool', 'Tail fans open, shades slide down', 'Splash', 'Once · 1.5 s'),
+        s('wave_hello', 'happy', 'Waves a wing, little hop', 'Welcome · Meet Neelu · Home first day', 'Once · 1.5 s'),
+        s('idle_breathe', 'happy', 'Breathes, blinks, crest sways', 'Home default · widget', 'Loop · 3 s'),
+        s('idle_bob', 'happy', 'Small head bob, curious look', 'Onboarding questions · weight sheet', 'Loop · 2 s'),
+        s('peek_sheet', 'happy', 'Pops up over the sheet edge', 'Log-a-meal sheet', 'Once · 1 s'),
+        s('think_scan', 'thinking', 'Taps beak, eyes dart left-right', 'Analysing · building plan · empty insights', 'Loop · 2 s'),
+        s('happy_hop', 'love', 'Hearts pop, double hop', 'Meal logged', 'Once · 1.5 s'),
+        s('dance_celebrate', 'joy', 'Fan shimmy with sparkles', 'Goal reached · plan ready · badge', 'Once · 2 s'),
+        s('hungry_tummy', 'hungry', 'Rubs tummy, looks up pleading', 'Missed meal (home + push)', 'Loop · 2 s'),
+        s('shrug_okay', 'thinking', 'Shrugs, then a small smile', 'Over goal', 'Once · 1.5 s'),
+        s('sleep_zzz', 'sleepy', 'Dozes off, Zs float up', 'Night summary · empty inbox', 'Loop · 3 s'),
+        s('sad_droop', 'hungry', 'Crest droops, then perks up', 'Scan failed · camera denied', 'Loop · 2 s'),
+        s('listen_ear', 'happy', 'Leans in, nods along', 'Voice logging', 'Loop · 2 s'),
+        s('shades_flip', 'cool', 'Flips sunglasses on', 'Streak · profile', 'Once · 1.2 s'),
+        s('ring_bell', 'happy', 'Rings a small brass bell', 'Reminder permission', 'Loop · 2 s')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

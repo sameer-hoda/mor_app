@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Challenges</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Mukta:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width: 360px; height: 940px; background: #0B4A57; font-family: 'Mukta', sans-serif; color: #142027; position: relative; overflow: hidden">
+  <svg width="360" height="150" viewBox="0 0 360 150" aria-hidden="true" style="position: absolute; left: 0; top: 0"><g opacity="0.16"><ellipse cx="320" cy="40" rx="40" ry="52" fill="#3FAE6E"/><ellipse cx="320" cy="38" rx="28" ry="36" fill="#F2B544"/><ellipse cx="320" cy="39" rx="18" ry="24" fill="#19A39A"/><ellipse cx="320" cy="40" rx="10" ry="14" fill="#2D2A6E"/></g></svg>
+  <div style="position: relative; padding: 24px 16px 18px; display: flex; align-items: center; justify-content: space-between">
+    <h1 style="margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; color: #FFFFFF">Challenges</h1>
+    <span style="display: flex; align-items: center; gap: 6px; background: #FFFFFF; border-radius: 18px; padding: 6px 12px; font-size: 15px; font-weight: 800"><svg width="14" height="18" viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></svg>160 coins</span>
+  </div>
+
+  <div style="position: relative; background: #F8F5EE; border-radius: 28px 28px 0 0; padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 14px; min-height: 840px">
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+      <section style="background: #FFFFFF; border: 1px solid #EDE7DA; border-radius: 22px; padding: 6px 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0 4px">
+          <span style="font-size: 14px; font-weight: 700; color: #4A5A63">{{g.title}} <span style="font-size: 12px; padding: 1px 7px; border-radius: 8px; background: #EFE9DC; margin-left: 4px">{{g.count}}</span></span>
+          <span style="font-size: 13px; color: #4A5A63">{{g.reset}}</span>
+        </div>
+        <sc-for list="{{g.items}}" as="c" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 76px; border-top: 1px solid #F1ECE1">
+            <svg width="48" height="54" viewBox="0 0 48 54" aria-hidden="true" style="flex-shrink: 0">
+              <path d="M24 2 L45 14 V40 L24 52 L3 40 V14 Z" fill="{{c.hexFill}}" stroke="{{c.hexStroke}}" stroke-width="2.5"/>
+              <path d="{{c.icon}}" fill="none" stroke="{{c.iconInk}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+              <strong style="font-size: 18px; line-height: 1.15">{{c.name}}</strong>
+              <span style="font-size: 15px; color: #4A5A63; line-height: 1.2">{{c.desc}}</span>
+              <sc-if value="{{c.inProgress}}" hint-placeholder-val="{{true}}">
+                <span style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; height: 8px; border-radius: 4px; background: #F3EEE3"><span style="display: block; height: 8px; border-radius: 4px; background: #F2A93B; width: {{c.pct}}"></span></span><span style="font-size: 12px; font-weight: 700; color: #4A5A63">{{c.prog}}</span></span>
+              </sc-if>
+            </span>
+            <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0">
+              <sc-if value="{{c.done}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 700; color: #155E3D; background: #DDF1E6; padding: 2px 8px; border-radius: 8px">Done</span></sc-if>
+              <span style="font-size: 13.5px; font-weight: 800; color: #5C3A05">+{{c.coins}}</span>
+            </span>
+          </div>
+        </sc-for>
+      </section>
+    </sc-for>
+    <a href="Badge.dc.html" style="display: flex; align-items: center; gap: 12px; background: #FFF3DC; border: 1px solid #F2D9A6; border-radius: 20px; padding: 12px 14px; text-decoration: none; color: #142027">
+      <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.25"><strong style="font-size: 18px">Badges</strong><span style="font-size: 15px; color: #5C3A05">7 unlocked</span></span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5C3A05" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5 L16 12 L9 19"/></svg>
+    </a>
+  </div>
+
+  <div style="position: absolute; left: 0; bottom: 0">
+    <dc-import name="Nav" active="challenges" hint-size="360px,84px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":940}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const I = {
+      plate: 'M14 27 A10 10 0 0 0 34 27 Z M12 27 H36',
+      three: 'M15 22 V34 M24 18 V34 M33 22 V34',
+      protein: 'M14 27 H34 M16 22 V32 M32 22 V32 M12 24 V30 M36 24 V30',
+      drop: 'M24 15 Q32 25 32 29 A8 8 0 0 1 16 29 Q16 25 24 15 Z',
+      cup: 'M16 20 H30 L28 34 H18 Z M30 23 Q35 23 35 27 Q35 31 29 31',
+      home: 'M14 27 L24 18 L34 27 V35 H14 Z',
+      moon: 'M28 17 A10 10 0 1 0 31 33 A8 8 0 1 1 28 17 Z',
+      lamp: 'M24 15 Q29 22 24 27 Q19 22 24 15 Z M14 29 Q24 39 34 29 Z'
+    };
+    const mk = function (o) {
+      const done = o.p >= o.t;
+      return Object.assign({}, o, {
+        done: done, inProgress: !done,
+        prog: o.p + ' / ' + o.t, pct: Math.round(o.p / o.t * 100) + '%',
+        hexFill: done ? '#F2B544' : '#F8F5EE', hexStroke: done ? '#C98A1E' : '#D9D2C2', iconInk: done ? '#142027' : '#8C8676'
+      });
+    };
+    return {
+      groups: [
+        { title: 'Today', count: '2/4', reset: '7h left', items: [
+          mk({ name: 'First bite', desc: 'Log a meal', p: 1, t: 1, coins: 10, icon: I.plate }),
+          mk({ name: 'Three meals', desc: 'Log 3 meals', p: 3, t: 3, coins: 15, icon: I.three }),
+          mk({ name: 'Protein 60', desc: 'Eat 60 g protein', p: 31, t: 60, coins: 20, icon: I.protein }),
+          mk({ name: 'Hydrate', desc: 'Drink 8 glasses', p: 5, t: 8, coins: 10, icon: I.drop })
+        ] },
+        { title: 'This week', count: '0/4', reset: '4 days left', items: [
+          mk({ name: 'Less sugar', desc: 'Max 2 sweet chai, 5 days', p: 2, t: 5, coins: 100, icon: I.cup }),
+          mk({ name: 'Home-cooked', desc: '10 home meals', p: 6, t: 10, coins: 150, icon: I.home }),
+          mk({ name: 'Early dinner', desc: 'Before 9 PM, 4 days', p: 1, t: 4, coins: 100, icon: I.moon }),
+          mk({ name: 'Full week', desc: 'Keep your streak 7 days', p: 6, t: 7, coins: 80, icon: I.lamp })
+        ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

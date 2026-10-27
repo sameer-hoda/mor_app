@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mor UI kit — HTML reference components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;600;700&display=swap">
+<!--
+  MOR UI KIT · v1.0 · Android reference
+  ------------------------------------------------------------
+  Purpose: pixel reference for the build agent. Every component, every state.
+  Units: 1 CSS px here = 1 dp on Android (designs are 360 dp wide).
+  Mapping: each component lists its Jetpack Compose name in data-compose.
+  Assets: Neelu + food icons are inline SVG <symbol>s (see #sprites) — export
+          them as VectorDrawables. Neelu in the app is an animation slot; the
+          SVG is the poster/fallback frame.
+-->
+<style>
+:root {
+  /* colour */
+  --mor-teal: #0B4A57;        /* primary, CTAs, selected */
+  --mor-teal-pressed: #08343D;
+  --mor-teal-tint: #E3F2EF;   /* selected bg, soft fills */
+  --mor-teal-tint-2: #D3EBE6;
+  --neel: #1F4FB5;            /* mascot, protein */
+  --pankh: #19A39A;           /* fat, feather teal */
+  --panna: #1E8A5A;           /* success */
+  --panna-tint: #DDF1E6;
+  --panna-ink: #155E3D;
+  --genda: #F2A93B;           /* streak, carbs */
+  --gold: #F2B544;            /* feather gold, knobs */
+  --genda-tint: #FFF3DC;
+  --genda-ink: #5C3A05;
+  --jamun: #2D2A6E;           /* feather eye centre */
+  --kumkum: #D9483B;          /* errors only */
+  --kumkum-ink: #B23A2F;
+  --kumkum-tint: #FFF1EE;
+  --night: #1E2D4F;
+  --ink: #142027;
+  --ink-2: #4A5A63;
+  --ink-3: #5E6D75;
+  --chandan: #F8F5EE;         /* app background */
+  --surface: #FFFFFF;
+  --sand: #EFE9DC;            /* segmented track */
+  --line: #E7E1D4;
+  --line-2: #D9D2C2;
+  --disabled-bg: #E3DDD0;
+  --disabled-ink: #5A564D;
+  --scrim: rgba(8, 30, 36, 0.55);
+
+  /* type */
+  --font-display: 'Baloo 2', sans-serif;  /* 800 headlines & numbers */
+  --font-body: 'Mukta', sans-serif;       /* 400–700 */
+  --t-hero: 76px;   /* plan target number */
+  --t-num: 54px;    /* kcal left */
+  --t-h1: 36px;     /* screen question */
+  --t-h2: 26px;     /* card/banners */
+  --t-title: 19px;  /* option titles, CTA */
+  --t-body: 17px;
+  --t-label: 15px;
+  --t-caption: 13px;
+
+  /* shape & space */
+  --r-card: 24px;
+  --r-option: 20px;
+  --r-tile: 16px;
+  --r-sheet: 28px;
+  --r-pill: 999px;
+  --gutter: 16px;
+  --touch: 48px;
+  --cta-h: 60px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #E9E4D8; font-family: var(--font-body); color: var(--ink); }
+button, input { font-family: inherit; }
+.page { max-width: 1240px; margin: 0 auto; padding: 40px 24px 80px; }
+.page > header h1 { font-family: var(--font-display); font-weight: 800; font-size: 48px; margin: 0; }
+.page > header p { margin: 4px 0 0; color: var(--ink-2); font-size: 17px; }
+.section { margin-top: 40px; }
+.section > h2 { font-family: var(--font-display); font-weight: 800; font-size: 28px; margin: 0 0 4px; }
+.section > .api { font-size: 14px; color: var(--ink-3); margin: 0 0 16px; }
+.section > .api code { background: #fff; padding: 1px 6px; border-radius: 6px; font-size: 13px; }
+.board { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.phone { width: 360px; background: var(--chandan); border-radius: 28px; padding: 20px var(--gutter); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 0 rgba(0,0,0,.04); }
+.state-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 4px 0 -4px; }
+
+/* ---------- feather eye ---------- */
+.feather-eye { width: 22px; height: 28px; flex-shrink: 0; }
+
+/* ---------- buttons ---------- */
+.btn { height: var(--cta-h); border-radius: 30px; border: none; font-size: var(--t-title); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; cursor: pointer; text-decoration: none; position: relative; }
+.btn-primary { background: var(--mor-teal); color: #fff; }
+.btn-primary:active, .btn-primary.is-pressed { background: var(--mor-teal-pressed); }
+.btn-primary .badge { position: absolute; right: 9px; top: 9px; width: 42px; height: 42px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; }
+.btn-primary .badge span { width: 32px; height: 32px; border-radius: 50%; background: var(--pankh); display: flex; align-items: center; justify-content: center; }
+.btn-primary .badge span span { width: 23px; height: 23px; background: var(--jamun); }
+.btn-secondary { background: #fff; color: var(--mor-teal); border: 2px solid var(--mor-teal); }
+.btn-text { background: transparent; color: var(--mor-teal); height: 52px; font-size: 17px; }
+.btn:disabled, .btn.is-disabled { background: var(--disabled-bg); color: var(--disabled-ink); border: none; cursor: default; }
+.btn .spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(255,255,255,.25); border-top-color: var(--gold); animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .btn .spinner { animation: none; } }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+
+/* ---------- top bar ---------- */
+.topbar { display: flex; align-items: center; gap: 14px; }
+.progress { flex: 1; height: 8px; border-radius: 4px; background: var(--line); position: relative; }
+.progress > .fill { height: 8px; border-radius: 4px; background: var(--mor-teal); }
+.progress > .knob { position: absolute; top: -6px; width: 16px; height: 20px; margin-left: -8px; }
+
+/* ---------- question header ---------- */
+.q-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding: 8px 4px 0; }
+.q-head h1 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: var(--t-h1); line-height: 1.05; }
+
+/* ---------- option card ---------- */
+.option { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 12px 16px; border-radius: var(--r-option); background: #fff; border: 2px solid #fff; text-align: left; width: 100%; cursor: pointer; color: var(--ink); }
+.option .ico { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.option strong { flex: 1; font-size: var(--t-title); font-weight: 600; }
+.option .radio { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CFC8B8; flex-shrink: 0; }
+.option .feather-eye { display: none; }
+.option[aria-checked="true"] .feather-eye { display: block; }
+.option[aria-checked="true"] .radio { display: none; }
+.option[aria-checked="true"] { background: var(--mor-teal-tint); border-color: var(--mor-teal); }
+.option:disabled { background: #F3F0E8; border: 2px dashed var(--line-2); color: #6B6659; cursor: default; }
+.diet-tile { height: 150px; border-radius: var(--r-card); padding: 18px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; background: #fff; border: 2px solid #fff; position: relative; cursor: pointer; font-size: 20px; font-weight: 700; color: var(--ink); }
+.diet-tile[aria-checked="true"] .feather-eye { display: block; }
+.diet-tile[aria-checked="true"] { background: var(--mor-teal-tint); border-color: var(--mor-teal); }
+.diet-tile .feather-eye { display: none; position: absolute; right: 14px; top: 14px; }
+
+/* ---------- segmented ---------- */
+.segmented { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); background: var(--sand); border-radius: 18px; padding: 4px; gap: 4px; }
+.segmented button { height: 48px; border: none; border-radius: 14px; background: transparent; font-size: 16px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.segmented button[aria-checked="true"], .segmented button[aria-selected="true"] { background: #fff; color: var(--mor-teal); font-weight: 700; box-shadow: 0 1px 3px rgba(20,32,39,.15); }
+
+/* ---------- chips & pills ---------- */
+.chip { height: 44px; padding: 0 16px; border-radius: 22px; border: 1.5px solid var(--line-2); background: #fff; font-size: 15px; font-weight: 600; color: var(--ink); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--mor-teal); border-color: var(--mor-teal); color: #fff; }
+.pill { display: inline-flex; padding: 4px 12px; border-radius: var(--r-pill); font-size: 15px; font-weight: 700; }
+.pill-success { background: var(--panna-tint); color: var(--panna-ink); }
+.pill-warn { background: #FDEBC8; color: #7A4B05; }
+.pill-ai { background: #E6E4F6; color: var(--jamun); }
+.pill-info { background: var(--mor-teal-tint-2); color: var(--mor-teal); }
+.pill-error { background: #FBE1DE; color: #9A2A20; }
+.diet-mark { width: 20px; height: 20px; }
+
+/* ---------- value field ---------- */
+.value-field { display: flex; align-items: center; justify-content: space-between; height: 72px; padding: 0 20px; border-radius: 20px; background: #fff; border: 2px solid #fff; }
+.value-field > span { font-size: 18px; font-weight: 600; color: var(--ink-2); }
+.value-field input { width: 110px; border: none; background: transparent; text-align: right; font-family: var(--font-display); font-size: 30px; font-weight: 800; color: var(--ink); }
+.value-field:focus-within { border-color: var(--mor-teal); box-shadow: 0 0 0 4px var(--mor-teal-tint-2); }
+.value-field.is-error { border-color: var(--kumkum); background: #FFF6F5; }
+.value-field.is-error > span { color: var(--kumkum-ink); }
+.field-error { margin: -4px 4px 0; font-size: 16px; font-weight: 600; color: var(--kumkum-ink); }
+.search { position: relative; }
+.search input { width: 100%; height: 52px; border-radius: 26px; border: 2px solid var(--line); background: #fff; padding: 0 52px 0 44px; font-size: 17px; }
+.search input:focus { border-color: var(--mor-teal); outline: none; }
+.search .s-ico { position: absolute; left: 16px; top: 17px; }
+.search .mic { position: absolute; right: 6px; top: 6px; width: 40px; height: 40px; border-radius: 50%; background: var(--mor-teal-tint); border: none; display: flex; align-items: center; justify-content: center; }
+
+/* ---------- toggle ---------- */
+.toggle { width: 52px; height: 32px; border-radius: 16px; border: 2px solid var(--mor-teal); background: var(--mor-teal); position: relative; padding: 0; cursor: pointer; flex-shrink: 0; }
+.toggle::after { content: ''; position: absolute; top: 2px; left: 22px; width: 24px; height: 24px; border-radius: 50%; background: var(--gold); transition: left .15s; }
+.toggle[aria-checked="false"] { background: var(--disabled-bg); border-color: #8C8676; }
+.toggle[aria-checked="false"]::after { left: 2px; background: #8C8676; }
+.toggle:disabled { opacity: .5; }
+
+/* ---------- meal time row + time pill + wheel ---------- */
+.list-card { background: #fff; border-radius: 20px; padding: 12px 14px; min-height: 80px; display: flex; align-items: center; gap: 14px; }
+.list-card .body { flex: 1; display: flex; flex-direction: column; line-height: 1.15; }
+.list-card .body strong { font-size: 18px; }
+.time-pill { align-self: flex-start; margin-top: 4px; height: 32px; border: none; border-radius: 16px; background: var(--mor-teal-tint); padding: 0 12px; font-size: 16px; font-weight: 700; color: var(--mor-teal); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.wheel { position: relative; display: flex; justify-content: center; gap: 22px; height: 200px; align-items: center; }
+.wheel::before { content: ''; position: absolute; left: 0; right: 0; top: 68px; height: 64px; border-radius: 20px; background: #fff; }
+.wheel .col { position: relative; display: flex; flex-direction: column; align-items: center; font-family: var(--font-display); font-weight: 800; line-height: 1; }
+.wheel .col span:nth-child(1), .wheel .col span:nth-child(5) { font-size: 22px; color: #C9C2B2; height: 30px; }
+.wheel .col span:nth-child(2), .wheel .col span:nth-child(4) { font-size: 28px; color: #9E978A; height: 40px; }
+.wheel .col span:nth-child(3) { font-size: 52px; height: 60px; padding-top: 4px; }
+.wheel .colon { position: relative; font-family: var(--font-display); font-weight: 800; font-size: 44px; }
+.ampm { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.ampm span { padding: 6px 12px; border-radius: 12px; font-size: 17px; font-weight: 700; color: var(--ink-2); }
+.ampm span[aria-checked="true"] { background: var(--mor-teal); color: #fff; }
+
+/* ---------- stepper ---------- */
+.stepper { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 18px; padding: 6px; }
+.stepper button { width: 52px; height: 52px; border-radius: 14px; border: none; font-size: 26px; cursor: pointer; }
+.stepper .minus { background: var(--sand); color: var(--mor-teal); }
+.stepper .plus { background: var(--mor-teal); color: #fff; }
+.stepper .val { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.stepper .val strong { font-family: var(--font-display); font-size: 30px; }
+.stepper .val span { font-size: 13px; color: var(--ink-2); }
+
+/* ---------- calorie card ---------- */
+.card { background: #fff; border-radius: var(--r-card); padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.kcal { display: flex; align-items: center; justify-content: space-between; }
+.kcal .num { display: flex; flex-direction: column; line-height: 1; }
+.kcal .num strong { font-family: var(--font-display); font-weight: 800; font-size: var(--t-num); }
+.kcal .num span { font-size: var(--t-body); font-weight: 600; color: var(--ink-2); }
+.kcal.is-over .num strong { color: #B9661A; }
+.ring { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.ring svg { position: absolute; inset: 0; }
+.ring .plus { width: 56px; height: 56px; border-radius: 50%; background: var(--mor-teal); display: flex; align-items: center; justify-content: center; }
+.macros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.macro .bar { height: 8px; border-radius: 4px; background: #F3EEE3; }
+.macro .bar > i { display: block; height: 8px; border-radius: 4px; }
+.macro span { font-size: 14px; color: var(--ink-2); }
+.macro span strong { font-size: 17px; color: var(--ink); }
+
+/* ---------- streak card ---------- */
+.streak { background: var(--genda-tint); border-radius: var(--r-card); padding: 14px 16px; display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); }
+.streak .count { display: flex; flex-direction: column; line-height: 1; }
+.streak .count strong { font-family: var(--font-display); font-weight: 800; font-size: 34px; }
+.streak .count span { font-size: 15px; font-weight: 600; color: var(--genda-ink); }
+.streak .week { margin-left: auto; display: grid; grid-template-columns: repeat(7, 20px); gap: 4px; text-align: center; }
+.streak .day { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; color: #7A4B05; }
+.streak .dot { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid #EBD9B4; }
+.streak .dot.lit { background: var(--genda); border-color: var(--genda); }
+.streak .dot.today { border-color: var(--mor-teal); }
+
+/* ---------- meal row ---------- */
+.meals { background: #fff; border-radius: var(--r-card); padding: 4px 16px; }
+.meal { display: flex; align-items: center; gap: 12px; min-height: 66px; }
+.meal + .meal { border-top: 1px solid #F1ECE1; }
+.meal .thumbs { display: flex; width: 70px; flex-shrink: 0; }
+.meal .thumbs .food { border: 2px solid #fff; border-radius: 50%; }
+.meal .thumbs .food + .food { margin-left: -16px; }
+.meal .empty { width: 46px; height: 46px; margin-right: 24px; border-radius: 50%; border: 2px dashed #CFC8B8; flex-shrink: 0; }
+.meal .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.meal .txt strong { font-size: 17px; }
+.meal .txt span { font-size: 14px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meal .kcal-val { font-size: 17px; font-weight: 700; }
+.meal .add { width: 44px; height: 44px; border-radius: 50%; background: var(--mor-teal-tint); border: none; display: flex; align-items: center; justify-content: center; }
+.meal.is-missed .empty { border-color: var(--kumkum); }
+.meal.is-missed .txt span { color: var(--kumkum-ink); }
+.meal.is-missed .add { background: #FBE1DE; }
+
+/* ---------- banners ---------- */
+.banner { border-radius: var(--r-card); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.banner h3 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: var(--t-h2); line-height: 1.1; }
+.banner p { margin: -8px 0 0; font-size: 16px; }
+.banner-first { background: var(--mor-teal); color: #fff; }
+.banner-missed { background: var(--kumkum-tint); }
+.banner-missed h3 { color: #7A2018; }
+.banner-goal { background: var(--ink); color: #fff; flex-direction: row; align-items: center; }
+.banner-over { background: var(--genda-tint); color: var(--genda-ink); }
+.banner-night { background: var(--night); color: #fff; }
+.banner .actions { display: flex; gap: 8px; }
+.banner .actions > * { flex: 1; height: 48px; border-radius: 24px; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: none; }
+.quick3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.quick3 a { height: 72px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 15px; font-weight: 700; text-decoration: none; color: #fff; background: rgba(255,255,255,.12); }
+.quick3 a:first-child { background: var(--gold); color: var(--ink); }
+
+/* ---------- mini stat ---------- */
+.mini { background: #fff; border-radius: var(--r-card); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.mini .v { display: flex; flex-direction: column; line-height: 1.05; }
+.mini .v strong { font-family: var(--font-display); font-weight: 800; font-size: 28px; }
+.mini .v span { font-size: 14px; color: var(--ink-2); }
+
+/* ---------- bottom nav ---------- */
+.nav { position: relative; width: 360px; height: 84px; }
+.nav .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 70px; background: #fff; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; }
+.nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: var(--ink-3); font-size: 12px; font-weight: 600; }
+.nav a .pillbg { width: 56px; height: 30px; border-radius: 15px; display: flex; align-items: center; justify-content: center; }
+.nav a[aria-current="page"] { color: var(--mor-teal); }
+.nav a[aria-current="page"] .pillbg { background: var(--mor-teal-tint-2); }
+.nav .fab { position: absolute; left: 148px; top: 0; width: 64px; height: 64px; border-radius: 50%; background: var(--mor-teal); border: 3px solid var(--gold); box-shadow: 0 0 0 4px #fff, 0 6px 16px rgba(11,74,87,.35); display: flex; align-items: center; justify-content: center; }
+.nav .fab-label { align-self: end; padding-bottom: 9px; text-align: center; font-size: 12px; font-weight: 600; color: var(--mor-teal); }
+
+/* ---------- sheet ---------- */
+.sheet-demo { position: relative; width: 360px; height: 520px; border-radius: 28px; overflow: hidden; background: var(--scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--chandan); border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+.sheet .handle { align-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--line-2); }
+.sheet h2 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; }
+
+/* ---------- snackbar ---------- */
+.snack { display: flex; align-items: center; gap: 10px; border-radius: 14px; padding: 12px 14px; font-size: 16px; }
+.snack-success { background: var(--ink); color: #fff; }
+.snack-success b { color: var(--gold); margin-left: auto; }
+.snack-error { background: #FBE1DE; color: #7A2018; }
+.snack-offline { background: #FDEBC8; color: var(--genda-ink); }
+
+/* ---------- notification ---------- */
+.notif { background: #F4F6F6; border-radius: 24px; padding: 14px 16px; display: flex; gap: 12px; }
+.notif .app { width: 36px; height: 36px; border-radius: 50%; background: var(--mor-teal); overflow: hidden; flex-shrink: 0; }
+.notif .meta { font-size: 12.5px; color: var(--ink-2); }
+.notif p { margin: 0; }
+
+/* ---------- badge hex ---------- */
+.hex-badge { background: #fff; border-radius: 20px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; width: 108px; }
+
+/* ---------- mascot ---------- */
+.neelu { display: block; }
+.neelu-slot { position: relative; display: inline-block; }
+.neelu-slot[data-anim]::after { content: attr(data-anim); position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); font: 600 11px/1 ui-monospace, monospace; background: var(--ink); color: #fff; padding: 3px 6px; border-radius: 6px; white-space: nowrap; }
+.food { display: inline-flex; border-radius: 50%; overflow: hidden; }
+.swatch { width: 140px; }
+.swatch i { display: block; height: 64px; border-radius: 16px; border: 1px solid var(--line-2); }
+.swatch b { display: block; font-size: 14px; margin-top: 6px; }
+.swatch span { font-size: 12px; color: var(--ink-3); }
+</style>
+</head>
+<body>
+<!-- ============ SPRITES (export to VectorDrawable) ============ -->
+<svg id="sprites" width="0" height="0" style="position: absolute" aria-hidden="true">
+  <defs>
+    <symbol id="feather-eye" viewBox="0 0 20 26"><ellipse cx="10" cy="13" rx="9.5" ry="12.5" fill="#3FAE6E"/><ellipse cx="10" cy="12" rx="7" ry="9" fill="#F2B544"/><ellipse cx="10" cy="12.5" rx="5" ry="6.5" fill="#19A39A"/><ellipse cx="10" cy="13" rx="2.8" ry="3.8" fill="#2D2A6E"/></symbol>
+    <symbol id="mark-veg" viewBox="0 0 20 20"><rect x="1" y="1" width="18" height="18" rx="2" fill="#fff" stroke="#1E8A5A" stroke-width="2"/><circle cx="10" cy="10" r="5" fill="#1E8A5A"/></symbol>
+    <symbol id="mark-egg" viewBox="0 0 20 20"><rect x="1" y="1" width="18" height="18" rx="2" fill="#fff" stroke="#B9861A" stroke-width="2"/><ellipse cx="10" cy="10.5" rx="4.5" ry="5.5" fill="#E8B23A"/></symbol>
+    <symbol id="mark-nonveg" viewBox="0 0 20 20"><rect x="1" y="1" width="18" height="18" rx="2" fill="#fff" stroke="#7A3E1D" stroke-width="2"/><path d="M10 5 L15 14 L5 14 Z" fill="#7A3E1D"/></symbol>
+    <symbol id="diya" viewBox="0 0 60 60"><path d="M30 4 Q42 20 30 34 Q18 20 30 4 Z" fill="#F2A93B"/><path d="M30 16 Q36 25 30 32 Q24 25 30 16 Z" fill="#FFD86B"/><path d="M6 36 Q30 62 54 36 Z" fill="#C4673A"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12 H19 M13 6 L19 12 L13 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12 L10 17 L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5 V19 M5 12 H19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20 H8 L19 9 L15 5 L4 16 Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8 H8 L10 5 H14 L16 8 H20 V19 H4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M16 16 L20 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 11 A7 7 0 0 0 19 11 M12 18 V21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16 V11 A6 6 0 0 1 18 11 V16 L20 18 H4 Z M10 21 H14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 L12 4 L20 11 V20 H14 V14 H10 V20 H4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-insights" viewBox="0 0 24 24"><path d="M5 20 V12 M12 20 V5 M19 20 V9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-challenges" viewBox="0 0 24 24"><path d="M12 3 L20 7.5 V16.5 L12 21 L4 16.5 V7.5 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 8.5 l1.2 2.5 2.7 .3 -2 1.8 .6 2.7 -2.5 -1.4 -2.5 1.4 .6 -2.7 -2 -1.8 2.7 -.3 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-profile" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20 Q4 14 12 14 Q20 14 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="neelu-body" viewBox="0 0 200 200"><ellipse cx="100" cy="120" rx="90" ry="72" fill="#2B8A57"/>
+    <g transform="rotate(-66 100 140)"><path d="M100 140 L100 70" stroke="#1F6B42" stroke-width="2"/><ellipse cx="100" cy="70" rx="14" ry="22" fill="#3FAE6E"/><ellipse cx="100" cy="66" rx="9.5" ry="12" fill="#F2B544"/><ellipse cx="100" cy="67" rx="6.5" ry="8.5" fill="#19A39A"/><ellipse cx="100" cy="68" rx="3.8" ry="5" fill="#2D2A6E"/></g>
+    <g transform="rotate(-42 100 140)"><path d="M100 140 L100 70" stroke="#1F6B42" stroke-width="2"/><ellipse cx="100" cy="70" rx="14" ry="22" fill="#3FAE6E"/><ellipse cx="100" cy="66" rx="9.5" ry="12" fill="#F2B544"/><ellipse cx="100" cy="67" rx="6.5" ry="8.5" fill="#19A39A"/><ellipse cx="100" cy="68" rx="3.8" ry="5" fill="#2D2A6E"/></g>
+    <g transform="rotate(-18 100 140)"><path d="M100 140 L100 70" stroke="#1F6B42" stroke-width="2"/><ellipse cx="100" cy="70" rx="14" ry="22" fill="#3FAE6E"/><ellipse cx="100" cy="66" rx="9.5" ry="12" fill="#F2B544"/><ellipse cx="100" cy="67" rx="6.5" ry="8.5" fill="#19A39A"/><ellipse cx="100" cy="68" rx="3.8" ry="5" fill="#2D2A6E"/></g>
+    <g transform="rotate(18 100 140)"><path d="M100 140 L100 70" stroke="#1F6B42" stroke-width="2"/><ellipse cx="100" cy="70" rx="14" ry="22" fill="#3FAE6E"/><ellipse cx="100" cy="66" rx="9.5" ry="12" fill="#F2B544"/><ellipse cx="100" cy="67" rx="6.5" ry="8.5" fill="#19A39A"/><ellipse cx="100" cy="68" rx="3.8" ry="5" fill="#2D2A6E"/></g>
+    <g transform="rotate(42 100 140)"><path d="M100 140 L100 70" stroke="#1F6B42" stroke-width="2"/><ellipse cx="100" cy="70" rx="14" ry="22" fill="#3FAE6E"/><ellipse cx="100" cy="66" rx="9.5" ry="12" fill="#F2B544"/><ellipse cx="100" cy="67" rx="6.5" ry="8.5" fill="#19A39A"/><ellipse cx="100" cy="68" rx="3.8" ry="5" fill="#2D2A6E"/></g>
+    <g transform="rotate(66 100 140)"><path d="M100 140 L100 70" stroke="#1F6B42" stroke-width="2"/><ellipse cx="100" cy="70" rx="14" ry="22" fill="#3FAE6E"/><ellipse cx="100" cy="66" rx="9.5" ry="12" fill="#F2B544"/><ellipse cx="100" cy="67" rx="6.5" ry="8.5" fill="#19A39A"/><ellipse cx="100" cy="68" rx="3.8" ry="5" fill="#2D2A6E"/></g>
+    <path d="M91 177 l-5 6 M91 177 l0 8 M91 177 l5 6 M109 177 l-5 6 M109 177 l0 8 M109 177 l5 6" stroke="#E39A2B" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <ellipse cx="100" cy="148" rx="31" ry="30" fill="#1F4FB5"/>
+    <ellipse cx="73" cy="150" rx="10" ry="17" fill="#163F92" transform="rotate(16 73 150)"/>
+    <ellipse cx="127" cy="150" rx="10" ry="17" fill="#163F92" transform="rotate(-16 127 150)"/>
+    <ellipse cx="100" cy="156" rx="17" ry="16" fill="#2D66CF"/>
+    <path d="M100 54 L86 24 M100 54 L100 17 M100 54 L114 24" stroke="#1F4FB5" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <circle cx="86" cy="24" r="6" fill="#19A39A"/><circle cx="86" cy="24" r="2.8" fill="#F2B544"/>
+    <circle cx="100" cy="17" r="6.5" fill="#19A39A"/><circle cx="100" cy="17" r="3" fill="#F2B544"/>
+    <circle cx="114" cy="24" r="6" fill="#19A39A"/><circle cx="114" cy="24" r="2.8" fill="#F2B544"/>
+    <circle cx="100" cy="94" r="42" fill="#2463C9"/>
+    <ellipse cx="82" cy="68" rx="14" ry="7" fill="#FFFFFF" opacity="0.14" transform="rotate(-24 82 68)"/>
+    <path d="M73 106 Q83 111 93 106 M107 106 Q117 111 127 106" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <ellipse cx="69" cy="112" rx="7" ry="4.2" fill="#FF8FA3" opacity="0.6"/>
+    <ellipse cx="131" cy="112" rx="7" ry="4.2" fill="#FF8FA3" opacity="0.6"/></symbol>
+    <symbol id="neelu-face-happy" viewBox="0 0 200 200"><ellipse cx="84" cy="90" rx="12" ry="13" fill="#FFFFFF"/><ellipse cx="116" cy="90" rx="12" ry="13" fill="#FFFFFF"/>
+      <ellipse cx="85" cy="92" rx="7.5" ry="8.5" fill="#142027"/><ellipse cx="115" cy="92" rx="7.5" ry="8.5" fill="#142027"/>
+      <circle cx="88" cy="88" r="2.8" fill="#FFFFFF"/><circle cx="118" cy="88" r="2.8" fill="#FFFFFF"/>
+      <circle cx="83" cy="95" r="1.3" fill="#FFFFFF"/><circle cx="113" cy="95" r="1.3" fill="#FFFFFF"/>
+      <path d="M90 104 Q100 98 110 104 Q105 112 100 117 Q95 112 90 104 Z" fill="#F5B83D" stroke="#C98A1E" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M94 108 Q100 113 106 108" stroke="#A86A12" stroke-width="1.4" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="neelu-face-cool" viewBox="0 0 200 200"><path d="M66 86 L57 83 M134 86 L143 83" stroke="#142027" stroke-width="3" stroke-linecap="round"/>
+      <path d="M66 84 Q66 80 70 80 L95 80 Q99 80 98 84 L96 96 Q95 102 88 102 L74 102 Q68 102 67 96 Z" fill="#142027" stroke="#F2B544" stroke-width="1.6"/>
+      <path d="M134 84 Q134 80 130 80 L105 80 Q101 80 102 84 L104 96 Q105 102 112 102 L126 102 Q132 102 133 96 Z" fill="#142027" stroke="#F2B544" stroke-width="1.6"/>
+      <path d="M97 84 Q100 81 103 84" stroke="#F2B544" stroke-width="2.4" fill="none"/>
+      <path d="M72 86 L81 86 M106 86 L115 86" stroke="#FFFFFF" stroke-opacity="0.75" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M90 104 Q100 98 110 104 Q105 112 100 117 Q95 112 90 104 Z" fill="#F5B83D" stroke="#C98A1E" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M95 109 Q101 112 107 106" stroke="#A86A12" stroke-width="1.5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="neelu-face-joy" viewBox="0 0 200 200"><path d="M73 93 Q84 80 95 93 M105 93 Q116 80 127 93" stroke="#142027" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M91 103 Q100 124 109 103 Z" fill="#C2405A"/>
+      <ellipse cx="100" cy="113" rx="4.5" ry="3" fill="#F07D93"/>
+      <path d="M89 102 Q100 96 111 102 L100 109 Z" fill="#F5B83D" stroke="#C98A1E" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M56 48 L58 54 L64 56 L58 58 L56 64 L54 58 L48 56 L54 54 Z" fill="#F2B544"/>
+      <path d="M148 40 L149.6 45.4 L155 47 L149.6 48.6 L148 54 L146.4 48.6 L141 47 L146.4 45.4 Z" fill="#F2B544"/></symbol>
+    <symbol id="neelu-face-love" viewBox="0 0 200 200"><path d="M84 101 C70 91 73 78 84 85 C95 78 98 91 84 101 Z" fill="#E4576B"/>
+      <path d="M116 101 C102 91 105 78 116 85 C127 78 130 91 116 101 Z" fill="#E4576B"/>
+      <circle cx="79" cy="86" r="1.8" fill="#FFFFFF"/><circle cx="111" cy="86" r="1.8" fill="#FFFFFF"/>
+      <path d="M92 104 Q100 120 108 104 Z" fill="#C2405A"/>
+      <path d="M89 102 Q100 96 111 102 L100 108 Z" fill="#F5B83D" stroke="#C98A1E" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M150 52 C146 49 147 45 150 47 C153 45 154 49 150 52 Z" fill="#E4576B"/>
+      <path d="M52 60 C47 56 48 51 52 54 C56 51 57 56 52 60 Z" fill="#E4576B"/></symbol>
+    <symbol id="neelu-face-hungry" viewBox="0 0 200 200"><ellipse cx="84" cy="90" rx="12" ry="13" fill="#FFFFFF"/><ellipse cx="116" cy="90" rx="12" ry="13" fill="#FFFFFF"/>
+      <ellipse cx="85" cy="86" rx="7.5" ry="8.5" fill="#142027"/><ellipse cx="115" cy="86" rx="7.5" ry="8.5" fill="#142027"/>
+      <circle cx="88" cy="83" r="2.6" fill="#FFFFFF"/><circle cx="118" cy="83" r="2.6" fill="#FFFFFF"/>
+      <path d="M71 77 L92 70 M129 77 L108 70" stroke="#142027" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M94 105 Q100 117 106 105 Z" fill="#C2405A"/>
+      <path d="M90 103 Q100 97 110 103 L100 109 Z" fill="#F5B83D" stroke="#C98A1E" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M106 112 Q108.5 118 106 121 Q103.5 118 106 112 Z" fill="#8FD3F4"/></symbol>
+    <symbol id="neelu-face-thinking" viewBox="0 0 200 200"><ellipse cx="84" cy="90" rx="12" ry="13" fill="#FFFFFF"/><ellipse cx="116" cy="90" rx="12" ry="13" fill="#FFFFFF"/>
+      <ellipse cx="88" cy="86" rx="7" ry="8" fill="#142027"/><ellipse cx="120" cy="86" rx="7" ry="8" fill="#142027"/>
+      <circle cx="90.5" cy="83" r="2.4" fill="#FFFFFF"/><circle cx="122.5" cy="83" r="2.4" fill="#FFFFFF"/>
+      <path d="M73 75 L93 75" stroke="#142027" stroke-width="3" stroke-linecap="round"/>
+      <path d="M106 73 Q117 64 128 71" stroke="#142027" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M90 104 Q100 98 110 104 Q105 112 100 117 Q95 112 90 104 Z" fill="#F5B83D" stroke="#C98A1E" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M95 109 L105 107.5" stroke="#A86A12" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="neelu-face-sleepy" viewBox="0 0 200 200"><path d="M74 91 Q84 99 94 91 M106 91 Q116 99 126 91" stroke="#142027" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M90 104 Q100 98 110 104 Q105 112 100 117 Q95 112 90 104 Z" fill="#F5B83D" stroke="#C98A1E" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M96 109 Q100 111.5 104 109" stroke="#A86A12" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <path d="M136 44 L147 44 L136 55 L147 55" stroke="#5B6FD6" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M152 26 L159 26 L152 33 L159 33" stroke="#5B6FD6" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+        <symbol id="food-chai" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#F6E7D8"/><path d="M27 16 Q24 12 27 8 M34 16 Q31 12 34 8" stroke="#9AA9B0" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M19 22 L45 22 L41.5 47 Q32 51 22.5 47 Z" fill="#C46A3C"/>
+      <path d="M20.5 31 L43.5 31" stroke="#A8552C" stroke-width="1.6"/>
+      <ellipse cx="32" cy="22" rx="13" ry="3.6" fill="#8A4A22"/>
+      <ellipse cx="32" cy="22.4" rx="11" ry="2.6" fill="#D9A066"/></symbol>
+    <symbol id="food-poha" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FFF4D6"/><ellipse cx="32" cy="36" rx="24" ry="14" fill="#FFFFFF" stroke="#DCD5C6" stroke-width="1.5"/>
+      <ellipse cx="32" cy="33" rx="17" ry="8" fill="#F2C94C"/>
+      <circle cx="25" cy="31" r="2" fill="#5DB35A"/><circle cx="36" cy="30" r="2" fill="#5DB35A"/><circle cx="31" cy="36" r="2" fill="#5DB35A"/>
+      <circle cx="40" cy="34" r="1.6" fill="#D9483B"/><ellipse cx="28" cy="34" rx="2.2" ry="1.4" fill="#C98A3E"/><ellipse cx="38" cy="36" rx="2.2" ry="1.4" fill="#C98A3E"/>
+      <path d="M46 27 L53 25 L50 32 Z" fill="#F5E05A" stroke="#D4C03A" stroke-width="0.8"/></symbol>
+    <symbol id="food-idli" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#EAF4EE"/><ellipse cx="32" cy="38" rx="25" ry="14" fill="#E4E7EA" stroke="#C3C9CE" stroke-width="1.2"/>
+      <ellipse cx="24" cy="35" rx="10" ry="6.5" fill="#FFFFFF" stroke="#DDD8CC"/>
+      <ellipse cx="38" cy="32" rx="10" ry="6.5" fill="#FFFFFF" stroke="#DDD8CC"/>
+      <ellipse cx="44" cy="42" rx="7" ry="4" fill="#D9822B" stroke="#B9661A"/>
+      <ellipse cx="22" cy="44" rx="5.5" ry="3.2" fill="#F3F0E6" stroke="#DDD8CC"/>
+      <circle cx="22" cy="44" r="1.2" fill="#5DB35A"/></symbol>
+    <symbol id="food-dosa" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FFF1DD"/><ellipse cx="32" cy="38" rx="26" ry="14" fill="#E4E7EA" stroke="#C3C9CE" stroke-width="1.2"/>
+      <path d="M9 37 Q32 21 55 29 L53 36 Q32 30 12 43 Z" fill="#E3A64A" stroke="#BF7E26" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M20 33 L22 37 M30 29 L31 33 M41 28 L41 32" stroke="#C98A3E" stroke-width="1.2" stroke-linecap="round"/>
+      <ellipse cx="44" cy="45" rx="5" ry="3" fill="#F3F0E6" stroke="#DDD8CC"/>
+      <ellipse cx="33" cy="47" rx="5" ry="3" fill="#D9822B"/></symbol>
+    <symbol id="food-dal" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FFF6E0"/><path d="M12 30 Q14 50 32 50 Q50 50 52 30 Z" fill="#C9CED3" stroke="#AEB4BA" stroke-width="1.2"/>
+      <ellipse cx="32" cy="30" rx="20" ry="5.5" fill="#F2B544" stroke="#D99B2B" stroke-width="1"/>
+      <circle cx="26" cy="29" r="1.6" fill="#D9483B"/><circle cx="35" cy="31" r="1.4" fill="#4E9A4B"/><circle cx="39" cy="28.5" r="1.2" fill="#8A4A22"/><circle cx="30" cy="31.5" r="1" fill="#4E9A4B"/></symbol>
+    <symbol id="food-roti" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#F7EEDD"/><circle cx="36" cy="35" r="17" fill="#D9B27A"/>
+      <circle cx="29" cy="30" r="17" fill="#EBCB96" stroke="#D2AA6E" stroke-width="1"/>
+      <circle cx="24" cy="26" r="2" fill="#C08A4A" opacity="0.7"/><circle cx="33" cy="34" r="2.4" fill="#C08A4A" opacity="0.7"/>
+      <circle cx="31" cy="23" r="1.4" fill="#C08A4A" opacity="0.7"/><circle cx="22" cy="35" r="1.6" fill="#C08A4A" opacity="0.7"/><circle cx="37" cy="27" r="1.2" fill="#C08A4A" opacity="0.7"/></symbol>
+    <symbol id="food-rice" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#EEF2F4"/><ellipse cx="32" cy="40" rx="23" ry="11" fill="#E4E7EA" stroke="#C3C9CE" stroke-width="1.2"/>
+      <path d="M14 39 Q17 20 32 20 Q47 20 50 39 Z" fill="#FFFFFF" stroke="#E2DED3"/>
+      <path d="M24 28 l3 1 M32 25 l3 1 M38 31 l3 1 M27 34 l3 1 M42 36 l2 1 M20 35 l2 1" stroke="#E2DED3" stroke-width="1.4" stroke-linecap="round"/>
+      <ellipse cx="30" cy="30" rx="1.3" ry="0.6" fill="#7A5A2E"/><ellipse cx="36" cy="27" rx="1.3" ry="0.6" fill="#7A5A2E"/><ellipse cx="34" cy="35" rx="1.3" ry="0.6" fill="#7A5A2E"/></symbol>
+    <symbol id="food-paneer" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FFE8DC"/><circle cx="32" cy="32" r="22" fill="#C9CED3"/>
+      <circle cx="32" cy="32" r="18" fill="#E06C2E"/>
+      <rect x="22" y="23" width="8" height="8" rx="1.5" fill="#FFF7E8"/>
+      <rect x="34" y="26" width="8" height="8" rx="1.5" fill="#FFF7E8" transform="rotate(12 38 30)"/>
+      <rect x="26" y="35" width="8" height="8" rx="1.5" fill="#FFF7E8" transform="rotate(-10 30 39)"/>
+      <path d="M38 40 q4 -2 6 2" stroke="#FFFFFF" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="23" r="1.4" fill="#4E9A4B"/><circle cx="22" cy="36" r="1.2" fill="#4E9A4B"/></symbol>
+    <symbol id="food-samosa" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FFF0D9"/><path d="M9 46 L25 17 L40 46 Z" fill="#D99A3D" stroke="#B07424" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M26 47 L42 21 L55 47 Z" fill="#E3AA4F" stroke="#B07424" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="22" cy="36" r="1" fill="#B07424"/><circle cx="28" cy="40" r="1" fill="#B07424"/><circle cx="42" cy="36" r="1" fill="#B07424"/><circle cx="46" cy="42" r="1" fill="#B07424"/>
+      <circle cx="16" cy="51" r="4" fill="#5DB35A"/></symbol>
+    <symbol id="food-fruit" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FFF9DA"/><path d="M20 24 L18 19" stroke="#6B5A2A" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M14 30 Q20 50 44 48 Q52 46 52 42 Q40 44 30 38 Q22 32 20 24 Z" fill="#F5D547" stroke="#D4B22A" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="44" cy="24" r="8" fill="#E4576B"/><path d="M44 16 Q46 13 49 13" stroke="#4E9A4B" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="food-curd" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#EEF4FA"/><circle cx="32" cy="32" r="21" fill="#D7DCE0"/>
+      <circle cx="32" cy="32" r="17" fill="#FBFBF7"/>
+      <path d="M25 31 q6 -7 13 0 q-6 6 -10 2" stroke="#E2DED3" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="39" cy="25" rx="4" ry="2" fill="#5DB35A" transform="rotate(-30 39 25)"/></symbol>
+    <symbol id="food-biryani" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FFEBD6"/><ellipse cx="32" cy="42" rx="24" ry="11" fill="#C9CED3" stroke="#AEB4BA"/>
+      <path d="M12 40 Q16 20 32 20 Q48 20 52 40 Z" fill="#F4E2B8"/>
+      <path d="M21 31 l3 1 M29 26 l3 1 M38 34 l3 1 M26 36 l3 1 M44 37 l2 1" stroke="#E8913A" stroke-width="1.8" stroke-linecap="round"/>
+      <ellipse cx="38" cy="27" rx="6" ry="4.5" fill="#FFFFFF"/><circle cx="38" cy="27" r="2.6" fill="#F2B544"/>
+      <circle cx="24" cy="29" r="1.2" fill="#8A4A22"/><circle cx="33" cy="33" r="1.2" fill="#8A4A22"/><ellipse cx="44" cy="31" rx="2" ry="1" fill="#4E9A4B"/></symbol>
+    <symbol id="food-paratha" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#F8EDD8"/><path d="M10 44 L32 14 L54 44 Q32 52 10 44 Z" fill="#E7BF7E" stroke="#C99A55" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="24" cy="38" r="1.8" fill="#B9823F" opacity="0.7"/><circle cx="38" cy="40" r="2" fill="#B9823F" opacity="0.7"/><circle cx="32" cy="26" r="1.5" fill="#B9823F" opacity="0.7"/>
+      <rect x="28" y="31" width="9" height="7" rx="2" fill="#FBE79A" stroke="#E3C65A" stroke-width="0.8"/></symbol>
+    <symbol id="food-sprouts" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#E9F5E4"/><circle cx="32" cy="32" r="21" fill="#FFFFFF" stroke="#DCD5C6" stroke-width="1.2"/>
+      <g fill="#7CC46B"><circle cx="25" cy="26" r="2.6"/><circle cx="31" cy="24" r="2.6"/><circle cx="38" cy="27" r="2.6"/><circle cx="24" cy="33" r="2.6"/><circle cx="30" cy="31" r="2.6"/><circle cx="37" cy="33" r="2.6"/><circle cx="43" cy="30" r="2.6"/><circle cx="27" cy="39" r="2.6"/><circle cx="34" cy="39" r="2.6"/><circle cx="40" cy="38" r="2.6"/></g>
+      <g fill="#C2405A"><rect x="33" y="29" width="2.5" height="2.5" rx="0.6"/><rect x="26" y="35" width="2.5" height="2.5" rx="0.6"/><rect x="40" y="33" width="2.5" height="2.5" rx="0.6"/></g></symbol>
+    <symbol id="food-makhana" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#F6EFE4"/><circle cx="32" cy="32" r="21" fill="#E7D3B5"/>
+      <g fill="#FFFDF7" stroke="#E6D9C3" stroke-width="0.8"><circle cx="25" cy="27" r="5"/><circle cx="36" cy="25" r="5"/><circle cx="41" cy="35" r="5"/><circle cx="30" cy="37" r="5"/><circle cx="21" cy="37" r="4"/></g>
+      <g fill="#C9A06A"><circle cx="26" cy="26" r="1"/><circle cx="37" cy="24" r="1"/><circle cx="31" cy="36" r="1"/></g></symbol>
+    <symbol id="food-thali" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30.5" fill="#D4D8DC" stroke="#B6BCC2" stroke-width="1"/>
+      <circle cx="32" cy="32" r="26.5" fill="#E7EAED"/>
+      <circle cx="18" cy="22" r="8" fill="#BFC5CB"/><circle cx="18" cy="22" r="6.4" fill="#F2B544"/><circle cx="16" cy="21" r="0.9" fill="#D9483B"/><circle cx="20" cy="23" r="0.8" fill="#4E9A4B"/>
+      <circle cx="34" cy="14.5" r="7" fill="#BFC5CB"/><circle cx="34" cy="14.5" r="5.6" fill="#E8C14E"/><circle cx="33" cy="13" r="1" fill="#5DB35A"/><circle cx="36" cy="16" r="1" fill="#F4EBD0"/><circle cx="32" cy="16" r="0.9" fill="#F4EBD0"/>
+      <circle cx="47" cy="23" r="7" fill="#BFC5CB"/><circle cx="47" cy="23" r="5.6" fill="#F7F5EE"/><circle cx="48" cy="22" r="0.9" fill="#5DB35A"/>
+      <ellipse cx="40" cy="40" rx="11" ry="8" fill="#FFFFFF" stroke="#E2DED3" stroke-width="0.8"/>
+      <path d="M35 38 l2 .6 M41 36 l2 .6 M44 41 l2 .6 M38 43 l2 .6" stroke="#E2DED3" stroke-width="1" stroke-linecap="round"/>
+      <circle cx="19" cy="41" r="10" fill="#EBCB96" stroke="#D2AA6E" stroke-width="0.8"/>
+      <circle cx="16" cy="38" r="1.3" fill="#C08A4A" opacity="0.7"/><circle cx="22" cy="44" r="1.5" fill="#C08A4A" opacity="0.7"/>
+      <circle cx="29" cy="52" r="3.5" fill="#CDE6A8" stroke="#9CC56B" stroke-width="0.8"/><circle cx="36" cy="52.5" r="3" fill="#E8758A"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="page">
+  <header>
+    <h1>Mor UI kit</h1>
+    <p>HTML reference for every component and state. 1 px = 1 dp. Each section notes its Compose equivalent.</p>
+  </header>
+
+  <!-- TOKENS -->
+  <section class="section" id="tokens">
+    <h2>Tokens</h2>
+    <p class="api">CSS custom properties on <code>:root</code> → <code>MorTheme</code> colours, typography and shapes in Compose.</p>
+    <div class="board">
+      <div class="swatch"><i style="background: var(--mor-teal)"></i><b>Mor Teal</b><span>#0B4A57 · primary</span></div>
+      <div class="swatch"><i style="background: var(--neel)"></i><b>Neel</b><span>#1F4FB5 · protein</span></div>
+      <div class="swatch"><i style="background: var(--pankh)"></i><b>Pankh</b><span>#19A39A · fat</span></div>
+      <div class="swatch"><i style="background: var(--panna)"></i><b>Panna</b><span>#1E8A5A · success</span></div>
+      <div class="swatch"><i style="background: var(--genda)"></i><b>Genda</b><span>#F2A93B · streak, carbs</span></div>
+      <div class="swatch"><i style="background: var(--jamun)"></i><b>Jamun</b><span>#2D2A6E · feather eye</span></div>
+      <div class="swatch"><i style="background: var(--kumkum)"></i><b>Kumkum</b><span>#D9483B · errors</span></div>
+      <div class="swatch"><i style="background: var(--chandan)"></i><b>Chandan</b><span>#F8F5EE · background</span></div>
+    </div>
+    <div class="board" style="margin-top: 20px; align-items: baseline">
+      <span style="font-family: var(--font-display); font-weight: 800; font-size: var(--t-hero); line-height: 1">1,850</span>
+      <span style="font-family: var(--font-display); font-weight: 800; font-size: var(--t-num); line-height: 1">940</span>
+      <span style="font-family: var(--font-display); font-weight: 800; font-size: var(--t-h1)">Headline 36</span>
+      <span style="font-family: var(--font-display); font-weight: 800; font-size: var(--t-h2)">Card 26</span>
+      <span style="font-size: var(--t-title); font-weight: 600">Title 19</span>
+      <span style="font-size: var(--t-body)">Body 17</span>
+      <span style="font-size: var(--t-label); color: var(--ink-2)">Label 15</span>
+    </div>
+  </section>
+
+  <!-- MASCOT -->
+  <section class="section" id="mascot">
+    <h2>Neelu — poster frames</h2>
+    <p class="api"><code>&lt;svg class="neelu"&gt;&lt;use href="#neelu-body"/&gt;&lt;use href="#neelu-face-{mood}"/&gt;&lt;/svg&gt;</code> · head crop: <code>viewBox="36 8 128 128"</code> · Compose: <code>NeeluSlot(anim, poster, size)</code> — plays the animated WebP, shows this frame as placeholder.</p>
+    <div class="board">
+      <figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="0 0 200 200" role="img" aria-label="Neelu happy"><use href="#neelu-body"/><use href="#neelu-face-happy"/></svg><figcaption style="font-weight: 700">happy</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="0 0 200 200" role="img" aria-label="Neelu cool"><use href="#neelu-body"/><use href="#neelu-face-cool"/></svg><figcaption style="font-weight: 700">cool</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="0 0 200 200" role="img" aria-label="Neelu joy"><use href="#neelu-body"/><use href="#neelu-face-joy"/></svg><figcaption style="font-weight: 700">joy</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="0 0 200 200" role="img" aria-label="Neelu love"><use href="#neelu-body"/><use href="#neelu-face-love"/></svg><figcaption style="font-weight: 700">love</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="0 0 200 200" role="img" aria-label="Neelu hungry"><use href="#neelu-body"/><use href="#neelu-face-hungry"/></svg><figcaption style="font-weight: 700">hungry</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="0 0 200 200" role="img" aria-label="Neelu thinking"><use href="#neelu-body"/><use href="#neelu-face-thinking"/></svg><figcaption style="font-weight: 700">thinking</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="0 0 200 200" role="img" aria-label="Neelu sleepy"><use href="#neelu-body"/><use href="#neelu-face-sleepy"/></svg><figcaption style="font-weight: 700">sleepy</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg class="neelu" width="140" height="140" viewBox="36 8 128 128" role="img" aria-label="Neelu head crop"><use href="#neelu-body"/><use href="#neelu-face-cool"/></svg><figcaption style="font-weight: 700">head crop</figcaption></figure>
+
+    </div>
+  </section>
+
+  <!-- BUTTONS -->
+  <section class="section" id="buttons">
+    <h2>Buttons</h2>
+    <p class="api"><code>.btn.btn-primary</code> + feather badge · <code>.btn-secondary</code> · <code>.btn-text</code> · <code>disabled</code> · loading → Compose <code>MorPrimaryButton(text, loading, enabled)</code></p>
+    <div class="board">
+      <div class="phone">
+        <div class="state-label">Default</div>
+        <button class="btn btn-primary" type="button">Next<span class="badge"><span><span><svg width="12" height="12" style="color: #fff"><use href="#i-arrow"/></svg></span></span></span></button>
+        <div class="state-label">Pressed</div>
+        <button class="btn btn-primary is-pressed" type="button">Next<span class="badge"><span><span><svg width="12" height="12" style="color: #fff"><use href="#i-arrow"/></svg></span></span></span></button>
+        <div class="state-label">Disabled</div>
+        <button class="btn btn-primary" type="button" disabled>Next</button>
+        <div class="state-label">Loading</div>
+        <button class="btn btn-primary" type="button" aria-busy="true"><span class="spinner"></span>Logging…</button>
+      </div>
+      <div class="phone">
+        <div class="state-label">Secondary</div>
+        <button class="btn btn-secondary" type="button">See details</button>
+        <div class="state-label">Text</div>
+        <button class="btn btn-text" type="button">Not now</button>
+        <div class="state-label">Icon button</div>
+        <div style="display: flex; gap: 10px"><button class="icon-btn" aria-label="Back" type="button"><svg width="20" height="20"><use href="#i-back"/></svg></button><button class="icon-btn" aria-label="Close" type="button" style="background: var(--sand)"><svg width="16" height="16"><use href="#i-close"/></svg></button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONBOARDING PARTS -->
+  <section class="section" id="onboarding">
+    <h2>Onboarding parts</h2>
+    <p class="api">Top bar with feather progress (<code>--p</code> = step/6) · question header with Neelu slot (head crop, 92 dp) · option card (radio role) · diet tile · value field.</p>
+    <div class="board">
+      <div class="phone">
+        <div class="topbar">
+          <button class="icon-btn" aria-label="Back" type="button"><svg width="20" height="20"><use href="#i-back"/></svg></button>
+          <div class="progress" role="progressbar" aria-valuenow="1" aria-valuemax="6"><div class="fill" style="width: 16.7%"></div><svg class="knob" style="left: 16.7%"><use href="#feather-eye"/></svg></div>
+        </div>
+        <div class="q-head"><h1>What's your goal?</h1><svg class="neelu" width="92" height="92" viewBox="36 8 128 128"><use href="#neelu-body"/><use href="#neelu-face-happy"/></svg></div>
+        <div role="radiogroup" aria-label="Goal" style="display: flex; flex-direction: column; gap: 12px" data-demo="radio">
+          <button class="option" role="radio" aria-checked="true" type="button"><span class="ico" style="background: #FFF1DD"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 4 V20 M6 14 L12 20 L18 14" fill="none" stroke="#B9661A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>Lose weight</strong><span class="radio"></span><svg class="feather-eye"><use href="#feather-eye"/></svg></button>
+          <button class="option" role="radio" aria-checked="false" type="button"><span class="ico" style="background: var(--mor-teal-tint)"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 9 H19 M5 15 H19" fill="none" stroke="#0B4A57" stroke-width="2.4" stroke-linecap="round"/></svg></span><strong>Maintain weight</strong><span class="radio"></span><svg class="feather-eye"><use href="#feather-eye"/></svg></button>
+          <button class="option" type="button" disabled><strong>Unavailable</strong></button>
+        </div>
+      </div>
+      <div class="phone">
+        <div role="radiogroup" aria-label="Diet" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <button class="diet-tile" role="radio" aria-checked="true" type="button"><svg width="36" height="36"><use href="#mark-veg"/></svg>Vegetarian<svg class="feather-eye"><use href="#feather-eye"/></svg></button>
+          <button class="diet-tile" role="radio" aria-checked="false" type="button"><svg width="36" height="36"><use href="#mark-egg"/></svg>Eggetarian<svg class="feather-eye"><use href="#feather-eye"/></svg></button>
+          <button class="diet-tile" role="radio" aria-checked="false" type="button"><svg width="36" height="36"><use href="#mark-nonveg"/></svg>Non-veg<svg class="feather-eye"><use href="#feather-eye"/></svg></button>
+          <button class="diet-tile" role="radio" aria-checked="false" type="button"><svg width="36" height="36"><use href="#mark-veg"/></svg>Vegan<svg class="feather-eye"><use href="#feather-eye"/></svg></button>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Sex"><button role="radio" aria-checked="true" type="button">Female</button><button role="radio" aria-checked="false" type="button">Male</button><button role="radio" aria-checked="false" type="button">Other</button></div>
+        <label class="value-field"><span>Weight</span><input value="72 kg" aria-label="Weight"></label>
+        <div class="state-label">Error</div>
+        <label class="value-field is-error"><span>Age</span><input value="12" aria-invalid="true" aria-label="Age"></label>
+        <p class="field-error" role="alert">You must be 18 or older.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEAL TIMES -->
+  <section class="section" id="times">
+    <h2>Meal time row + time sheet</h2>
+    <p class="api">Tap the time pill → bottom sheet with hour / 15-min / AM-PM wheel and 4 quick picks. Compose: <code>MealTimeRow</code>, <code>TimeWheelSheet</code> (ModalBottomSheet). Toggle = reminder on/off.</p>
+    <div class="board">
+      <div class="phone">
+        <div class="list-card"><span class="food"><svg width="48" height="48"><use href="#food-paratha"/></svg></span><span class="body"><strong>Breakfast</strong><button class="time-pill" type="button" aria-label="Change breakfast time, now 8:30 AM">8:30 AM<svg width="13" height="13"><use href="#i-edit"/></svg></button></span><button class="toggle" role="switch" aria-checked="true" aria-label="Remind me for breakfast" type="button" data-demo="toggle"></button></div>
+        <div class="list-card"><span class="food"><svg width="48" height="48"><use href="#food-chai"/></svg></span><span class="body"><strong>Snack</strong><button class="time-pill" type="button">5:00 PM<svg width="13" height="13"><use href="#i-edit"/></svg></button></span><button class="toggle" role="switch" aria-checked="false" aria-label="Remind me for snack" type="button" data-demo="toggle"></button></div>
+      </div>
+      <div class="sheet-demo">
+        <div class="sheet" role="dialog" aria-label="Breakfast time">
+          <span class="handle"></span>
+          <div style="display: flex; align-items: center; gap: 12px"><span class="food"><svg width="48" height="48"><use href="#food-paratha"/></svg></span><h2>Breakfast time</h2></div>
+          <div class="wheel">
+            <div class="col" role="spinbutton" aria-label="Hour" aria-valuenow="8"><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+            <span class="colon">:</span>
+            <div class="col" role="spinbutton" aria-label="Minutes" aria-valuenow="30"><span>00</span><span>15</span><span>30</span><span>45</span><span>00</span></div>
+            <div class="ampm" role="radiogroup" aria-label="AM or PM"><span role="radio" aria-checked="true">AM</span><span role="radio" aria-checked="false">PM</span></div>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: center"><button class="chip" type="button">7:30</button><button class="chip" type="button">8:00</button><button class="chip" aria-pressed="true" type="button">8:30</button><button class="chip" type="button">9:00</button></div>
+          <button class="btn btn-primary" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section class="section" id="home">
+    <h2>Home cards</h2>
+    <p class="api">Streak card (last 7 days, today ringed) · calorie card (ring <code>stroke-dasharray = eaten/goal × 251.3</code>; over → orange) · meal rows (logged / open / missed) · mini stats.</p>
+    <div class="board">
+      <div class="phone">
+        <a class="streak" href="#" aria-label="6 day streak"><svg width="44" height="44"><use href="#diya"/></svg><span class="count"><strong>6</strong><span>day streak</span></span>
+          <span class="week" aria-hidden="true"><span class="day"><i class="dot"></i>W</span><span class="day"><i class="dot lit"></i>T</span><span class="day"><i class="dot lit"></i>F</span><span class="day"><i class="dot lit"></i>S</span><span class="day"><i class="dot lit"></i>S</span><span class="day"><i class="dot lit"></i>M</span><span class="day"><i class="dot lit today"></i>T</span></span></a>
+        <div class="state-label">Streak · zero</div>
+        <a class="streak" href="#" aria-label="0 day streak"><svg width="44" height="44" style="filter: grayscale(1) opacity(.5)"><use href="#diya"/></svg><span class="count"><strong>0</strong><span>day streak</span></span>
+          <span class="week" aria-hidden="true"><span class="day"><i class="dot"></i>W</span><span class="day"><i class="dot"></i>T</span><span class="day"><i class="dot"></i>F</span><span class="day"><i class="dot"></i>S</span><span class="day"><i class="dot"></i>S</span><span class="day"><i class="dot"></i>M</span><span class="day"><i class="dot today"></i>T</span></span></a>
+        <section class="card" aria-label="Calories">
+          <div class="kcal"><div class="num"><strong>940</strong><span>kcal left</span></div>
+            <a class="ring" href="#" aria-label="Log food"><svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="#EFE9DC" stroke-width="10" fill="none"/><circle cx="50" cy="50" r="40" stroke="#0B4A57" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="123.6 251.3" transform="rotate(-90 50 50)"/></svg><span class="plus"><svg width="26" height="26" style="color: #fff"><use href="#i-plus"/></svg></span></a></div>
+          <div class="macros">
+            <div class="macro"><div class="bar"><i style="width: 51%; background: var(--genda)"></i></div><span><strong>128g</strong> carbs</span></div>
+            <div class="macro"><div class="bar"><i style="width: 41%; background: var(--neel)"></i></div><span><strong>31g</strong> protein</span></div>
+            <div class="macro"><div class="bar"><i style="width: 43%; background: var(--pankh)"></i></div><span><strong>26g</strong> fat</span></div>
+          </div>
+        </section>
+        <div class="state-label">Over goal</div>
+        <section class="card"><div class="kcal is-over"><div class="num"><strong>270</strong><span>kcal over</span></div><a class="ring" href="#" aria-label="Log food"><svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="#E8752A" stroke-width="10" fill="none"/></svg><span class="plus"><svg width="26" height="26" style="color: #fff"><use href="#i-plus"/></svg></span></a></div></section>
+      </div>
+      <div class="phone">
+        <section class="meals" aria-label="Today's meals">
+          <div class="meal"><span class="thumbs"><span class="food"><svg width="42" height="42"><use href="#food-poha"/></svg></span><span class="food"><svg width="42" height="42"><use href="#food-chai"/></svg></span></span><span class="txt"><strong>Breakfast</strong><span>Poha, chai</span></span><span class="kcal-val">320</span></div>
+          <div class="meal"><span class="thumbs"><span class="food"><svg width="42" height="42"><use href="#food-thali"/></svg></span></span><span class="txt"><strong>Lunch</strong><span>Dal, rice, roti</span></span><span class="kcal-val">590</span></div>
+          <div class="meal is-missed"><span class="empty"></span><span class="txt"><strong>Snack</strong><span>Not logged</span></span><button class="add" type="button" aria-label="Add snack"><svg width="20" height="20" style="color: #9A2A20"><use href="#i-plus"/></svg></button></div>
+          <div class="meal"><span class="empty"></span><span class="txt"><strong>Dinner</strong><span>9:00 PM</span></span><button class="add" type="button" aria-label="Add dinner"><svg width="20" height="20" style="color: #0B4A57"><use href="#i-plus"/></svg></button></div>
+        </section>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+          <div class="mini"><span class="v"><strong>5<small style="font-size: 16px; color: var(--ink-3)">/8</small></strong><span>glasses</span></span><button class="add icon-btn" type="button" aria-label="Add water" style="background: #DDF3F1; color: #0F7F78"><svg width="20" height="20"><use href="#i-plus"/></svg></button></div>
+          <div class="mini"><span class="v"><strong>4,210</strong><span>steps</span></span></div>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="state-label">Banner · first day</div>
+        <section class="banner banner-first"><h3>Log your first meal</h3><div class="quick3"><a href="#"><svg width="24" height="24"><use href="#i-camera"/></svg>Scan</a><a href="#"><svg width="24" height="24"><use href="#i-search"/></svg>Search</a><a href="#"><svg width="24" height="24"><use href="#i-mic"/></svg>Speak</a></div></section>
+        <div class="state-label">Banner · missed meal</div>
+        <section class="banner banner-missed" role="alert"><h3>Missed lunch?</h3><div class="actions"><a href="#" style="background: var(--mor-teal); color: #fff; text-decoration: none">Log lunch</a><button type="button" style="background: #fff; border: 2px solid #D9B3AD">I skipped it</button></div></section>
+        <div class="state-label">Banner · goal</div>
+        <section class="banner banner-goal"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#F2B544"/><use href="#feather-eye" x="12" y="9" width="20" height="26"/></svg><div><h3 style="font-size: 24px">Goal reached!</h3><span style="color: var(--gold); font-weight: 700">+40 coins</span></div></section>
+        <div class="state-label">Banner · over</div>
+        <section class="banner banner-over"><h3 style="font-size: 24px">A bit over today. That's okay.</h3><p>Tomorrow is a fresh start.</p></section>
+        <div class="state-label">Banner · night</div>
+        <section class="banner banner-night"><h3 style="font-size: 24px">Day done. Well eaten.</h3><p style="color: #C9D3EA">4 of 4 meals · 66 g protein</p></section>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGGING -->
+  <section class="section" id="logging">
+    <h2>Logging controls</h2>
+    <p class="api">Search field with mic · chips · portion stepper (0.5 steps) · oil segmented (Less/Normal/More/Hotel multiplies kcal 0.85/1/1.15/1.3) · status pills.</p>
+    <div class="board">
+      <div class="phone">
+        <div class="search"><svg class="s-ico" width="18" height="18" style="color: var(--ink-3)"><use href="#i-search"/></svg><input type="search" placeholder="Search food" aria-label="Search food"><button class="mic" type="button" aria-label="Search by voice"><svg width="18" height="18" style="color: var(--mor-teal)"><use href="#i-mic"/></svg></button></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px"><button class="chip" aria-pressed="true" type="button">Bowl</button><button class="chip" type="button">Plate</button><button class="chip" type="button">Spoon</button><button class="chip" type="button">Grams</button></div>
+        <div class="stepper"><button class="minus" type="button" aria-label="Less">−</button><span class="val" aria-live="polite"><strong>1½</strong><span>bowls · 225 g</span></span><button class="plus" type="button" aria-label="More">+</button></div>
+        <div class="segmented" role="radiogroup" aria-label="Oil"><button role="radio" aria-checked="false" type="button">Less</button><button role="radio" aria-checked="true" type="button">Normal</button><button role="radio" aria-checked="false" type="button">More</button><button role="radio" aria-checked="false" type="button">Hotel</button></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px"><span class="pill pill-success">Realistic</span><span class="pill pill-warn">Ambitious</span><span class="pill pill-ai">AI estimate</span><span class="pill pill-info">Verified</span><span class="pill pill-error">Missed</span></div>
+      </div>
+      <div class="phone">
+        <div class="state-label">Snackbars</div>
+        <div class="snack snack-success" role="status"><svg width="18" height="18" style="color: #7FD6A4"><use href="#i-check"/></svg>Lunch logged · +10 coins<b>UNDO</b></div>
+        <div class="snack snack-error" role="alert">Couldn't read the photo · <b>RETRY</b></div>
+        <div class="snack snack-offline" role="status">Offline — logs will sync later</div>
+        <div class="state-label">Push notification</div>
+        <div class="notif"><span class="app"><svg width="36" height="36" viewBox="36 8 128 128"><use href="#neelu-body"/><use href="#neelu-face-hungry"/></svg></span><div><span class="meta">Mor · now</span><p style="font-weight: 700">Missed lunch?</p><p style="font-size: 14px; color: #3C4A51">Neelu's hungry. Log it in 10 seconds.</p></div></div>
+        <div class="state-label">Badges</div>
+        <div style="display: flex; gap: 10px">
+          <div class="hex-badge"><svg width="48" height="52" viewBox="0 0 64 70"><path d="M32 2 L60 18 V52 L32 68 L4 52 V18 Z" fill="#FFF3DC" stroke="#F2A93B" stroke-width="3"/><path d="M20 44 L32 26 L44 44 Z" fill="#C4673A"/></svg>Home-cooked</div>
+          <div class="hex-badge"><svg width="48" height="52" viewBox="0 0 64 70"><path d="M32 2 L60 18 V52 L32 68 L4 52 V18 Z" fill="#F8F5EE" stroke="#D9D2C2" stroke-width="3"/><path d="M26 34 V30 Q26 24 32 24 Q38 24 38 30 V34 M24 34 H40 V46 H24 Z" fill="none" stroke="#8C8676" stroke-width="2.4"/></svg>Locked</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAV + SHEET -->
+  <section class="section" id="nav">
+    <h2>Bottom nav &amp; log sheet</h2>
+    <p class="api">Compose <code>NavigationBar</code> with centre <code>LargeFloatingActionButton</code> (gold ring). Active item = tinted pill + teal label. Sheet = <code>ModalBottomSheet</code>, 28 dp top radius, scrim 55%.</p>
+    <div class="board">
+      <nav class="nav" aria-label="Main">
+        <div class="bar">
+          <a href="#" aria-current="page"><span class="pillbg"><svg width="22" height="22"><use href="#i-home"/></svg></span>Home</a>
+          <a href="#"><span class="pillbg"><svg width="22" height="22"><use href="#i-insights"/></svg></span>Insights</a>
+          <span class="fab-label">Log</span>
+          <a href="#"><span class="pillbg"><svg width="22" height="22"><use href="#i-challenges"/></svg></span>Challenges</a>
+          <a href="#"><span class="pillbg"><svg width="22" height="22"><use href="#i-profile"/></svg></span>Profile</a>
+        </div>
+        <a class="fab" href="#" aria-label="Log a meal"><svg width="28" height="28" style="color: #fff"><use href="#i-plus"/></svg></a>
+      </nav>
+      <div class="sheet-demo" style="height: 460px">
+        <div class="sheet" role="dialog" aria-label="Log a meal">
+          <span class="handle"></span>
+          <h2>Log a meal</h2>
+          <div class="segmented" role="radiogroup" aria-label="Meal"><button role="radio" aria-checked="false" type="button" style="font-size: 14px">Breakfast</button><button role="radio" aria-checked="false" type="button" style="font-size: 14px">Lunch</button><button role="radio" aria-checked="true" type="button" style="font-size: 14px">Snack</button><button role="radio" aria-checked="false" type="button" style="font-size: 14px">Dinner</button></div>
+          <a class="btn btn-primary" href="#" style="height: 92px; border-radius: 24px; font-family: var(--font-display); font-weight: 800; font-size: 26px; justify-content: flex-start; padding: 0 22px; gap: 16px"><svg width="32" height="32" style="color: var(--gold)"><use href="#i-camera"/></svg>Scan meal</a>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px"><a href="#" class="mini" style="height: 84px; text-decoration: none; color: var(--ink); justify-content: flex-start; gap: 12px"><svg width="26" height="26" style="color: var(--mor-teal)"><use href="#i-search"/></svg><strong style="font-size: 20px">Search</strong></a><a href="#" class="mini" style="height: 84px; text-decoration: none; color: var(--ink); justify-content: flex-start; gap: 12px"><svg width="26" height="26" style="color: var(--mor-teal)"><use href="#i-mic"/></svg><strong style="font-size: 20px">Speak</strong></a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOD ICONS -->
+  <section class="section" id="food">
+    <h2>Food icons</h2>
+    <p class="api"><code>&lt;svg&gt;&lt;use href="#food-{kind}"/&gt;&lt;/svg&gt;</code> inside a circle with the tint shown. Placeholders until real food photos/illustrations land (see asset prompts).</p>
+    <div class="board">
+      <figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="chai"><use href="#food-chai"/></svg><figcaption style="font-size: 13px">chai</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="poha"><use href="#food-poha"/></svg><figcaption style="font-size: 13px">poha</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="idli"><use href="#food-idli"/></svg><figcaption style="font-size: 13px">idli</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="dosa"><use href="#food-dosa"/></svg><figcaption style="font-size: 13px">dosa</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="dal"><use href="#food-dal"/></svg><figcaption style="font-size: 13px">dal</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="roti"><use href="#food-roti"/></svg><figcaption style="font-size: 13px">roti</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="rice"><use href="#food-rice"/></svg><figcaption style="font-size: 13px">rice</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="paneer"><use href="#food-paneer"/></svg><figcaption style="font-size: 13px">paneer</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="samosa"><use href="#food-samosa"/></svg><figcaption style="font-size: 13px">samosa</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="fruit"><use href="#food-fruit"/></svg><figcaption style="font-size: 13px">fruit</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="curd"><use href="#food-curd"/></svg><figcaption style="font-size: 13px">curd</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="biryani"><use href="#food-biryani"/></svg><figcaption style="font-size: 13px">biryani</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="paratha"><use href="#food-paratha"/></svg><figcaption style="font-size: 13px">paratha</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="sprouts"><use href="#food-sprouts"/></svg><figcaption style="font-size: 13px">sprouts</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="makhana"><use href="#food-makhana"/></svg><figcaption style="font-size: 13px">makhana</figcaption></figure>
+<figure style="margin: 0; text-align: center"><svg width="72" height="72" role="img" aria-label="thali"><use href="#food-thali"/></svg><figcaption style="font-size: 13px">thali</figcaption></figure>
+
+    </div>
+  </section>
+</div>
+
+<script>
+// Demo-only interactivity: radio groups, toggles, chips.
+document.querySelectorAll('[role="radiogroup"]').forEach(function (g) {
+  g.addEventListener('click', function (e) {
+    var b = e.target.closest('[role="radio"]'); if (!b || b.disabled) return;
+    g.querySelectorAll('[role="radio"]').forEach(function (r) { r.setAttribute('aria-checked', r === b ? 'true' : 'false'); });
+  });
+});
+document.querySelectorAll('[role="switch"]').forEach(function (t) {
+  t.addEventListener('click', function () { t.setAttribute('aria-checked', t.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); });
+});
+</script>
+</body>
+</html>
