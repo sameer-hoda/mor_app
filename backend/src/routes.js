@@ -179,11 +179,11 @@ function missedCheck(u, bySlot, date, times) {
     if (!hh) continue;
     const late = hh + mm / 60 + 1.5;
     if (h >= late) {
-      const key = `missed_${slot}_${date}`;
-      const exists = db.prepare("SELECT 1 FROM notifications WHERE user_id=? AND type=? AND body LIKE ?").get(u.id, 'missed_meal', `%${date}%${slot}%`);
+      const title = `${cap(slot)} skipped?`;
+      const exists = db.prepare("SELECT 1 FROM notifications WHERE user_id=? AND type=? AND title=? AND date(created_at)=date('now')").get(u.id, 'missed_meal', title);
       if (!exists) {
         db.prepare('INSERT INTO notifications (user_id, type, title, body) VALUES (?, ?, ?, ?)')
-          .run(u.id, 'missed_meal', `${cap(slot)} skipped?`, `Neelu is hungry. Log your ${slot} — ${date} ${slot} not logged. Log it in 10 seconds.`);
+          .run(u.id, 'missed_meal', title, `Neelu is hungry. Log your ${slot} — it still counts if you log it now.`);
       }
     }
   }
@@ -238,14 +238,39 @@ router.delete('/meals/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+/** Query variants: raw + naive singulars ("eggs"→"egg", "rotis"→"roti"). */
+export function searchVariants(q) {
+  const out = [q];
+  if (q.endsWith('ies') && q.length > 4) out.push(`${q.slice(0, -3)}y`);
+  else if (/(sh|ch|x|ss|oes)$/.test(q) && q.length > 4) out.push(q.slice(0, -2));
+  else if (q.endsWith('s') && q.length > 3 && !q.endsWith('ss') && !q.endsWith('us')) out.push(q.slice(0, -1));
+  return [...new Set(out)];
+}
+
 router.get('/foods', (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
   let rows;
   if (q) {
-    rows = db.prepare('SELECT * FROM foods WHERE lower(name) LIKE ? ORDER BY verified DESC, name LIMIT 20').all(`%${q}%`);
-    const recent = db.prepare(`SELECT DISTINCT name FROM meals WHERE user_id=? AND items_json LIKE ? LIMIT 5`).all(getUser(req).id, `%${cap(q)}%`);
-    const recentItems = recent.map((r) => r.name);
-    rows = [...rows, ...db.prepare('SELECT * FROM foods WHERE name IN (SELECT name FROM foods WHERE lower(name) = ?)').all(q)];
+    const variants = searchVariants(q);
+    // 1. Alias hits first: plurals, dish names, regional names ("sunny side
+    //    up" → Fried egg, "channa" → Chole). Curated home-style rows win.
+    const aliasNames = [];
+    for (const v of variants) {
+      const hit = db.prepare('SELECT name FROM food_aliases WHERE alias=?').get(v);
+      if (hit && !aliasNames.includes(hit.name)) aliasNames.push(hit.name);
+    }
+    const likeClauses = variants.map(() => 'lower(name) LIKE ?').join(' OR ');
+    const likeArgs = variants.map((v) => `%${v}%`);
+    // Curated home-style rows first, USDA reference rows after: a query like
+    // "egg" should surface Boiled egg, not "Crackers, matzo, egg".
+    const rank = `(source = 'USDA SR Legacy'), verified DESC, name`;
+    rows = db.prepare(`SELECT * FROM foods WHERE ${likeClauses} ORDER BY ${rank} LIMIT 20`).all(...likeArgs);
+    if (aliasNames.length) {
+      const placeholders = aliasNames.map(() => '?').join(',');
+      const aliasRows = db.prepare(`SELECT * FROM foods WHERE name IN (${placeholders})`).all(...aliasNames);
+      const seen = new Set(aliasRows.map((r) => r.name));
+      rows = [...aliasRows, ...rows.filter((r) => !seen.has(r.name))].slice(0, 20);
+    }
   } else {
     rows = db.prepare('SELECT * FROM foods ORDER BY verified DESC, name LIMIT 20').all();
   }
@@ -361,8 +386,11 @@ router.get('/insights', (req, res) => {
   const u = getUser(req);
   const plan = db.prepare('SELECT * FROM plan WHERE user_id=?').get(u.id);
   const kcalTarget = plan?.kcal_target || 2000;
+  // Item 6: the range toggle is real. Week = last 7 days, month = last 30.
+  const range = req.query.range === 'month' ? 'month' : 'week';
+  const span = range === 'month' ? 29 : 6;
   const days = [];
-  for (let i = 6; i >= 0; i--) {
+  for (let i = span; i >= 0; i--) {
     const date = today(-i);
     const kcal = db.prepare('SELECT COALESCE(SUM(kcal),0) AS k FROM meals WHERE user_id=? AND date=?').get(u.id, date).k;
     days.push({ date, kcal, on_track: kcal > 0 && kcal <= kcalTarget * 1.05, weekday: new Date(date).toLocaleDateString('en', { weekday: 'short' }) });
@@ -372,7 +400,7 @@ router.get('/insights', (req, res) => {
   const weights = db.prepare('SELECT date, kg FROM weights WHERE user_id=? ORDER BY date DESC LIMIT 8').all(u.id).reverse();
   const proteinToday = db.prepare(`SELECT COALESCE(SUM(protein_g),0) AS p FROM meals WHERE user_id=? AND date=?`).get(u.id, today()).p;
   res.json({
-    kcal_target: kcalTarget, days, avg, logged_days: logged.length,
+    kcal_target: kcalTarget, range, total_days: span + 1, days, avg, logged_days: logged.length,
     on_track_days: days.filter((d) => d.on_track).length,
     weights, weight_trend: weights.length >= 2 ? Math.round((weights[weights.length - 1].kg - weights[0].kg) * 10) / 10 : 0,
     protein_today: Math.round(proteinToday), protein_goal: plan?.protein_g || 75,

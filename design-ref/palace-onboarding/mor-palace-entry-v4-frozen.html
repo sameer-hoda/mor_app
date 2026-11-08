@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mor Palace Entry v4 — frozen palace (throwaway mock)</title>
+<style>
+:root{--lacquer:#8E1B12;--kumkum:#BE2A24;--cream:#F4EBD7;--ivory:#FAF6EC;--agedgold:#C9972B;--gold:#E9A820;--neel:#1B4FB0;--deepteal:#0A323C;--teal:#0B4A57;--pankh:#2A9D8F;--ink:#101C20;--sub:#4A5A63;--line:#E4D6BC}
+*{box-sizing:border-box}body{margin:0;background:#07191e;color:var(--ivory);font-family:"Baloo 2","Mukta",ui-rounded,system-ui,sans-serif;display:flex;gap:20px;justify-content:center;padding:20px;min-height:100vh}
+.panel{width:300px;flex-shrink:0;font-size:13px}.panel h2{font-size:15px;margin:0 0 6px}.panel p{color:#B9CFC9;line-height:1.5}.panel .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button{font:inherit;cursor:pointer;min-height:44px}.btn{background:var(--gold);border:0;border-radius:999px;padding:10px 16px;font-weight:800;color:#231600}.btn.ghost{background:transparent;color:var(--ivory);border:1.5px solid #3E5A63}.btn.sm{padding:7px 12px;font-size:13px}
+#jmap{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}.arch{aspect-ratio:.8;border:1.5px solid #3E5A63;border-radius:20px 20px 6px 6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#7d99a3}.arch.done{background:var(--gold);border-color:var(--gold);color:#231600;font-weight:800}.arch.now{border-color:var(--ivory);color:var(--ivory);box-shadow:0 0 0 2px var(--gold)}
+#log{background:#08191e;border:1px solid #234650;border-radius:12px;padding:10px;height:150px;overflow-y:auto;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.6;color:#9fd8cb}
+.swatches{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.swatches span{font-size:11px;padding:4px 10px;border-radius:999px;color:#fff}
+.phone{width:360px;height:800px;flex-shrink:0;border-radius:40px;border:8px solid #02090b;overflow:hidden;position:relative;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#stage{position:absolute;inset:0;overflow:hidden}
+#bgA,#bgB{position:absolute;inset:-30px;background-size:cover;background-position:center;transition:transform .65s cubic-bezier(.22,.8,.3,1),opacity .5s ease;animation:drift 14s ease-in-out infinite alternate}
+#bgB{opacity:0}
+@keyframes drift{from{margin:-30px}to{margin:-22px}}
+#flash{position:absolute;inset:0;z-index:14;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 55%,rgba(245,214,127,.85),transparent 65%);transition:opacity .3s}
+#shade{position:absolute;inset:0;z-index:4;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.5));pointer-events:none;animation:light 7s ease-in-out infinite alternate}
+@keyframes light{from{opacity:.85}to{opacity:1}}
+#dust{position:absolute;inset:0;z-index:15;pointer-events:none}
+#muteBtn{position:absolute;top:34px;right:12px;z-index:40;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.4);color:#fff;font-size:18px}
+.roomTag{position:absolute;top:8px;left:0;right:0;text-align:center;z-index:20;font-size:11px;letter-spacing:2px;color:#fff;text-shadow:0 1px 4px #000}
+#jstrip{position:absolute;top:24px;left:12px;right:60px;z-index:20;display:flex;gap:3px}#jstrip i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}#jstrip i.on{background:var(--gold)}
+#card{position:absolute;left:14px;right:14px;bottom:14px;z-index:20;background:rgba(250,246,236,.97);color:#17272d;border-radius:20px;padding:16px;border:1px solid var(--agedgold);box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .65s cubic-bezier(.22,.8,.3,1)}
+#card h1{font-size:22px;margin:0 0 4px;line-height:1.15}#card p{font-size:13.5px;color:var(--sub);margin:0 0 10px}
+.dots{display:flex;gap:6px;margin-bottom:8px}.dots span{width:7px;height:7px;border-radius:50%;background:#D9D2C2}.dots span.on{width:20px;border-radius:4px;background:var(--teal)}
+.opts{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.opt{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid transparent;border-radius:20px;padding:12px 16px;font-weight:600;font-size:16px;text-align:left;color:#17272d;min-height:56px;width:100%}
+.opt .radio{width:22px;height:22px;border-radius:50%;border:2px solid #CFC8B8;flex-shrink:0}
+.opt small{display:block;font-size:13px;color:var(--sub);font-weight:500}
+.opt.on{background:#E3F2EF;border-color:var(--teal)}
+.cta{width:100%;background:var(--teal);color:#fff;border:0;border-radius:999px;height:52px;font-weight:800;font-size:16px;margin-top:10px}
+.seg{display:flex;background:#EFE9DC;border-radius:14px;padding:3px;gap:3px}.seg button{flex:1;height:44px;border:0;border-radius:11px;background:transparent;font-weight:600;color:var(--sub)}.seg button.on{background:#fff;color:var(--teal);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.field{width:100%;height:48px;border-radius:14px;border:1.5px solid #D9D2C2;padding:0 14px;font-size:16px;font-family:inherit}
+.trow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #EDE7DA;border-radius:16px;padding:10px 12px}
+.tgl{width:52px;height:32px;border-radius:16px;background:#CFC8B8;border:0;position:relative;flex-shrink:0;min-height:32px}.tgl.on{background:var(--teal)}.tgl::after{content:'';position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:var(--gold)}.tgl.on::after{left:23px}
+.chip{display:inline-flex;align-items:center;height:40px;padding:0 14px;border-radius:999px;border:1.5px solid #D9D2C2;background:#fff;font-size:14px;font-weight:600}
+#pfan{width:170px;height:170px}#pfan .f{transform-origin:85px 148px;animation:sway 3.4s ease-in-out infinite}
+#pfan .f:nth-child(2){animation-delay:.15s}#pfan .f:nth-child(3){animation-delay:.3s}#pfan .f:nth-child(4){animation-delay:.45s}#pfan .f:nth-child(5){animation-delay:.6s}#pfan .f:nth-child(6){animation-delay:.75s}#pfan .f:nth-child(7){animation-delay:.9s}
+@keyframes sway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+#neeluLive{animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.025)}}
+#entry{position:absolute;inset:0;z-index:30;display:none;background-size:cover;background-position:center}
+#entryTitle{position:absolute;top:120px;left:0;right:0;text-align:center;color:#fff}#entryTitle h1{font-size:44px;margin:0;letter-spacing:6px}#entryTitle p{font-size:14px;opacity:.9}
+@media (prefers-reduced-motion:reduce){#bgA,#bgB,#card,#pfan .f,#neeluLive,#shade{animation:none!important;transition:opacity .4s ease!important}}
+</style>
+</head>
+<body>
+<div class="panel">
+<h2>MOR · frozen palace v4</h2>
+<p>One palace, every room — Nano Banana Pro with consistency lock. App-identical cards, bubbles, dots and toggles; only the background lives (drift, dust, light, diyas, animated fan). Sound: original stems.</p>
+<div class="swatches"><span style="background:#8E1B12">lacquer</span><span style="background:#BE2A24">kumkum</span><span style="background:#C9972B">aged gold</span><span style="background:#1B4FB0">neel</span><span style="background:#0A323C">deep teal</span><span style="background:#2A9D8F">pankh</span></div>
+<div class="row"><button class="btn" id="play">Play full journey</button><button class="btn ghost" id="skip">Skip to Notify</button></div>
+<div id="jmap"></div><div class="row" id="rooms"></div>
+<h2>Beat log</h2><div id="log"></div>
+<audio id="bed" loop preload="auto" src="audio/bed.mp3"></audio>
+<audio id="rumble" preload="auto" src="audio/rumble.mp3"></audio>
+<audio id="chime" preload="auto" src="audio/chime.mp3"></audio>
+</div>
+<div class="phone"><div id="stage">
+<div id="bgA"></div><div id="bgB"></div>
+<div id="flash"></div><div id="shade"></div><canvas id="dust" width="360" height="800"></canvas>
+<button id="muteBtn" aria-label="Mute">🔊</button>
+<div id="entry"><div id="entryTitle"><h1>MOR</h1><p>Eat well, the Indian way.</p></div></div>
+<div class="roomTag" id="roomTag"></div><div id="jstrip"></div>
+<div id="card"></div>
+</div></div>
+<script>
+"use strict";
+var F="assets-ai/frozen/";
+var BG=[F+"f-door.png",F+"f-door.png",F+"f-sanctum.png",F+"f-gallery.png",F+"f-gallery.png",F+"f-jharokha.png",F+"f-rotunda.png",F+"f-arches.png",F+"f-court.png",F+"f-stair.png",F+"f-durbar.png",F+"f-bell.png"];
+var CORR="assets-ai/a1-corridor.png";
+var TITLES=["OUTER CORRIDOR","RED DOOR","SANCTUM","GALLERY HALL I","GALLERY HALL II","JHAROKHA CHAMBER","HALO ROTUNDA","ARCH CORRIDOR","COURTYARD","STAIRWAY","DURBAR HALL","BELL PAVILION"];
+var DOTS=function(s){var h="";for(var i=0;i<6;i++)h+="<span class='"+(i<s?"on":"")+"'></span>";return "<div class='dots'>"+s+"</div>".replace(s,h);};
+var FAN="<svg id='pfan' viewBox='0 0 170 170'><g stroke='#C9972B' stroke-width='3' fill='none' stroke-linecap='round'>"+
+"<path class='f' d='M85 150 C60 118 34 110 12 106'/><path class='f' d='M85 150 C66 116 52 94 28 80'/><path class='f' d='M85 150 C78 114 70 86 56 58'/><path class='f' d='M85 150 C85 112 85 80 85 50'/><path class='f' d='M85 150 C92 114 100 86 114 58'/><path class='f' d='M85 150 C104 116 118 94 142 80'/><path class='f' d='M85 150 C110 118 136 110 158 106'/></g>"+
+"<g fill='#1B4FB0'><circle cx='12' cy='104' r='8'/><circle cx='28' cy='78' r='8'/><circle cx='56' cy='56' r='8'/><circle cx='85' cy='48' r='8'/><circle cx='114' cy='56' r='8'/><circle cx='142' cy='78' r='8'/><circle cx='158' cy='104' r='8'/></g>"+
+"<g fill='#0A323C'><circle cx='12' cy='104' r='3.5'/><circle cx='28' cy='78' r='3.5'/><circle cx='56' cy='56' r='3.5'/><circle cx='85' cy='48' r='3.5'/><circle cx='114' cy='56' r='3.5'/><circle cx='142' cy='78' r='3.5'/><circle cx='158' cy='104' r='3.5'/></g></svg>";
+var OPTS={
+goal:[["Lose weight","Steady, sustainable pace"],["Maintain weight","Stay where you are"],["Gain weight","Build up gently"],["Eat healthier","Better choices, same weight"]],
+diet:[["Vegetarian","veg"],["Eggetarian","egg"],["Vegan","veg"],["Non-veg","non"]],
+activity:[["Mostly sitting","Desk job, little movement"],["Lightly active","Walks, chores some days"],["Active","Exercise most days"],["Very active","Physical work or daily training"]],
+meals:[["Breakfast","08:30"],["Lunch","13:30"],["Snack","17:00"],["Dinner","21:00"]]};
+function optList(key,mark){return "<div class='opts'>"+OPTS[key].map(function(o){
+var m=mark?("<span class='radio' style='border-color:var(--panna);border-width:2px'></span>"):"<span class='radio'></span>";
+return "<button class='opt' onclick='this.classList.toggle(\"on\");bell(0,true)'>"+m+"<span style='flex:1'>"+o[0]+(o[1]&&!mark?"<small>"+o[1]+"</small>":"")+"</span></button>";}).join("")+"</div>";}
+var VEGC={veg:"#1E8A5A",egg:"#F2A93B",non:"#D9483B"};
+function dietList(){return "<div class='opts'>"+OPTS.diet.map(function(o){return "<button class='opt' onclick='this.classList.toggle(\"on\");bell(0,true)'><span style='width:16px;height:16px;border-radius:3px;border:1.6px solid "+VEGC[o[1]]+";display:inline-flex;align-items:center;justify-content:center;flex-shrink:0'><i style='width:8px;height:8px;border-radius:50%;background:"+VEGC[o[1]]+"'></i></span><span style='flex:1'>"+o[0]+"</span></button>";}).join("")+"</div>";}
+var ROOMHTML=[
+{t:0,h:"<h1>Mor</h1><p>Eat well, the Indian way.</p>",cta:"Enter the palace"},
+{t:1,h:"<h1>Snap your meal. Know your calories.</h1><p>Point the camera at your thali. Neelu reads it in seconds.</p><p>No sign-up needed</p>",cta:"Get started"},
+{t:2,h:"<h1>Hi, I'm Neelu.</h1><p>I'm happiest when you eat well. I'll count, you enjoy.</p><div style='position:relative;height:190px'>"+FAN+"<img id='neeluLive' src='../../app/public/neelu/neelu-happy.png' width='110' height='110' alt='Neelu' style='position:absolute;left:50%;bottom:0' onerror=\"this.style.display='none'\"></div>",cta:"Let's go"},
+{t:3,h:"<p style='color:var(--sub);font-weight:600;margin-bottom:4px'>STEP 1 OF 6</p><h1>What's your goal?</h1>"+DOTS(1)+optList("goal"),cta:"Continue"},
+{t:4,h:"<p style='color:var(--sub);font-weight:600;margin-bottom:4px'>STEP 2 OF 6</p><h1>What do you eat?</h1>"+DOTS(2)+dietList(),cta:"Continue"},
+{t:5,h:"<p style='color:var(--sub);font-weight:600;margin-bottom:4px'>STEP 3 OF 6</p><h1>About you</h1>"+DOTS(3)+"<div class='seg' id='sexseg'><button class='on'>Female</button><button>Male</button><button>Other</button></div><div style='height:8px'></div><input class='field' inputmode='numeric' placeholder='Age'><div style='height:8px'></div><div style='display:flex;gap:8px'><input class='field' value='5ft 7in' aria-label='Height'><input class='field' value='72' aria-label='Weight kg'></div>",cta:"Continue"},
+{t:6,h:"<p style='color:var(--sub);font-weight:600;margin-bottom:4px'>STEP 4 OF 6</p><h1>Your target weight</h1>"+DOTS(4)+"<div style='text-align:center;font-size:44px;font-weight:800' id='tgtNum'>66 kg</div><input type='range' min='35' max='80' step='0.5' value='66' style='width:100%;accent-color:var(--teal)' oninput=\"document.getElementById('tgtNum').textContent=this.value+' kg'\">",cta:"Continue"},
+{t:7,h:"<p style='color:var(--sub);font-weight:600;margin-bottom:4px'>STEP 5 OF 6</p><h1>How active are you?</h1>"+DOTS(5)+optList("activity"),cta:"Continue"},
+{t:8,h:"<p style='color:var(--sub);font-weight:600;margin-bottom:4px'>STEP 6 OF 6</p><h1>Your meal times</h1><p>Neelu reminds you at these times. Max 4 a day, never at night.</p><div id='meals'></div>",cta:"Build my plan"},
+{t:9,h:"<h1>Building your plan…</h1><p>Balancing your meals and your goal.</p><div style='height:8px;background:#EFE9DC;border-radius:4px'><div id='pb' style='width:10%;height:100%;background:var(--teal);border-radius:4px'></div></div><div id='pct' style='color:var(--sub);font-size:13px'>10%</div>",cta:"Skip"},
+{t:10,h:"<h1>Your plan is ready!</h1><p>DAILY TARGET</p><div style='text-align:center;font-size:54px;font-weight:800;color:var(--teal)'>1,850 <span style='font-size:20px'>kcal</span></div><p>Protein 75g · Carbs 250g · Fat 60g</p>",cta:"Start"},
+{t:11,h:"<h1>Remind you at mealtimes?</h1><p>Max 4 a day. Never at night.</p><div class='opts'><button class='opt' onclick='bell(0,true)'>Yes, remind me</button><button class='opt' onclick='bell(0,true)'>Not now</button></div>",cta:"Enter Mor"}];
+var bgA=document.getElementById("bgA"),bgB=document.getElementById("bgB"),front=true,
+card=document.getElementById("card"),tag=document.getElementById("roomTag"),
+logEl=document.getElementById("log"),jmap=document.getElementById("jmap"),
+strip=document.getElementById("jstrip"),roomsEl=document.getElementById("rooms"),
+bed=document.getElementById("bed"),rumbleEl=document.getElementById("rumble"),chimeEl=document.getElementById("chime"),
+entry=document.getElementById("entry"),cur=-1,playTimer=null,live=false,muted=false;
+function log(m){var p=document.createElement("div");p.textContent=new Date().toISOString().slice(17,23)+" "+m;logEl.appendChild(p);logEl.scrollTop=1e6;}
+TITLES.forEach(function(t,i){var a=document.createElement("span");a.className="arch";a.textContent=i+1;jmap.appendChild(a);
+var b=document.createElement("button");b.className="btn sm ghost";b.textContent=i+1;b.title=t;b.onclick=function(){stopPlay();go(i);};roomsEl.appendChild(b);
+var s=document.createElement("i");strip.appendChild(s);});
+function setBG(i){var show=front?bgA:bgB,hide=front?bgB:bgA;front=!front;
+show.style.backgroundImage="url("+((i===0)?CORR:BG[i])+")";
+show.style.filter=(i===0)?"grayscale(1) brightness(.72)":"grayscale(0) brightness(1)";
+show.style.transform="scale(1.12)";show.style.opacity=1;hide.style.opacity=0;
+requestAnimationFrame(function(){requestAnimationFrame(function(){show.style.transform="scale(1.0)";});});}
+function paint(i){var r=ROOMHTML[i];setBG(i);tag.textContent=TITLES[i];
+card.innerHTML=r.h+"<button class='cta' id='go'>"+r.cta+"</button>";
+document.getElementById("go").onclick=function(){advance(i);};
+if(i===5){var seg=document.getElementById("sexseg");if(seg)seg.addEventListener("click",function(e){if(e.target.tagName==="BUTTON"){var bs=seg.children;for(var k=0;k<bs.length;k++)bs[k].className="";e.target.className="on";}});}
+if(i===8){var mh=document.getElementById("meals");if(mh){mh.innerHTML=OPTS.meals.map(function(m){return "<div class='trow' style='margin-bottom:8px'><span style='flex:1'><b>"+m[0]+"</b></span><span class='chip'>"+m[1]+"</span><button class='tgl on' aria-label='Toggle "+m[0]+"' onclick='this.classList.toggle(\"on\")'></button></div>";}).join("");}}
+if(i===9){var p=10,pb=setInterval(function(){p=Math.min(100,p+17);var e=document.getElementById("pb"),q=document.getElementById("pct");if(e)e.style.width=p+"%";if(q)q.textContent=p+"%";if(p>=100)clearInterval(pb);},280);}}
+function mark(i){var a=jmap.children,s=strip.children;for(var k=0;k<a.length;k++){a[k].className="arch"+(k<i?" done":k===i?" now":"");s[k].className=k<=i?"on":"";}}
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms);}catch(e){}}
+function playRumble(){if(!live||muted)return;try{rumbleEl.currentTime=0;rumbleEl.play();}catch(e){}}
+function bell(i){if(!live||muted)return;var f=(660-i*36)/880;try{
+chimeEl.currentTime=0;chimeEl.playbackRate=f;chimeEl.play();
+setTimeout(function(){try{chimeEl.currentTime=0;chimeEl.playbackRate=f*0.89;chimeEl.play();}catch(e){}},140);}catch(e){}}
+function startBed(){if(!live||muted)return;try{bed.volume=0.45;bed.play();}catch(e){}}
+function go(i){stopPlay();cur=i;paint(i);mark(i);if(i>=3&&i<=8){playRumble();bell(i-3);buzz(10);flash();}
+log("ROOM "+(i+1)+"/12 "+TITLES[i]);}
+function flash(){var f=document.getElementById("flash");if(!f)return;f.style.opacity=1;setTimeout(function(){f.style.opacity=0;},220);}
+function advance(i){live=true;startBed();
+if(i===1){playEntry();return;}
+if(i>=ROOMHTML.length-1){log("JOURNEY COMPLETE -> /home");bell(6);return;}
+go(i+1);}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}}
+function playEntry(){var ov=entry;ov.style.display="block";ov.style.backgroundImage="url("+CORR+")";ov.style.filter="grayscale(1) brightness(.8)";
+try{bed.currentTime=0;bed.play();}catch(e){}log("ENTRY 0-11.5s on audio clock");var bi=0,last=-1;
+var iv=setInterval(function(){var t=0;try{t=bed.currentTime;}catch(e){t=bi*0.5;}
+var p=t<2.2?0:t<4.0?1:t<6.5?2:t<8.0?3:t<9.75?4:5;
+if(p!==last){last=p;ov.style.backgroundImage="url("+(p>=5?BG[2]:p>=2?BG[1]:CORR)+")";
+ov.style.filter=(p<2)?"grayscale(1) brightness(.8)":"grayscale(0) brightness(1)";
+if(p===2){playRumble();buzz(15);log("4.0s CREST — doors part");}
+if(p===3){try{bed.volume=0.15;}catch(e){}log("6.5s hush");}
+if(p===4){try{bed.volume=0.6;}catch(e){}bell(0);log("8.0s SWELL");}
+if(p===5){bell(0);log("9.75s REVEAL");}}
+if(t>=11.4||bi>40){clearInterval(iv);ov.style.display="none";try{bed.volume=0.45;}catch(e){}go(2);}bi++;},250);}
+document.getElementById("play").onclick=function(){live=true;startBed();go(0);var i=0;stopPlay();playTimer=setInterval(function(){i++;if(i>=ROOMHTML.length){stopPlay();log("GUIDED PASS COMPLETE");return;}advance(i-1);},4200);};
+document.getElementById("skip").onclick=function(){live=true;startBed();go(11);};
+document.getElementById("muteBtn").onclick=function(e){muted=!muted;e.target.textContent=muted?"🔇":"🔊";try{muted?bed.pause():live&&bed.play();}catch(x){}log(muted?"MUTED":"SOUND ON");};
+var cv=document.getElementById("dust"),cx=cv.getContext("2d"),ps=[];for(var k=0;k<40;k++)ps.push({x:Math.random()*360,y:Math.random()*800,r:Math.random()*2+.5,s:Math.random()*.4+.1});
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+(function loop(){cx.clearRect(0,0,360,800);cx.fillStyle="rgba(245,214,127,.5)";
+for(var i=0;i<ps.length;i++){var p=ps[i];if(!RM){p.y-=p.s;if(p.y<0){p.y=800;p.x=Math.random()*360;}}cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill();}
+requestAnimationFrame(loop);})();
+go(0);
+</script>
+</body>
+</html>

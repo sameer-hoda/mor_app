@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mor — Palace Design Options</title>
+<style>
+:root{
+  --ink:#0A2E36; --ink2:#0E3A44; --chandan:#F8F5EE; --paper:#FFFDF7;
+  --kumkum:#BE2A24; --deepred:#8E1B16; --gold:#E9A820; --gold2:#F5D67F;
+  --teal:#0B4A57; --neel:#1B4FB0; --pankh:#19A39A; --sub:#4A5A63; --line:#E7DCC8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--chandan);font-family:"Baloo 2","Mukta",ui-rounded,system-ui,sans-serif}
+a{color:var(--gold2)}
+.wrap{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+nav{position:sticky;top:0;align-self:start;height:100vh;padding:28px 20px;background:var(--ink2);border-right:1px solid #1b4a55}
+nav h1{font-size:28px;margin:0 0 4px}
+nav p{color:#B9CFC9;font-size:14px;line-height:1.5;margin:0 0 18px}
+nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+nav ol a{display:block;padding:10px 12px;border-radius:12px;background:#123f4a;text-decoration:none;color:var(--chandan);font-weight:700;font-size:14px}
+nav ol a span{display:block;font-weight:400;font-size:12px;color:#B9CFC9}
+main{padding:28px 28px 80px;max-width:1180px}
+section{background:var(--paper);color:#17272d;border-radius:20px;padding:22px;margin:0 0 22px}
+section>h2{margin:0 0 4px;font-size:26px}
+section>.lede{margin:0 0 16px;color:var(--sub);font-size:15px;line-height:1.5;max-width:70ch}
+.phones{display:flex;gap:18px;flex-wrap:wrap}
+.phone{width:300px;min-height:600px;background:var(--chandan);border-radius:34px;border:6px solid #102f37;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.phone .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:12px;font-weight:700}
+.screen{flex:1;display:flex;flex-direction:column}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;border:0;border-radius:999px;padding:12px 18px;font-weight:800;font-size:15px;cursor:pointer}
+.btn.gold{background:var(--gold);color:#231600}
+.btn.ghost{background:#fff;color:var(--teal);border:2px solid var(--teal)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px}
+.opt{width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px;font:inherit;font-weight:700;cursor:pointer}
+.opt.on{border-color:var(--teal);background:#E3F2EF}
+.opt small{display:block;color:var(--sub);font-weight:500}
+.arch{border-radius:150px 150px 18px 18px}
+.halo{border-radius:50%}
+.muted{color:var(--sub)}
+.stage{position:relative;overflow:hidden}
+.dotfan i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--teal);margin:2px}
+.controls{display:flex;gap:8px;margin:12px 0}
+pre{white-space:pre-wrap;background:#0E3A44;color:#EAF5F1;padding:14px;border-radius:12px;font-size:13px;line-height:1.5}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}nav{position:static;height:auto}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+<h1>Mor Palace</h1>
+<p>One board: logo, palace-walk launch, onboarding, Home. Built from your 11 mood images. Offline, single file.</p>
+<ol>
+<li><a href="#logo">1 · Logo<span>fan-mark vs dot-eye vs FeatherEye</span></a></li>
+<li><a href="#launch">2 · First launch<span>closed door → alley → peacock</span></a></li>
+<li><a href="#onboard">3 · Onboarding<span>Welcome, Neelu, steps</span></a></li>
+<li><a href="#home">4 · Home<span>day + night palace</span></a></li>
+<li><a href="#tokens">5 · Tokens + sources<span>palette, type, links</span></a></li>
+</ol>
+</nav>
+<main>
+<section id="logo">
+<h2>1 · Logo — my recommendation</h2>
+<p class="lede">Promote the one-ink feather fan from <b>logo-minimal-feather-fan.jpg</b> to app icon and Splash. Keep your FeatherEye circles as the in-product sparkle (buttons, ring center). Use the dot-eye fan as the loader: dots bloom into a fan.</p>
+<div class="phones">
+<div class="phone"><div class="bar"><span>Option A · Fan (pick)</span><span>● ● ●</span></div>
+<div class="screen" style="align-items:center;justify-content:center;background:var(--teal);color:#fff;padding:24px;text-align:center">
+<svg width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Peacock fan mark">
+<g fill="none" stroke="#F8F5EE" stroke-width="3" stroke-linecap="round">
+<path d="M75 118 C60 90 40 78 18 74"/><path d="M75 118 C66 86 56 66 36 52"/><path d="M75 118 C72 84 68 60 58 36"/><path d="M75 118 C75 82 75 58 75 32"/><path d="M75 118 C78 84 82 60 92 36"/><path d="M75 118 C84 86 94 66 114 52"/><path d="M75 118 C90 90 110 78 132 74"/>
+</g><g fill="#E9A820">
+<circle cx="18" cy="72" r="7"/><circle cx="36" cy="50" r="7"/><circle cx="58" cy="34" r="7"/><circle cx="75" cy="30" r="7"/><circle cx="92" cy="34" r="7"/><circle cx="114" cy="50" r="7"/><circle cx="132" cy="72" r="7"/>
+</g><path d="M68 118 q7 -18 14 0 q-7 8 -14 0" fill="#F8F5EE"/>
+</svg>
+<div style="font-size:44px;font-weight:800;margin:10px 0 0">Mor</div>
+<div style="color:#CFE7E1;font-size:14px">Eat well, the Indian way.</div>
+<div class="dotfan" style="margin-top:14px"><i></i><i></i><i></i><i></i><i></i></div>
+</div></div>
+<div class="phone"><div class="bar"><span>Option B · Dot-eye</span><span>loader</span></div>
+<div class="screen" style="align-items:center;justify-content:center;background:#F8F5EE;padding:24px;text-align:center">
+<svg width="170" height="110" viewBox="0 0 170 110"><g fill="#0B4A57">
+<circle cx="30" cy="85" r="4"/><circle cx="50" cy="78" r="4"/><circle cx="70" cy="72" r="4"/><circle cx="85" cy="66" r="5"/><circle cx="100" cy="72" r="4"/><circle cx="120" cy="78" r="4"/><circle cx="140" cy="85" r="4"/>
+<circle cx="45" cy="62" r="4"/><circle cx="65" cy="55" r="4"/><circle cx="85" cy="50" r="5"/><circle cx="105" cy="55" r="4"/><circle cx="125" cy="62" r="4"/>
+<circle cx="60" cy="40" r="4"/><circle cx="85" cy="34" r="5"/><circle cx="110" cy="40" r="4"/>
+</g></svg>
+<p style="font-weight:800;margin:6px 0">Dots bloom into fan</p>
+<p class="muted" style="font-size:13px">Use for Building-plan + scanning states. 600ms stagger, then fan stroke draws.</p>
+<span class="pill">● 16px favicon-safe</span>
+</div></div>
+<div class="phone"><div class="bar"><span>Option C · FeatherEye</span><span>keep in-product</span></div>
+<div class="screen" style="align-items:center;justify-content:center;background:#fff;padding:24px;text-align:center">
+<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="#F2B544"/><circle cx="60" cy="60" r="36" fill="#19A39A"/><circle cx="60" cy="60" r="20" fill="#2D2A6E"/><circle cx="52" cy="52" r="6" fill="#fff"/></svg>
+<p style="font-weight:800">Keep for buttons + ring</p>
+<p class="muted" style="font-size:13px">Badge on Continue, center of kcal ring, FAB. Do not use as app icon — too small at 16px.</p>
+</div></div>
+</div>
+</section>
+<section id="launch">
+<h2>2 · First launch — walk into the palace</h2>
+<p class="lede">Three beats, 3.2s, skippable. Maps to your door trio: closed mural door → side peacock niche → red alley with full display. CSS transforms only; swap gradients for your photos at build time.</p>
+<div class="controls"><button class="btn gold" id="playWalk">Play walk</button><button class="btn ghost" id="skipWalk">Skip to Neelu</button><span class="pill" id="walkLabel">Beat 1 · Closed door</span></div>
+<div class="phones">
+<div class="phone"><div class="bar"><span>Splash · Beat 1</span><span>0.0s</span></div>
+<div class="screen stage" id="beat1" style="background:linear-gradient(180deg,#8E1B16,#BE2A24);align-items:center;justify-content:center;padding:20px;text-align:center;color:#FFF6EA">
+<div class="arch" style="width:200px;height:300px;background:linear-gradient(180deg,#6E130F,#A3241C);border:6px solid #E9D9B8;position:relative;overflow:hidden">
+<div style="position:absolute;inset:14px;border:2px solid #E9A820;border-radius:120px 120px 10px 10px;opacity:.8"></div>
+<div style="position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-size:13px;letter-spacing:.5px;line-height:1.2">feather<br>fresco<br>arch</div>
+<div id="doorL" style="position:absolute;left:0;bottom:0;top:34%;width:50%;background:#5E100C;border-right:2px solid #E9A820"></div>
+<div id="doorR" style="position:absolute;right:0;bottom:0;top:34%;width:50%;background:#5E100C;border-left:2px solid #E9A820"></div>
+</div>
+<div style="font-size:40px;font-weight:800;margin:12px 0 0">Mor</div>
+<div style="font-size:14px;opacity:.9">Eat well, the Indian way.</div>
+</div></div>
+<div class="phone"><div class="bar"><span>Beat 2 · Crack</span><span>1.1s</span></div>
+<div class="screen" style="background:linear-gradient(180deg,#2b0d0b,#8E1B16);padding:16px;color:#FFF6EA">
+<div style="background:#F6E8C8;border-radius:14px;padding:10px;display:flex;gap:10px;align-items:center">
+<svg width="54" height="54" viewBox="0 0 60 60"><ellipse cx="30" cy="34" rx="14" ry="16" fill="#1B4FB0"/><circle cx="30" cy="16" r="8" fill="#0B4A57"/><circle cx="38" cy="6" r="3" fill="#19A39A"/></svg>
+<div><b>Someone is waiting.</b><div class="muted" style="font-size:13px">Light through the doors. A guard-peacock turns.</div></div>
+</div>
+<div class="arch" style="margin-top:12px;height:340px;background:linear-gradient(180deg,#FFD98A,#FF9D5C);border:6px solid #E9D9B8;position:relative;overflow:hidden">
+<div style="position:absolute;left:8%;right:8%;top:10%;bottom:8%;background:linear-gradient(180deg,#7A1410,#BE2A24);border-radius:120px 120px 12px 12px"></div>
+<div style="position:absolute;left:46%;top:18%;bottom:10%;width:8%;background:linear-gradient(180deg,#FFE9B0,#FFB35C)"></div>
+</div>
+</div></div>
+<div class="phone"><div class="bar"><span>Beat 3 · Alley reveal</span><span>2.2s</span></div>
+<div class="screen" id="beat3" style="background:linear-gradient(180deg,#BE2A24,#8E1B16);padding:14px;color:#fff;align-items:center">
+<div class="arch" style="width:100%;height:300px;background:linear-gradient(180deg,#5E100C 0 18%,#BE2A24 18% 100%);border:6px solid #F6E8C8;position:relative;overflow:hidden">
+<div class="arch" style="position:absolute;left:12%;right:12%;top:14%;bottom:6%;background:#2b0d0b;border:4px solid #E9D9B8"></div>
+<div class="arch" style="position:absolute;left:26%;right:26%;top:26%;bottom:6%;background:linear-gradient(180deg,#FFE9B0,#FFD98A);border:3px solid #E9A820"></div>
+<svg viewBox="0 0 120 90" style="position:absolute;left:50%;bottom:8%;transform:translateX(-50%)" width="120" height="90"><ellipse cx="60" cy="62" rx="34" ry="26" fill="#0B4A57"/><ellipse cx="60" cy="58" rx="26" ry="20" fill="#1B4FB0"/><circle cx="60" cy="28" r="10" fill="#0B4A57"/><g fill="#19A39A"><circle cx="30" cy="50" r="5"/><circle cx="45" cy="42" r="5"/><circle cx="75" cy="42" r="5"/><circle cx="90" cy="50" r="5"/></g></svg>
+</div>
+<button class="btn gold" style="margin-top:12px;width:100%;justify-content:center">Enter — meet Neelu</button>
+<p class="muted" style="color:#F6D9A8;font-size:13px">Peacock fans 40% to 100%. Shimmer on eyes.</p>
+</div></div>
+</div>
+<pre>Motion spec — Beat1 scale 1.0 to 1.04 (900ms) · doors split 12px + light leak (400ms) · dolly scale 1.15 to 1.0 through arches · fan scale .4 to 1 + opacity · total 3.2s · Skip always visible · prefers-reduced-motion = crossfade stills. Photos: door-closed-peacock-mural.jpg, door-side-peacock-niche.jpg, door-alley-peacock-display.jpg in design-ref/organized/02-palace-door-sequence/.</pre>
+</section>
+<section id="onboard">
+<h2>3 · Onboarding — same steps, palace skin</h2>
+<p class="lede">Keep your 6 steps and Continue buttons. Reskin: cream boho Welcome, art-deco halo for Neelu, playful blobs for choice cards, halo slider for target.</p>
+<div class="phones">
+<div class="phone"><div class="bar"><span>Welcome</span><span>boho arch</span></div>
+<div class="screen" style="background:linear-gradient(180deg,#F6D9A8,#F8F5EE 70%)">
+<div style="margin:16px;border-radius:150px 150px 20px 20px;background:linear-gradient(180deg,#E8873A,#BE2A24);height:260px;position:relative;overflow:hidden;border:6px solid #fff">
+<div class="halo" style="position:absolute;left:50%;top:26px;transform:translateX(-50%);width:130px;height:130px;background:radial-gradient(circle,#F5D67F,#E8873A)"></div>
+<svg viewBox="0 0 100 120" width="110" height="130" style="position:absolute;left:50%;bottom:0;transform:translateX(-50%)"><ellipse cx="50" cy="80" rx="22" ry="34" fill="#0B4A57"/><circle cx="50" cy="38" r="12" fill="#1B4FB0"/><g fill="#19A39A"><circle cx="20" cy="70" r="6"/><circle cx="80" cy="70" r="6"/><circle cx="50" cy="95" r="6"/></g></svg>
+<span class="pill" style="position:absolute;left:12px;top:12px">590 kcal · thali</span>
+</div>
+<div style="padding:14px"><div style="font-size:26px;font-weight:800;line-height:1.1">Snap your meal. Know your calories.</div>
+<p class="muted" style="font-size:14px">Point at your thali. Neelu reads it in seconds.</p>
+<button class="btn" style="width:100%;justify-content:center">Get started</button></div>
+</div></div>
+<div class="phone"><div class="bar"><span>Meet Neelu</span><span>halo</span></div>
+<div class="screen" style="align-items:center;justify-content:center;background:#F8F5EE;padding:20px;text-align:center">
+<div class="halo" style="width:190px;height:190px;background:conic-gradient(from 0deg,#E9A820,#19A39A,#1B4FB0,#E9A820);display:flex;align-items:center;justify-content:center">
+<div class="halo" style="width:150px;height:150px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:64px">🦚</div>
+</div>
+<div style="font-size:28px;font-weight:800;margin-top:10px">Hi, I'm Neelu.</div>
+<p class="muted">I'm happiest when you eat well. I'll count, you enjoy.</p>
+<button class="btn" style="width:100%;justify-content:center">Let's go</button>
+</div></div>
+<div class="phone"><div class="bar"><span>Steps 1-6</span><span>choice cards</span></div>
+<div class="screen" style="background:#F1ECE1;padding:14px">
+<div class="muted" style="font-size:12px;font-weight:700">STEP 1 OF 6</div>
+<div style="font-size:22px;font-weight:800;margin-bottom:8px">What's your goal?</div>
+<button class="opt on">Lose weight<small>Steady, sustainable pace</small></button>
+<div style="height:8px"></div>
+<button class="opt">Maintain weight<small>Stay where you are</small></button>
+<div style="height:8px"></div>
+<button class="opt">Eat healthier<small>Better choices, same weight</small></button>
+<div style="margin-top:10px" class="card"><b>Target slider idea</b><div class="muted" style="font-size:13px">66 kg · Realistic · By 12 Jun</div>
+<div style="height:8px;background:#EFE9DC;border-radius:4px;margin-top:8px"><div style="width:62%;height:100%;background:var(--teal);border-radius:4px"></div></div></div>
+</div></div>
+</div>
+<pre>Art refs: onboarding-artdeco-peacock.jpg for halo + gold rays · onboarding-playful-modern.jpg for blob spot-art on Goal/Diet/Activity · keep .opt cards, StepDots, Continue vocabulary identical.</pre>
+</section>
+<section id="home">
+<h2>4 · Home — day palace, night jungle</h2>
+<p class="lede">Same IA: greeting, banner, streak, kcal ring, meals, water + steps. Day uses boho cream + terracotta. Night uses black-gold jungle. Toggle to compare.</p>
+<div class="controls"><button class="btn gold" id="dayBtn">Day palace</button><button class="btn ghost" id="nightBtn">Night jungle</button></div>
+<div class="phones">
+<div class="phone" id="homePhone"><div class="bar"><span id="homeLabel">Good morning · Day</span><span>🔔</span></div>
+<div class="screen" id="homeScene" style="background:linear-gradient(180deg,#F6D9A8,#F8F5EE);padding:14px">
+<div class="arch" style="background:linear-gradient(180deg,#E8873A,#BE2A24);height:150px;position:relative;overflow:hidden;border:5px solid #fff">
+<div class="halo" style="position:absolute;right:16px;top:14px;width:52px;height:52px;background:radial-gradient(circle,#FFF3C4,#E9A820)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:52px">🦚</div>
+</div>
+<div class="card" style="margin-top:10px;background:#FFF3DC;border-color:#E9A820"><b>🔥 6</b> day streak · <span class="muted">dots bloom into fan</span></div>
+<div class="card" style="margin-top:10px;display:flex;gap:12px;align-items:center">
+<div><div class="muted" style="font-size:12px;font-weight:700">KCAL LEFT</div><div style="font-size:38px;font-weight:800;color:var(--teal)">842</div><div class="muted" style="font-size:12px">of 2100 · 1258 eaten</div></div>
+<svg width="96" height="96" viewBox="0 0 96 96"><circle cx="48" cy="48" r="40" fill="none" stroke="#EFE9DC" stroke-width="10"/><circle cx="48" cy="48" r="40" fill="none" stroke="#0B4A57" stroke-width="10" stroke-dasharray="150 251" stroke-linecap="round" transform="rotate(-90 48 48)"/><circle cx="48" cy="48" r="24" fill="#0B4A57"/><circle cx="48" cy="48" r="15" fill="#E9A820"/><circle cx="48" cy="48" r="7" fill="#2D2A6E"/></svg>
+</div>
+<div class="card" style="margin-top:10px"><b>Today's meals</b><div class="muted" style="font-size:13px">Breakfast · logged 420 kcal<br>Lunch · opens 1:30 PM<br>Snack · dinner</div></div>
+</div></div>
+<div class="phone"><div class="bar"><span>Meals + log</span><span>arch thumbs</span></div>
+<div class="screen" style="background:#F8F5EE;padding:14px">
+<div class="card" style="display:flex;gap:10px;align-items:center"><span class="arch" style="width:44px;height:54px;background:linear-gradient(180deg,#E9A820,#BE2A24);display:inline-block"></span><span><b>Breakfast</b><br><span class="muted">Poha · 320 kcal</span></span></div>
+<div style="height:8px"></div>
+<div class="card" style="display:flex;gap:10px;align-items:center;border-style:dashed"><span style="width:44px;height:44px;border-radius:50%;border:2px dashed #B9AFA0;display:inline-flex;align-items:center;justify-content:center">+</span><span><b>Lunch</b><br><span class="muted">Not logged · opens 1:30 PM</span></span></div>
+<div style="height:8px"></div>
+<div class="row"><span class="pill">💧 5/8 glasses</span><span class="pill">👟 4,210 steps</span></div>
+<div style="height:10px"></div>
+<button class="btn" style="width:100%;justify-content:center">+ Log a meal</button>
+<p class="muted" style="font-size:13px">Scan · Search · Speak · Gallery</p>
+</div></div>
+</div>
+</section>
+<section id="tokens">
+<h2>5 · Tokens + what to license</h2>
+<p class="lede">Palette pulled from board + your styles.css. Type stays Baloo 2 display + Mukta body — no new fonts needed.</p>
+<div class="row">
+<span class="pill" style="background:#0B4A57;color:#fff">teal #0B4A57</span>
+<span class="pill" style="background:#BE2A24;color:#fff">kumkum #BE2A24</span>
+<span class="pill" style="background:#E9A820">gold #E9A820</span>
+<span class="pill" style="background:#1B4FB0;color:#fff">neel #1B4FB0</span>
+<span class="pill" style="background:#19A39A;color:#fff">pankh #19A39A</span>
+<span class="pill">chandan #F8F5EE</span>
+</div>
+<pre>License later (experience first): Peacock Gate guides + Jaipur doors · red arch corridor dolly refs · minimal feather-fan logos · Mughal arch patterns. Full link list in design-ref/DESIGN-SECTIONS.md. Originals untouched in modd_board/; working copies in design-ref/organized/.</pre>
+</section>
+<section id="pinterest">
+<h2>6 · Pinterest — browse these, don't hotlink</h2>
+<p class="lede">Pinterest blocks direct reading, so open these galleries in your browser and pin from there. I picked boards that match each of your four sections. For build-ready files prefer Wikimedia Commons below.</p>
+<div class="phones">
+<div class="phone"><div class="bar"><span>Doors + arches</span><span>launch</span></div>
+<div class="screen" style="background:#F8F5EE;padding:14px">
+<button class="opt" onclick="window.open('https://in.pinterest.com/ideas/peacock-gate-jaipur/937184112425/','_blank')">Peacock Gate Jaipur gallery<small>best closed-door + feather fresco angles</small></button>
+<div style="height:8px"></div>
+<button class="opt" onclick="window.open('https://in.pinterest.com/ideas/jaipur-palace-door-design/918726456116/','_blank')">Jaipur palace door design<small>red sandstone niches, side profiles</small></button>
+<div style="height:8px"></div>
+<button class="opt" onclick="window.open('https://in.pinterest.com/ideas/city-palace-jaipur-peacock-gate-detail/948797102204/','_blank')">Peacock gate detail<small>close-ups for fresco arch trim</small></button>
+</div></div>
+<div class="phone"><div class="bar"><span>Logo + feather</span><span>mark</span></div>
+<div class="screen" style="background:#F8F5EE;padding:14px">
+<button class="opt" onclick="window.open('https://www.pinterest.com/ideas/peacock-feather-icon/942312250320/','_blank')">Peacock feather icon<small>one-ink fan + eye dots</small></button>
+<div style="height:8px"></div>
+<button class="opt" onclick="window.open('https://in.pinterest.com/ideas/peacock-fan-logo-design/918187855189/','_blank')">Peacock fan logo design<small>minimal emblems that survive 16px</small></button>
+<div style="height:8px"></div>
+<button class="opt" onclick="window.open('https://www.pinterest.com/ideas/simple-peacock-symbol/929516526243/','_blank')">Simple peacock symbol<small>silhouettes for splash</small></button>
+</div></div>
+<div class="phone"><div class="bar"><span>Onboarding + Home</span><span>arches</span></div>
+<div class="screen" style="background:#F8F5EE;padding:14px">
+<button class="opt" onclick="window.open('https://in.pinterest.com/ideas/mughal-garden-arch-wallpaper/897916133722/','_blank')">Mughal arch wallpaper<small>boho Welcome backgrounds</small></button>
+<div style="height:8px"></div>
+<button class="opt" onclick="window.open('https://in.pinterest.com/ideas/mughal-palace-illustration/940925287747/','_blank')">Mughal palace illustration<small>arch frames for meal rows</small></button>
+<div style="height:8px"></div>
+<button class="opt" onclick="window.open('https://commons.wikimedia.org/wiki/Category:City_Palace_(Jaipur)','_blank')">Wikimedia: City Palace Jaipur<small>437 free photos incl. Peacock Gate — build-ready</small></button>
+</div></div>
+</div>
+<pre>How to use: open each board, save 3-5 pins per section into your own private board, then drop finals into design-ref/organized/01-04. Keep modd_board/ untouched.</pre>
+</section>
+</main></div>
+<script>
+(function(){
+var label=document.getElementById('walkLabel'),b1=document.getElementById('beat1'),l=document.getElementById('doorL'),r=document.getElementById('doorR');
+var beats=['Beat 1 · Closed door','Beat 2 · Light crack','Beat 3 · Alley reveal'];var i=0,t=null;
+function frame(){if(!label)return;label.textContent=beats[i%3];
+if(b1){b1.style.transform='scale('+(i%3===0?'1.03':'1')+')';}
+if(l&&r){var open=(i%3>0)?'14px':'0px';l.style.transform='translateX(-'+open+')';r.style.transform='translateX('+open+')';}
+i++;}
+document.getElementById('playWalk').addEventListener('click',function(){if(t)clearInterval(t);i=0;frame();t=setInterval(frame,1100);});
+document.getElementById('skipWalk').addEventListener('click',function(){if(t)clearInterval(t);label.textContent='Skipped — Meet Neelu';});
+var scene=document.getElementById('homeScene'),hl=document.getElementById('homeLabel');
+document.getElementById('nightBtn').addEventListener('click',function(){scene.style.background='linear-gradient(180deg,#1a1408,#3a2a10)';scene.style.color='#F6E8C8';hl.textContent='Good evening · Night';});
+document.getElementById('dayBtn').addEventListener('click',function(){scene.style.background='linear-gradient(180deg,#F6D9A8,#F8F5EE)';scene.style.color='#17272d';hl.textContent='Good morning · Day';});
+})();
+</script>
+</body>
+</html>

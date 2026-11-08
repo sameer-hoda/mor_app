@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mor Palace Onboarding — End-to-End Mock (throwaway)</title>
+<style>
+:root{--ink:#0A242B;--kumkum:#BE2A24;--sand:#F8F5EE;--neel:#1B4FB0;--teal:#0B4A57;--pankh:#19A39A;--gold:#E9A820;--gold2:#F5D67F}
+*{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--sand);font-family:"Baloo 2","Mukta",ui-rounded,system-ui,sans-serif;display:flex;gap:20px;justify-content:center;padding:20px;min-height:100vh}
+.panel{width:300px;flex-shrink:0;font-size:13px}.panel h2{font-size:15px;margin:0 0 6px}.panel p{color:#B9CFC9;line-height:1.5}.panel .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button{font:inherit;cursor:pointer}.btn{background:var(--gold);border:0;border-radius:999px;padding:10px 16px;font-weight:800;color:#231600}.btn.ghost{background:transparent;color:var(--sand);border:1.5px solid #3E5A63}.btn.sm{padding:7px 12px;font-size:13px}
+#jmap{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}.arch{aspect-ratio:.8;border:1.5px solid #3E5A63;border-radius:20px 20px 6px 6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#7d99a3}.arch.done{background:var(--gold);border-color:var(--gold);color:#231600;font-weight:800}.arch.now{border-color:var(--sand);color:var(--sand);box-shadow:0 0 0 2px var(--gold)}
+#log{background:#08191e;border:1px solid #234650;border-radius:12px;padding:10px;height:180px;overflow-y:auto;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.6;color:#9fd8cb}
+.phone{width:360px;height:800px;flex-shrink:0;border-radius:40px;border:8px solid #02090b;overflow:hidden;position:relative;background:var(--sand);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#stage{position:absolute;inset:0;overflow:hidden}
+.layer{position:absolute;inset:-40px;transition:transform 1s ease-out,opacity .8s ease,filter 1.2s ease}
+#back{filter:grayscale(1) brightness(.75)}
+.roomTag{position:absolute;top:10px;left:0;right:0;text-align:center;z-index:30;font-size:11px;letter-spacing:2px;color:#fff;text-shadow:0 1px 4px #000}
+#jstrip{position:absolute;top:26px;left:12px;right:12px;z-index:30;display:flex;gap:3px}#jstrip i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}#jstrip i.on{background:var(--gold)}
+#card{position:absolute;left:14px;right:14px;bottom:14px;z-index:20;background:rgba(248,245,238,.97);color:#17272d;border-radius:20px;padding:16px;border:1px solid #E7DCC8;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#card h1{font-size:22px;margin:0 0 4px;line-height:1.15}#card p{font-size:13.5px;color:#4A5A63;margin:0 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px}.opt{background:#fff;border:1.5px solid #D9D2C2;border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;text-align:left;color:#17272d}.opt small{display:block;font-weight:500;color:#4A5A63;font-size:12px}.opt.on{border-color:var(--teal);background:#E3F2EF}
+.cta{width:100%;background:var(--teal);color:#fff;border:0;border-radius:999px;height:50px;font-weight:800;font-size:16px;margin-top:10px}
+#dust{position:absolute;inset:0;z-index:15;pointer-events:none}
+.fresco{position:absolute;left:0;right:0;height:26px;z-index:10;background:radial-gradient(circle at 10px 13px,var(--teal) 5px,transparent 6px) 0 0/28px 26px repeat-x,radial-gradient(circle at 24px 13px,var(--gold) 3px,transparent 4px) 0 0/28px 26px repeat-x,linear-gradient(#5E100C,#5E100C);opacity:.9}
+.medal{position:absolute;left:50%;bottom:170px;width:150px;height:60px;transform:translateX(-50%);z-index:5;border-radius:50%;background:radial-gradient(ellipse at center,var(--gold) 8%,#C1272D 34%,transparent 60%);opacity:.55}
+@media (prefers-reduced-motion:reduce){.layer{transition:opacity .5s ease!important}}
+</style>
+</head>
+<body>
+<div class="panel">
+<h2>MOR · palace onboarding mock</h2>
+<p>Throwaway prototype — same 12 questions, taps and order as the app; answers are NOT saved, Continue only moves the camera. Sound starts on first tap (WebAudio synth). <b>Open via file://</b> — Neelu PNGs load from <code>../../app/public/neelu/</code> with drawn fallback.</p>
+<div class="row"><button class="btn" id="play">Play full journey</button><button class="btn ghost" id="skip">Skip to Notify</button><button class="btn ghost" id="mute">Mute</button></div>
+<div id="jmap"></div>
+<div class="row" id="rooms"></div>
+<h2>Beat log (ROOM_TIMELINE events)</h2>
+<div id="log"></div>
+</div>
+<div class="phone"><div id="stage">
+<div class="layer" id="back"></div>
+<div class="fresco" style="top:0"></div>
+<div class="medal"></div>
+<canvas id="dust" width="360" height="800"></canvas>
+<div class="roomTag" id="roomTag">OUTER CORRIDOR</div>
+<div id="jstrip"></div>
+<div id="card"></div>
+</div></div>
+<script>
+"use strict";
+/* ROOM_TIMELINE: single table driving movement + audio together */
+var NOTES=[261.63,293.66,329.63,349.23,392.0,440.0,493.88,523.25,587.33,659.25,698.46,783.99];
+var ROOMS=[
+{t:"OUTER CORRIDOR",bg:"corridor",title:"Mor",sub:"Eat well, the Indian way.",body:"<p>Black-and-white arch corridor. Any tap blooms color and pushes through the arch.</p>",cta:"Enter the palace",act:"tap"},
+{t:"RED DOOR",bg:"door",title:"Snap your meal. Know your calories.",sub:"Point the camera at your thali. Neelu reads it in seconds.",body:"",cta:"Get started",act:"welcome"},
+{t:"SANCTUM",bg:"sanctum",title:"Hi, I'm Neelu.",sub:"I'm happiest when you eat well. I'll count, you enjoy.",body:"",cta:"Let's go",act:"meet"},
+{t:"GALLERY HALL I",bg:"gallery",title:"What's your goal?",sub:"STEP 1 OF 6",body:"opts",opts:["Lose weight|Steady, sustainable pace","Maintain weight|Stay where you are","Gain weight|Build up gently","Eat healthier|Better choices, same weight"],cta:"Continue",act:"goal"},
+{t:"GALLERY HALL II",bg:"gallery",title:"What do you eat?",sub:"STEP 2 OF 6",body:"opts",opts:["Vegetarian|","Eggetarian|","Non-veg|","Vegan|"],cta:"Continue",act:"diet"},
+{t:"JHAROKHA CHAMBER",bg:"jharokha",title:"About you",sub:"STEP 3 OF 6",body:"<p>Sex inlays · Age slab · Height + Weight slabs. (Mock shows fields; real validation lives in app.)</p>",cta:"Continue",act:"body"},
+{t:"HALO ROTUNDA",bg:"rotunda",title:"Your target weight",sub:"STEP 4 OF 6",body:"<p>Gold ring slider around the medallion. Number counts in the center; ring warms amber when ambitious.</p>",cta:"Continue",act:"target"},
+{t:"ARCH CORRIDOR",bg:"arches",title:"How active are you?",sub:"STEP 5 OF 6",body:"opts",opts:["Mostly sitting|Desk job, little movement","Lightly active|Walks, chores some days","Active|Exercise most days","Very active|Physical work or daily training"],cta:"Continue",act:"activity"},
+{t:"COURTYARD",bg:"court",title:"Your meal times",sub:"STEP 6 OF 6 — light each pavilion diya",body:"opts",opts:["Breakfast|08:30","Lunch|13:30","Snack|17:00","Dinner|21:00"],cta:"Build my plan",act:"meals"},
+{t:"STAIRWAY",bg:"stair",title:"Building your plan…",sub:"Balancing your meals and your goal.",body:"<p>Camera climbs the stair; progress carved on risers.</p><div style='height:8px;background:#EFE9DC;border-radius:4px'><div id='pb' style='height:100%;width:10%;background:var(--teal);border-radius:4px'></div></div>",cta:"Skip",act:"building"},
+{t:"DURBAR HALL",bg:"durbar",title:"Your plan is ready!",sub:"DAILY TARGET · 1,850 kcal",body:"<p>Farman card descends: protein 75g · carbs 250g · fat 60g. Values mirror the app's real defaults.</p>",cta:"Start",act:"plan"},
+{t:"BELL PAVILION",bg:"bell",title:"Remind you at mealtimes?",sub:"Max 4 a day. Never at night.",body:"opts",opts:["Yes, remind me|","Not now|"],cta:"Enter Mor",act:"notify"}
+];
+var BGS={
+corridor:"linear-gradient(180deg,#3a3a3a,#141414)",
+door:"linear-gradient(180deg,#7A1410 0 30%,#BE2A24 30% 72%,#5E100C 72%)",
+sanctum:"radial-gradient(circle at 50% 30%,#F5D67F 0%,#E9A820 12%,#7A1410 45%,#2b0d0b 75%)",
+gallery:"linear-gradient(180deg,#8E5A2B 0 22%,#C99A5B 22% 70%,#6E4A1F 70%)",
+jharokha:"linear-gradient(180deg,#0B4A57 0 26%,#F8F5EE 26% 78%,#0B4A57 78%)",
+rotunda:"radial-gradient(circle at 50% 42%,#F5D67F 0%,#E9A820 16%,#BE2A24 46%,#3a0d0a 78%)",
+arches:"linear-gradient(90deg,#5E100C 0 12%,#BE2A24 12% 24%,#7A1410 24% 36%,#BE2A24 36% 48%,#5E100C 48% 60%,#BE2A24 60% 72%,#7A1410 72% 84%,#5E100C 84%)",
+court:"linear-gradient(180deg,#87B6C9 0 24%,#F6D9A8 24% 70%,#C99A5B 70%)",
+stair:"linear-gradient(180deg,#FFE9B0 0 20%,#BE2A24 20% 100%)",
+durbar:"radial-gradient(circle at 50% 24%,#FFF3C4 0%,#E9A820 14%,#7A1410 48%,#240a08 80%)",
+bell:"linear-gradient(180deg,#2b1a2e 0 40%,#8E5A2B 40% 100%)"
+};
+/* ---- audio: one drone + scheduled accents; visuals lead by 120ms ---- */
+var AC=null,muted=false,drone=null,live=false;
+function ac(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();}if(AC.state==="suspended")AC.resume();return AC;}
+function startDrone(){if(drone||muted)return;var c=ac(),g=c.createGain();g.gain.value=0.0;g.connect(c.destination);
+var f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=420;f.connect(g);
+[110,110.7,165].forEach(function(fr){var o=c.createOscillator();o.type="sawtooth";o.frequency.value=fr;var og=c.createGain();og.gain.value=0.33;o.connect(og);og.connect(f);o.start();});
+g.gain.linearRampToValueAtTime(0.05,c.currentTime+3);drone={g:g};}
+function env(g,t,a,peak,dur){g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);}
+function rumble(){if(muted)return;var c=ac(),t=c.currentTime+0.12,len=c.sampleRate*1.4,b=c.createBuffer(1,len,c.sampleRate),d=b.getChannelData(0),last=0;
+for(var i=0;i<len;i++){var w=Math.random()*2-1;last=(last+0.02*w)/1.02;d[i]=last*3.2;}
+var s=c.createBufferSource();s.buffer=b;var f=c.createBiquadFilter();f.type="lowpass";f.frequency.setValueAtTime(400,t);f.frequency.exponentialRampToValueAtTime(60,t+1.3);
+var g=c.createGain();env(g,t,0.08,0.5,1.4);s.connect(f);f.connect(g);g.connect(c.destination);s.start(t);}
+function note(freq,when,bright){if(muted)return;var c=ac(),t=c.currentTime+(when||0.12);
+var o=c.createOscillator();o.type="triangle";o.frequency.value=freq;var o2=c.createOscillator();o2.type="sine";o2.frequency.value=freq*2;
+var g=c.createGain();env(g,t,0.01,bright?0.28:0.16,1.1);o.connect(g);o2.connect(g);g.connect(c.destination);o.start(t);o2.start(t);o.stop(t+1.2);o2.stop(t+1.2);}
+function tick(){note(1200,0,false);}
+/* ---- render ---- */
+var stage=document.getElementById("stage"),back=document.getElementById("back"),
+card=document.getElementById("card"),tag=document.getElementById("roomTag"),
+logEl=document.getElementById("log"),jmap=document.getElementById("jmap"),
+strip=document.getElementById("jstrip"),roomsEl=document.getElementById("rooms"),cur=-1,playTimer=null;
+var NEELU=["../../app/public/neelu/neelu-happy.png","../../app/public/neelu/neelu-joy.png","../../app/public/neelu/neelu-cool.png"];
+function log(m){var p=document.createElement("div");p.textContent=new Date().toISOString().slice(17,23)+" "+m;logEl.appendChild(p);logEl.scrollTop=1e6;}
+ROOMS.forEach(function(r,i){var a=document.createElement("span");a.className="arch";a.textContent=i+1;jmap.appendChild(a);
+var b=document.createElement("button");b.className="btn sm ghost";b.textContent=(i+1);b.title=r.t;b.onclick=function(){stopPlay();go(i);};roomsEl.appendChild(b);
+var s=document.createElement("i");strip.appendChild(s);});
+function paint(i){var r=ROOMS[i];
+back.style.background=BGS[r.bg];
+back.style.filter=(i===0)?"grayscale(1) brightness(.75)":"grayscale(0) brightness(1)";
+back.style.transform="scale("+(r.bg==="corridor"?"1.0":"1.15")+")";
+requestAnimationFrame(function(){requestAnimationFrame(function(){back.style.transform="scale(1.0)";});});
+tag.textContent=r.t;
+var h="<h1>"+r.title+"</h1><p>"+r.sub+"</p>";
+if(i===2)h+="<div style='display:flex;justify-content:center;margin:4px 0'><img src='"+NEELU[i%3]+"' width='120' height='120' alt='Neelu on pedestal' onerror=\"this.outerHTML='<div style=&quot;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#1B4FB0,#0B4A57);display:flex;align-items:center;justify-content:center;font-size:64px&quot;>🦚</div>'\"></div>";
+if(r.body==="opts"){h+="<div class='opts'>"+r.opts.map(function(o){var p=o.split("|");return "<button class='opt' onclick='this.classList.toggle(\"on\");tick();'>"+p[0]+(p[1]?"<small>"+p[1]+"</small>":"")+"</button>";}).join("")+"</div>";}
+else h+=r.body;
+h+="<button class='cta' id='go'>"+r.cta+"</button>";
+card.innerHTML=h;
+document.getElementById("go").onclick=function(){advance(i);};
+if(i===9){var p=0,pb=setInterval(function(){p=Math.min(100,p+17);var e=document.getElementById("pb");if(e)e.style.width=p+"%";if(p>=100)clearInterval(pb);},300);}}
+function mark(i){var a=jmap.children,s=strip.children;for(var k=0;k<a.length;k++){a[k].className="arch"+(k<i?" done":k===i?" now":"");s[k].className=k<=i?"on":"";}}
+function go(i){stopPlay();cur=i;paint(i);mark(i);if(live){rumble();note(NOTES[i],0.12,i===2);}log("ROOM "+(i+1)+"/12 "+ROOMS[i].t+" · push-in 900ms · rumble + sargam note "+(i+1));}
+function advance(i){live=true;startDrone();if(i>=ROOMS.length-1){log("JOURNEY COMPLETE -> /home (Notify taps preserved)");note(1046.5,0.12,true);return;}go(i+1);}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}}
+document.getElementById("play").onclick=function(){startDrone();go(0);var i=0;stopPlay();playTimer=setInterval(function(){i++;if(i>=ROOMS.length){stopPlay();log("GUIDED PASS COMPLETE (~75s)");return;}advance(i-1);},4200);};
+document.getElementById("skip").onclick=function(){startDrone();go(11);};
+document.getElementById("mute").onclick=function(e){muted=!muted;e.target.textContent=muted?"Unmute":"Mute";if(drone&&muted){drone.g.disconnect();drone=null;}if(!muted)startDrone();log(muted?"AUDIO MUTED":"AUDIO ON");};
+/* dust motes */
+var cv=document.getElementById("dust"),cx=cv.getContext("2d"),ps=[];for(var k=0;k<40;k++)ps.push({x:Math.random()*360,y:Math.random()*800,r:Math.random()*2+.5,s:Math.random()*.4+.1});
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+(function loop(){cx.clearRect(0,0,360,800);cx.fillStyle="rgba(245,214,127,.5)";for(var i=0;i<ps.length;i++){var p=ps[i];if(!RM){p.y-=p.s;p.x+=Math.sin(p.y/40)*.2;if(p.y<0){p.y=800;p.x=Math.random()*360;}}cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill();}requestAnimationFrame(loop);})();
+go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Mor" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#F8F5EE</item>
+        <item name="android:statusBarColor">#F8F5EE</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+    </style>
+</resources>

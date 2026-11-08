@@ -6,3 +6,10 @@ backend/.env
 backend/data/
 backend/uploads/
 *.log
+*.pem
+.ssh/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk

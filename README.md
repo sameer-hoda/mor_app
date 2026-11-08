@@ -83,6 +83,58 @@ npm test                      # unit + API integration (no network)
 GEMINI_API_KEY=... node --test test/api.scan.test.js   # live Gemini round-trip
 ```
 
+## Android app (`android/`)
+
+Native Kotlin app (Jetpack Compose + CameraX + Retrofit) — same screens and
+flows as the web app, with this Mac's backend as its server.
+
+```bash
+cd android
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17
+./gradlew assembleDebug     # APK: app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Run it on your phone:**
+
+1. Start the backend on this Mac: `cd backend && npm start` (port 4000).
+   It already listens on all interfaces — no code change needed.
+2. Copy `app-debug.apk` to your phone (USB, Drive, Bluetooth…) and install
+   it (allow *Install unknown apps* once).
+3. Same Wi-Fi as the Mac. On first launch the app can't reach the default
+   emulator URL, so it shows a server field — enter
+   `http://<your-Mac-IP>:4000` (e.g. `http://192.168.0.101:4000`;
+   find yours with `ipconfig getifaddr en0`, or the address your router
+   shows). You can change it later in Profile → Backend URL.
+4. Onboarding → Plan → Home, then **+** → *Scan meal*. Camera and voice
+   search use the normal Android permission prompts.
+
+Verified on an emulator: boot → home with live data, insights, food search
+with live rows, camera screen, and a full capture → `/scan` → result
+round-trip (correct "couldn't see the food" for the emulator's fake scene;
+real-food scans are covered by `docs/FOOD-SCAN-RESULTS.md`).
+
+## AWS backend (EC2)
+
+The backend also runs on an EC2 `t3.micro` (Amazon Linux 2023,
+`15.135.140.52:4000`, `systemd` service `mor-backend`, auto-restarts and
+starts on boot). The Android app uses it by default — no URL to type.
+
+```bash
+# redeploy after backend changes (key lives in .ssh/, never committed)
+cd backend
+rsync -avz --exclude=node_modules --exclude=data --exclude=uploads --exclude=.env \
+  -e "ssh -i ../.ssh/mor-app.pem" ./ ec2-user@15.135.140.52:~/mor/backend/
+ssh -i ../.ssh/mor-app.pem ec2-user@15.135.140.52 \
+  'cd ~/mor/backend && npm install --omit=dev && sudo systemctl restart mor-backend'
+curl http://15.135.140.52:4000/api/health
+```
+
+Server notes: Node 22 from the official binary tarball (`/usr/local`),
+plus `gcc-c++` + `make` because `better-sqlite3` v13 compiles from source
+at install. Security group must allow inbound TCP 4000. Still to do:
+allocate an Elastic IP (the current public IP changes if the instance
+stops), and add API auth before storing anything sensitive.
+
 ## API surface (`/api`)
 
 health · profile (GET/POST) · home · meals (POST/GET/DELETE) · foods ·

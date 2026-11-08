@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mor Palace Entry v3 — better version (throwaway mock)</title>
+<style>
+:root{--gold:#E9A820;--teal:#0B4A57;--ink:#142027;--sub:#4A5A63}
+*{box-sizing:border-box}body{margin:0;background:#0A242B;color:#F8F5EE;font-family:"Baloo 2","Mukta",ui-rounded,system-ui,sans-serif;display:flex;gap:20px;justify-content:center;padding:20px;min-height:100vh}
+.panel{width:300px;flex-shrink:0;font-size:13px}.panel h2{font-size:15px;margin:0 0 6px}.panel p{color:#B9CFC9;line-height:1.5}.panel .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button{font:inherit;cursor:pointer;min-height:44px}.btn{background:var(--gold);border:0;border-radius:999px;padding:10px 16px;font-weight:800;color:#231600}.btn.ghost{background:transparent;color:#F8F5EE;border:1.5px solid #3E5A63}.btn.sm{padding:7px 12px;font-size:13px}
+#jmap{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}.arch{aspect-ratio:.8;border:1.5px solid #3E5A63;border-radius:20px 20px 6px 6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#7d99a3}.arch.done{background:var(--gold);border-color:var(--gold);color:#231600;font-weight:800}.arch.now{border-color:#F8F5EE;color:#F8F5EE;box-shadow:0 0 0 2px var(--gold)}
+#log{background:#08191e;border:1px solid #234650;border-radius:12px;padding:10px;height:150px;overflow-y:auto;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.6;color:#9fd8cb}
+.phone{width:360px;height:800px;flex-shrink:0;border-radius:40px;border:8px solid #02090b;overflow:hidden;position:relative;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#stage{position:absolute;inset:0;overflow:hidden}
+#bgA,#bgB{position:absolute;inset:-30px;background-size:cover;background-position:center;transition:transform .65s cubic-bezier(.22,.8,.3,1),opacity .5s ease}
+#bgB{opacity:0}
+#flash{position:absolute;inset:0;z-index:14;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 55%,rgba(245,214,127,.85),transparent 65%);transition:opacity .3s}
+#shade{position:absolute;inset:0;z-index:4;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.5));pointer-events:none}
+#dust{position:absolute;inset:0;z-index:15;pointer-events:none}
+#muteBtn{position:absolute;top:34px;right:12px;z-index:40;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.4);color:#fff;font-size:18px}
+.roomTag{position:absolute;top:8px;left:0;right:0;text-align:center;z-index:20;font-size:11px;letter-spacing:2px;color:#fff;text-shadow:0 1px 4px #000}
+#jstrip{position:absolute;top:24px;left:12px;right:60px;z-index:20;display:flex;gap:3px}#jstrip i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}#jstrip i.on{background:var(--gold)}
+#card{position:absolute;left:14px;right:14px;bottom:14px;z-index:20;background:rgba(248,245,238,.97);color:#17272d;border-radius:20px;padding:16px;border:1px solid #E7DCC8;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .65s cubic-bezier(.22,.8,.3,1)}
+#card.rise{transform:translateY(14px)}
+#card h1{font-size:22px;margin:0 0 4px;line-height:1.15}#card p{font-size:13.5px;color:var(--sub);margin:0 0 10px}
+.dots{display:flex;gap:6px;margin-bottom:8px}.dots span{width:7px;height:7px;border-radius:50%;background:#D9D2C2}.dots span.on{width:20px;border-radius:4px;background:var(--teal)}
+.opts{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}.opt{background:#fff;border:1.5px solid #D9D2C2;border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;text-align:left;color:#17272d;min-height:56px}.opt small{display:block;font-weight:500;color:var(--sub);font-size:12px}.opt.on{border-color:var(--teal);background:#E3F2EF}
+.cta{width:100%;background:var(--teal);color:#fff;border:0;border-radius:999px;height:52px;font-weight:800;font-size:16px;margin-top:10px}
+.seg{display:flex;background:#EFE9DC;border-radius:14px;padding:3px;gap:3px}.seg button{flex:1;height:44px;border:0;border-radius:11px;background:transparent;font-weight:600;color:var(--sub)}.seg button.on{background:#fff;color:var(--teal);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.field{width:100%;height:48px;border-radius:14px;border:1.5px solid #D9D2C2;padding:0 14px;font-size:16px;font-family:inherit}
+.trow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #EDE7DA;border-radius:16px;padding:10px 12px}.tgl{width:52px;height:32px;border-radius:16px;background:#CFC8B8;border:0;position:relative;flex-shrink:0;min-height:32px}.tgl.on{background:var(--teal)}.tgl::after{content:'';position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:var(--gold)}.tgl.on::after{left:23px}
+#entry{position:absolute;inset:0;z-index:30;display:none;background-size:cover;background-position:center}
+#entryTitle{position:absolute;top:120px;left:0;right:0;text-align:center;color:#fff}#entryTitle h1{font-size:44px;margin:0;letter-spacing:6px}#entryTitle p{font-size:14px;opacity:.9}
+#entryHint{position:absolute;bottom:120px;left:0;right:0;text-align:center;color:#fff;font-size:13px}
+#dlg{position:absolute;left:20px;right:20px;top:220px;z-index:35;background:#ECEFF1;border-radius:22px;padding:20px 18px;display:none;text-align:center}
+@media (prefers-reduced-motion:reduce){#bgA,#bgB,#card{transition:opacity .4s ease!important}}
+</style>
+</head>
+<body>
+<div class="panel">
+<h2>MOR · palace entry v3</h2>
+<p>Better version of the Instinct prototype. Same 12 questions, order, taps, routes. Differences that matter: EXACT current copy, Vegan 2nd, 4 meal slots, real StepDots, audio-clock entry, shippable original sound (no licensed track).</p>
+<div class="row"><button class="btn" id="play">Play full journey</button><button class="btn ghost" id="skip">Skip to Notify</button></div>
+<div id="jmap"></div><div class="row" id="rooms"></div>
+<h2>Beat log</h2><div id="log"></div>
+<audio id="bed" loop preload="auto" src="audio/bed.mp3"></audio>
+<audio id="rumble" preload="auto" src="audio/rumble.mp3"></audio>
+<audio id="chime" preload="auto" src="audio/chime.mp3"></audio>
+</div>
+<div class="phone"><div id="stage">
+<div id="bgA"></div><div id="bgB"></div>
+<div id="flash"></div><div id="shade"></div><canvas id="dust" width="360" height="800"></canvas>
+<button id="muteBtn" aria-label="Mute">🔊</button>
+<div id="entry"><div id="entryTitle"><h1>MOR</h1><p>Eat well, the Indian way.</p></div><div id="entryHint">entering the palace…</div></div>
+<div class="roomTag" id="roomTag"></div><div id="jstrip"></div>
+<div id="card"></div>
+<div id="dlg"></div>
+</div></div>
+<script>
+"use strict";
+var BG=["assets-ai/a1-corridor.png","assets-ai/a2-door.png","assets-ai/a3-sanctum.png","assets-ai/a4-gallery.png","assets-ai/a4-gallery.png","assets-ai/a5-jharokha.png","assets-ai/a6-rotunda.png","assets-ai/a7-arches.png","assets-ai/a8-court.png","assets-ai/a9-stair.png","assets-ai/a10-durbar.png","assets-ai/a11-bell.png"];
+var TITLES=["OUTER CORRIDOR","RED DOOR","SANCTUM","GALLERY HALL I","GALLERY HALL II","JHAROKHA CHAMBER","HALO ROTUNDA","ARCH CORRIDOR","COURTYARD","STAIRWAY","DURBAR HALL","BELL PAVILION"];
+var DOTS=function(step){var s="";for(var i=0;i<6;i++)s+="<span class='"+(i<step?"on":"")+"'></span>";return "<div class='dots'>"+s+"</div>";};
+var OPTS={
+goal:[["Lose weight","Steady, sustainable pace"],["Maintain weight","Stay where you are"],["Gain weight","Build up gently"],["Eat healthier","Better choices, same weight"]],
+diet:[["Vegetarian",""],["Eggetarian",""],["Vegan",""],["Non-veg",""]],
+activity:[["Mostly sitting","Desk job, little movement"],["Lightly active","Walks, chores some days"],["Active","Exercise most days"],["Very active","Physical work or daily training"]],
+meals:[["Breakfast","08:30"],["Lunch","13:30"],["Snack","17:00"],["Dinner","21:00"]]};
+function optList(key){return "<div class='opts'>"+OPTS[key].map(function(o){return "<button class='opt' onclick='this.classList.toggle(\"on\");bell(0,true)'>"+o[0]+(o[1]?"<small>"+o[1]+"</small>":"")+"</button>";}).join("")+"</div>";}
+var ROOMHTML=[
+{t:"OUTER CORRIDOR",h:"<h1>Mor</h1><p>Eat well, the Indian way.</p><div style='text-align:center;color:#fff;font-size:13px'>tap anywhere to enter</div>",cta:"Enter the palace"},
+{t:"RED DOOR",h:"<h1>Snap your meal. Know your calories.</h1><p>Point the camera at your thali. Neelu reads it in seconds.</p>",cta:"Get started"},
+{t:"SANCTUM",h:"<h1>Hi, I'm Neelu.</h1><p>I'm happiest when you eat well. I'll count, you enjoy.</p><div style='display:flex;justify-content:center'><img src='../../app/public/neelu/neelu-wave.png' width='140' height='140' alt='Neelu' onerror=\"this.style.display='none'\"></div>",cta:"Let's go"},
+{t:"GALLERY HALL I",h:DOTS(1)+"<h1>What's your goal?</h1><p>STEP 1 OF 6</p>"+optList("goal"),cta:"Continue"},
+{t:"GALLERY HALL II",h:DOTS(2)+"<h1>What do you eat?</h1><p>STEP 2 OF 6</p>"+optList("diet"),cta:"Continue"},
+{t:"JHAROKHA CHAMBER",h:DOTS(3)+"<h1>About you</h1><p>STEP 3 OF 6</p><div class='seg' id='sexseg'><button class='on'>Female</button><button>Male</button><button>Other</button></div><div style='height:8px'></div><input class='field' id='f-age' inputmode='numeric' placeholder='Age (18+)'><div style='height:8px'></div><div style='display:flex;gap:8px'><input class='field' value='5ft 7in' aria-label='Height'><input class='field' value='72' aria-label='Weight kg'></div>",cta:"Continue"},
+{t:"HALO ROTUNDA",h:DOTS(4)+"<h1>Your target weight</h1><p>STEP 4 OF 6</p><div style='text-align:center;font-size:44px;font-weight:800' id='tgtNum'>66 kg</div><input type='range' min='35' max='80' step='0.5' value='66' style='width:100%;accent-color:var(--teal)' oninput=\"document.getElementById('tgtNum').textContent=this.value+' kg'\">",cta:"Continue"},
+{t:"ARCH CORRIDOR",h:DOTS(5)+"<h1>How active are you?</h1><p>STEP 5 OF 6</p>"+optList("activity"),cta:"Continue"},
+{t:"COURTYARD",h:DOTS(6)+"<h1>Your meal times</h1><p>STEP 6 OF 6 — Neelu reminds you at these times. Max 4 a day, never at night.</p><div id='meals'></div>",cta:"Build my plan"},
+{t:"STAIRWAY",h:"<h1>Building your plan…</h1><p>Balancing your meals and your health goal.</p><div style='height:8px;background:#EFE9DC;border-radius:4px'><div id='pb' style='width:10%;height:100%;background:var(--teal);border-radius:4px'></div></div><div class='small' id='pct' style='color:var(--sub);font-size:13px'>10%</div>",cta:"Skip"},
+{t:"DURBAR HALL",h:"<h1>Your plan is ready!</h1><p>DAILY TARGET</p><div style='text-align:center;font-size:54px;font-weight:800;color:var(--teal)'>1,850 <span style='font-size:20px'>kcal</span></div><p>Protein 75g · Carbs 250g · Fat 60g</p>",cta:"Start"},
+{t:"BELL PAVILION",h:"<h1>Remind you at mealtimes?</h1><p>Max 4 a day. Never at night.</p><div class='opts'><button class='opt' onclick='bell(0,true);this.classList.add(\"on\")'>Yes, remind me</button><button class='opt' onclick='bell(0,true);this.classList.add(\"on\")'>Not now</button></div>",cta:"Enter Mor"}];
+var bgA=document.getElementById("bgA"),bgB=document.getElementById("bgB"),front=true,
+card=document.getElementById("card"),tag=document.getElementById("roomTag"),
+logEl=document.getElementById("log"),jmap=document.getElementById("jmap"),
+strip=document.getElementById("jstrip"),roomsEl=document.getElementById("rooms"),
+bed=document.getElementById("bed"),rumbleEl=document.getElementById("rumble"),chimeEl=document.getElementById("chime"),
+dlg=document.getElementById("dlg"),entry=document.getElementById("entry"),
+cur=-1,playTimer=null,live=false,muted=false,chamber=0;
+function log(m){var p=document.createElement("div");p.textContent=new Date().toISOString().slice(17,23)+" "+m;logEl.appendChild(p);logEl.scrollTop=1e6;}
+ROOMS_SETUP();
+function ROOMS_SETUP(){TITLES.forEach(function(t,i){var a=document.createElement("span");a.className="arch";a.textContent=i+1;jmap.appendChild(a);
+var b=document.createElement("button");b.className="btn sm ghost";b.textContent=i+1;b.title=t;b.onclick=function(){stopPlay();go(i);};roomsEl.appendChild(b);
+var s=document.createElement("i");strip.appendChild(s);});}
+function setBG(i,grey){var show=front?bgA:bgB,hide=front?bgB:bgA;front=!front;
+show.style.backgroundImage="url("+BG[i]+")";
+show.style.filter=grey?"grayscale(1) brightness(.72)":"grayscale(0) brightness(1)";
+show.style.transform="scale(1.12)";show.style.opacity=1;hide.style.opacity=0;
+requestAnimationFrame(function(){requestAnimationFrame(function(){show.style.transform="scale(1.0)";});});}
+function flash(){var f=document.getElementById("flash");f.style.opacity=1;setTimeout(function(){f.style.opacity=0;},220);}
+function paint(i){var r=ROOMHTML[i];setBG(i,i===0);tag.textContent=r.t;card.classList.add("rise");
+var h=r.h+"<button class='cta' id='go'>"+r.cta+"</button>";card.innerHTML=h;
+card.classList.remove("rise");
+document.getElementById("go").onclick=function(){advance(i);};
+if(i===5){var seg=document.getElementById("sexseg");if(seg)seg.addEventListener("click",function(e){if(e.target.tagName==="BUTTON"){var bs=seg.children;for(var k=0;k<bs.length;k++)bs[k].className="";e.target.className="on";}});}
+if(i===8){var mh=document.getElementById("meals");if(mh){mh.innerHTML=OPTS.meals.map(function(m){return "<div class='trow' style='margin-bottom:8px'><span style='flex:1'><b>"+m[0]+"</b></span><span class='opt' style='min-height:40px;padding:6px 12px'>"+m[1]+"</span><button class='tgl on' aria-label='Toggle "+m[0]+"' onclick='this.classList.toggle(\"on\")'></button></div>";}).join("");}}
+if(i===9){var p=10,pb=setInterval(function(){p=Math.min(100,p+17);var e=document.getElementById("pb"),q=document.getElementById("pct");if(e)e.style.width=p+"%";if(q)q.textContent=p+"%";if(p>=100)clearInterval(pb);},280);}}
+function mark(i){var a=jmap.children,s=strip.children;for(var k=0;k<a.length;k++){a[k].className="arch"+(k<i?" done":k===i?" now":"");s[k].className=k<=i?"on":"";}}
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms);}catch(e){}}
+function playRumble(){if(!live||muted)return;try{rumbleEl.currentTime=0;rumbleEl.play();}catch(e){}}
+function bell(i,soft){if(!live||muted)return;var f=(660-i*36)/880;try{
+chimeEl.currentTime=0;chimeEl.playbackRate=f;chimeEl.play();
+setTimeout(function(){try{chimeEl.currentTime=0;chimeEl.playbackRate=f*0.89;chimeEl.play();}catch(e){}},140);}catch(e){}}
+function startBed(){if(!live||muted)return;try{bed.volume=0.45;bed.play();}catch(e){}}
+function go(i){stopPlay();cur=i;paint(i);mark(i);if(i>=3&&i<=8){chamber=i-3;playRumble();bell(chamber);buzz(10);flash();}
+log("ROOM "+(i+1)+"/12 "+TITLES[i]);}
+function advance(i){live=true;startBed();
+if(i===1){playEntry();return;}
+if(i>=ROOMHTML.length-1){log("JOURNEY COMPLETE -> /home");bell(6);return;}
+go(i+1);}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}}
+/* 11.5s entry, driven by the AUDIO clock (bed.currentTime), per Instinct spec */
+var BEATS=[[0,"corridor: dolly 1.06->1.2, title up"],[2.2,"approach: build, crest looms"],[4.0,"CREST: doors part, rumble"],[6.5,"hush: bed dips"],[8.0,"SWELL: crossing over"],[9.75,"REVEAL: court + final swell"]];
+function playEntry(){var ov=entry;ov.style.display="block";ov.style.backgroundImage="url("+BG[0]+")";ov.style.filter="grayscale(1) brightness(.8)";
+try{bed.currentTime=0;bed.play();}catch(e){}
+log("ENTRY 0-11.5s on audio clock");var bi=0;
+function phase(p){ov.style.backgroundImage="url("+BG[p>=5?2:p>=2?1:0]+")";
+ov.style.filter=(p<2)?"grayscale(1) brightness(.8)":"grayscale(0) brightness(1)";
+if(p===2){playRumble();buzz(15);log("4.0s CREST — doors part");}
+if(p===3){try{bed.volume=0.15;}catch(e){}log("6.5s hush");}
+if(p===4){try{bed.volume=0.6;}catch(e){}bell(0);log("8.0s SWELL — crossing");}
+if(p===5){bell(0);log("9.75s REVEAL — court");}}
+var iv=setInterval(function(){var t=0;try{t=bed.currentTime;}catch(e){t=bi*0.5;}
+var p=t<2.2?0:t<4.0?1:t<6.5?2:t<8.0?3:t<9.75?4:5;phase._p=phase._p===undefined?-1:phase._p;
+if(p!==phase._p){phase._p=p;phase(p);}
+if(t>=11.4||bi>40){clearInterval(iv);ov.style.display="none";try{bed.volume=0.45;}catch(e){}go(2);}bi++;},250);}
+document.getElementById("play").onclick=function(){live=true;startBed();go(0);var i=0;stopPlay();playTimer=setInterval(function(){i++;if(i>=ROOMHTML.length){stopPlay();log("GUIDED PASS COMPLETE");return;}if(i===2){clearInterval(playTimer);playEntry();var w=setInterval(function(){if(cur===2){clearInterval(w);} },500);return;}advance(i-1);},4200);};
+document.getElementById("skip").onclick=function(){live=true;startBed();go(11);};
+document.getElementById("muteBtn").onclick=function(e){muted=!muted;e.target.textContent=muted?"🔇":"🔊";try{muted?bed.pause():live&&bed.play();}catch(x){}log(muted?"MUTED":"SOUND ON");};
+var cv=document.getElementById("dust"),cx=cv.getContext("2d"),ps=[];for(var k=0;k<40;k++)ps.push({x:Math.random()*360,y:Math.random()*800,r:Math.random()*2+.5,s:Math.random()*.4+.1});
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+(function loop(){cx.clearRect(0,0,360,800);cx.fillStyle="rgba(245,214,127,.5)";
+for(var i=0;i<ps.length;i++){var p=ps[i];if(!RM){p.y-=p.s;if(p.y<0){p.y=800;p.x=Math.random()*360;}}cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill();}
+requestAnimationFrame(loop);})();
+go(0);
+</script>
+</body>
+</html>

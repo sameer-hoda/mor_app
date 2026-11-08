@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mor Palace Entry v2 — cinematic mock (throwaway)</title>
+<style>
+:root{--ink:#0A242B;--gold:#E9A820;--sand:#F8F5EE;--teal:#0B4A57}
+*{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--sand);font-family:"Baloo 2","Mukta",ui-rounded,system-ui,sans-serif;display:flex;gap:20px;justify-content:center;padding:20px;min-height:100vh}
+.panel{width:300px;flex-shrink:0;font-size:13px}.panel h2{font-size:15px;margin:0 0 6px}.panel p{color:#B9CFC9;line-height:1.5}.panel .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button{font:inherit;cursor:pointer}.btn{background:var(--gold);border:0;border-radius:999px;padding:10px 16px;font-weight:800;color:#231600}.btn.ghost{background:transparent;color:var(--sand);border:1.5px solid #3E5A63}.btn.sm{padding:7px 12px;font-size:13px}
+#jmap{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}.arch{aspect-ratio:.8;border:1.5px solid #3E5A63;border-radius:20px 20px 6px 6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#7d99a3}.arch.done{background:var(--gold);border-color:var(--gold);color:#231600;font-weight:800}.arch.now{border-color:var(--sand);color:var(--sand);box-shadow:0 0 0 2px var(--gold)}
+#log{background:#08191e;border:1px solid #234650;border-radius:12px;padding:10px;height:150px;overflow-y:auto;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.6;color:#9fd8cb}
+.phone{width:360px;height:800px;flex-shrink:0;border-radius:40px;border:8px solid #02090b;overflow:hidden;position:relative;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#stage{position:absolute;inset:0;overflow:hidden}
+#bgA,#bgB{position:absolute;inset:-30px;background-size:cover;background-position:center;transition:transform 1.1s ease-out,opacity .7s ease}
+#bgB{opacity:0}
+#doorL,#doorR{position:absolute;top:0;bottom:0;width:50%;background-size:cover;transition:transform 1.2s cubic-bezier(.6,0,.2,1);z-index:6}
+#doorL{left:0;background-position:left center}#doorR{right:0;background-position:right center}
+body.doors-open #doorL{transform:translateX(-102%)}body.doors-open #doorR{transform:translateX(102%)}
+#fan{position:absolute;left:50%;bottom:250px;width:150px;height:150px;transform:translateX(-50%) scale(.4);opacity:0;transition:transform 1.1s cubic-bezier(.2,.8,.2,1),opacity .8s;z-index:5}
+body.fanbloom #fan{transform:translateX(-50%) scale(1);opacity:1}
+#neelu{position:absolute;left:50%;bottom:300px;width:120px;transform:translateX(-50%);z-index:5;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
+#shade{position:absolute;inset:0;z-index:4;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.5));pointer-events:none}
+#grain{position:absolute;inset:0;z-index:16;pointer-events:none;opacity:.5}
+.bar{position:absolute;left:0;right:0;height:0;background:#000;z-index:18;transition:height .5s ease}
+#barT{top:0}#barB{bottom:0}body.cine .bar{height:44px}
+#dust{position:absolute;inset:0;z-index:15;pointer-events:none}
+.roomTag{position:absolute;top:8px;left:0;right:0;text-align:center;z-index:20;font-size:11px;letter-spacing:2px;color:#fff;text-shadow:0 1px 4px #000}
+#jstrip{position:absolute;top:24px;left:12px;right:12px;z-index:20;display:flex;gap:3px}#jstrip i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}#jstrip i.on{background:var(--gold)}
+#card{position:absolute;left:14px;right:14px;bottom:14px;z-index:20;background:rgba(248,245,238,.96);color:#17272d;border-radius:20px;padding:16px;border:1px solid #E7DCC8;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#card h1{font-size:22px;margin:0 0 4px;line-height:1.15}#card p{font-size:13.5px;color:#4A5A63;margin:0 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto}.opt{background:#fff;border:1.5px solid #D9D2C2;border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;text-align:left;color:#17272d}.opt small{display:block;font-weight:500;color:#4A5A63;font-size:12px}.opt.on{border-color:var(--teal);background:#E3F2EF}
+.cta{width:100%;background:var(--teal);color:#fff;border:0;border-radius:999px;height:50px;font-weight:800;font-size:16px;margin-top:10px}
+@media (prefers-reduced-motion:reduce){#bgA,#bgB,#doorL,#doorR,#fan{transition:opacity .5s ease!important}}
+</style>
+</head>
+<body>
+<div class="panel">
+<h2>MOR · palace entry v2</h2>
+<p>Cinematic mock — real Nano-Banana art for rooms 1-3, real synth stems, animated fan bloom, splitting doors, grain + letterbox. Same 12 questions/taps as the app; answers NOT saved.</p>
+<div class="row"><button class="btn" id="play">Play full journey</button><button class="btn ghost" id="skip">Skip to Notify</button><button class="btn ghost" id="mute">Mute</button></div>
+<div id="jmap"></div>
+<div class="row" id="rooms"></div>
+<div class="row"><span style="color:#B9CFC9;font-size:12px">Art: assets-ai/ (Nano Banana) · Sound: audio/bed.mp3 loop, rumble.mp3, chime.mp3 pitched per room</span></div>
+<h2>Beat log</h2>
+<div id="log"></div>
+<audio id="bed" loop preload="auto" src="audio/bed.mp3"></audio>
+<audio id="rumble" preload="auto" src="audio/rumble.mp3"></audio>
+<audio id="chime" preload="auto" src="audio/chime.mp3"></audio>
+</div>
+<div class="phone"><div id="stage">
+<div id="bgA"></div><div id="bgB"></div>
+<div id="doorL"></div><div id="doorR"></div>
+<svg id="fan" viewBox="0 0 150 150"><g stroke="#E9A820" stroke-width="3" fill="none" stroke-linecap="round"><path d="M75 130 C55 100 32 92 12 88"/><path d="M75 130 C62 98 50 78 28 66"/><path d="M75 130 C70 96 64 70 52 46"/><path d="M75 130 C75 94 75 66 75 40"/><path d="M75 130 C80 96 86 70 98 46"/><path d="M75 130 C88 98 100 78 122 66"/><path d="M75 130 C95 100 118 92 138 88"/></g><g fill="#1B4FB0"><circle cx="12" cy="86" r="7"/><circle cx="28" cy="64" r="7"/><circle cx="52" cy="44" r="7"/><circle cx="75" cy="38" r="7"/><circle cx="98" cy="44" r="7"/><circle cx="122" cy="64" r="7"/><circle cx="138" cy="86" r="7"/></g></svg>
+<img id="neelu" alt="Neelu on pedestal" src="../../app/public/neelu/neelu-happy.png" style="display:none">
+<div id="shade"></div><canvas id="dust" width="360" height="800"></canvas><canvas id="grain" width="180" height="400"></canvas>
+<div class="bar" id="barT"></div><div class="bar" id="barB"></div>
+<div class="roomTag" id="roomTag"></div><div id="jstrip"></div><div id="card"></div>
+</div></div>
+<script>
+"use strict";
+var BG=["assets-ai/a1-corridor.png","assets-ai/a2-door.png","assets-ai/a3-sanctum.png",null,null,null,null,null,null,null,null,null];
+var CSSBG={3:"linear-gradient(180deg,#8E5A2B 0 22%,#C99A5B 22% 70%,#6E4A1F 70%)",4:"linear-gradient(180deg,#8E5A2B 0 22%,#C99A5B 22% 70%,#6E4A1F 70%)",5:"linear-gradient(180deg,#0B4A57 0 26%,#F8F5EE 26% 78%,#0B4A57 78%)",6:"radial-gradient(circle at 50% 42%,#F5D67F 0%,#E9A820 16%,#BE2A24 46%,#3a0d0a 78%)",7:"linear-gradient(90deg,#5E100C 0 12%,#BE2A24 12% 24%,#7A1410 24% 36%,#BE2A24 36% 48%,#5E100C 48% 60%,#BE2A24 60% 72%,#7A1410 72% 84%,#5E100C 84%)",8:"linear-gradient(180deg,#87B6C9 0 24%,#F6D9A8 24% 70%,#C99A5B 70%)",9:"linear-gradient(180deg,#FFE9B0 0 20%,#BE2A24 20% 100%)",10:"radial-gradient(circle at 50% 24%,#FFF3C4 0%,#E9A820 14%,#7A1410 48%,#240a08 80%)",11:"linear-gradient(180deg,#2b1a2e 0 40%,#8E5A2B 40% 100%)"};
+var ROOMS=[
+{t:"OUTER CORRIDOR",title:"Mor",sub:"Eat well, the Indian way.",body:"<p>Black-and-white corridor. Any tap blooms color and pushes through the arch.</p>",cta:"Enter the palace"},
+{t:"RED DOOR",title:"Snap your meal. Know your calories.",sub:"Point the camera at your thali. Neelu reads it in seconds.",body:"",cta:"Get started"},
+{t:"SANCTUM",title:"Hi, I'm Neelu.",sub:"I'm happiest when you eat well. I'll count, you enjoy.",body:"",cta:"Let's go",neelu:1,fan:1},
+{t:"GALLERY HALL I",title:"What's your goal?",sub:"STEP 1 OF 6",body:"opts",opts:["Lose weight|Steady, sustainable pace","Maintain weight|Stay where you are","Gain weight|Build up gently","Eat healthier|Better choices, same weight"],cta:"Continue"},
+{t:"GALLERY HALL II",title:"What do you eat?",sub:"STEP 2 OF 6",body:"opts",opts:["Vegetarian|","Eggetarian|","Non-veg|","Vegan|"],cta:"Continue"},
+{t:"JHAROKHA CHAMBER",title:"About you",sub:"STEP 3 OF 6",body:"<p>Sex inlays · Age slab · Height + Weight slabs.</p>",cta:"Continue"},
+{t:"HALO ROTUNDA",title:"Your target weight",sub:"STEP 4 OF 6",body:"<p>Gold ring slider around the medallion; ring warms amber when ambitious.</p>",cta:"Continue"},
+{t:"ARCH CORRIDOR",title:"How active are you?",sub:"STEP 5 OF 6",body:"opts",opts:["Mostly sitting|Desk job, little movement","Lightly active|Walks, chores some days","Active|Exercise most days","Very active|Physical work or daily training"],cta:"Continue"},
+{t:"COURTYARD",title:"Your meal times",sub:"STEP 6 OF 6 — light each pavilion diya",body:"opts",opts:["Breakfast|08:30","Lunch|13:30","Snack|17:00","Dinner|21:00"],cta:"Build my plan"},
+{t:"STAIRWAY",title:"Building your plan…",sub:"Balancing your meals and your goal.",body:"<p>Camera climbs the stair; progress carved on risers.</p><div style='height:8px;background:#EFE9DC;border-radius:4px'><div id='pb' style='width:10%;height:100%;background:var(--teal);border-radius:4px'></div></div>",cta:"Skip"},
+{t:"DURBAR HALL",title:"Your plan is ready!",sub:"DAILY TARGET · 1,850 kcal",body:"<p>Farman card: protein 75g · carbs 250g · fat 60g.</p>",cta:"Start"},
+{t:"BELL PAVILION",title:"Remind you at mealtimes?",sub:"Max 4 a day. Never at night.",body:"opts",opts:["Yes, remind me|","Not now|"],cta:"Enter Mor"}];
+var bgA=document.getElementById("bgA"),bgB=document.getElementById("bgB"),front=true,
+card=document.getElementById("card"),tag=document.getElementById("roomTag"),
+logEl=document.getElementById("log"),jmap=document.getElementById("jmap"),
+strip=document.getElementById("jstrip"),roomsEl=document.getElementById("rooms"),
+bed=document.getElementById("bed"),rumbleEl=document.getElementById("rumble"),chimeEl=document.getElementById("chime"),
+neelu=document.getElementById("neelu"),cur=-1,playTimer=null,live=false,muted=false;
+neelu.onerror=function(){neelu.style.display="none";};
+function log(m){var p=document.createElement("div");p.textContent=new Date().toISOString().slice(17,23)+" "+m;logEl.appendChild(p);logEl.scrollTop=1e6;}
+ROOMS.forEach(function(r,i){var a=document.createElement("span");a.className="arch";a.textContent=i+1;jmap.appendChild(a);
+var b=document.createElement("button");b.className="btn sm ghost";b.textContent=i+1;b.title=r.t;b.onclick=function(){stopPlay();go(i);};roomsEl.appendChild(b);
+var s=document.createElement("i");strip.appendChild(s);});
+function setBG(i){var show=front?bgA:bgB,hide=front?bgB:bgA;front=!front;
+var src=BG[i];if(src){show.style.backgroundImage="url("+src+")";show.style.backgroundColor="";}else{show.style.backgroundImage="";show.style.background=CSSBG[i];}
+show.style.filter=(i===0)?"grayscale(1) brightness(.72)":"grayscale(0) brightness(1)";
+show.style.transform="scale(1.14)";show.style.opacity=1;hide.style.opacity=0;
+requestAnimationFrame(function(){requestAnimationFrame(function(){show.style.transform="scale(1.0)";});});}
+function paint(i){var r=ROOMS[i];setBG(i);document.body.classList.toggle("cine",true);
+tag.textContent=r.t;
+var dL=document.getElementById("doorL"),dR=document.getElementById("doorR");
+if(i===1){dL.style.backgroundImage="url(assets-ai/a2-door.png)";dR.style.backgroundImage="url(assets-ai/a2-door.png)";dL.style.backgroundSize=dR.style.backgroundSize="360px 800px";dL.style.opacity=dR.style.opacity=1;document.body.classList.remove("doors-open");}
+else{dL.style.opacity=dR.style.opacity=0;}
+if(r.neelu){neelu.style.display="block";}else{neelu.style.display="none";}
+document.body.classList.toggle("fanbloom",!!r.fan);
+var h="<h1>"+r.title+"</h1><p>"+r.sub+"</p>";
+if(r.body==="opts"){h+="<div class='opts'>"+r.opts.map(function(o){var p=o.split("|");return "<button class='opt' onclick='this.classList.toggle(\"on\");blip(14)'>"+p[0]+(p[1]?"<small>"+p[1]+"</small>":"")+"</button>";}).join("")+"</div>";}
+else h+=r.body;
+h+="<button class='cta' id='go'>"+r.cta+"</button>";
+card.innerHTML=h;document.getElementById("go").onclick=function(){advance(i);};
+if(i===1){setTimeout(function(){if(cur===1)document.body.classList.add("doors-open");},400);}
+if(i===9){var p=0,pb=setInterval(function(){p=Math.min(100,p+17);var e=document.getElementById("pb");if(e)e.style.width=p+"%";if(p>=100)clearInterval(pb);},300);}}
+function mark(i){var a=jmap.children,s=strip.children;for(var k=0;k<a.length;k++){a[k].className="arch"+(k<i?" done":k===i?" now":"");s[k].className=k<=i?"on":"";}}
+function playRumble(){if(!live||muted)return;try{rumbleEl.currentTime=0;rumbleEl.play();}catch(e){}}
+function blip(semi){if(!live||muted)return;try{chimeEl.currentTime=0;chimeEl.playbackRate=Math.pow(2,semi/12);chimeEl.play();}catch(e){}}
+function startBed(){if(!live||muted)return;try{bed.volume=0.5;bed.play();}catch(e){}}
+function go(i){stopPlay();cur=i;paint(i);mark(i);playRumble();blip(i);
+log("ROOM "+(i+1)+"/12 "+ROOMS[i].t+" · push 1.1s · rumble + chime +"+i+"st");}
+function advance(i){live=true;startBed();if(i>=ROOMS.length-1){log("JOURNEY COMPLETE -> /home");blip(12);return;}go(i+1);}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}}
+document.getElementById("play").onclick=function(){live=true;startBed();go(0);var i=0;stopPlay();playTimer=setInterval(function(){i++;if(i>=ROOMS.length){stopPlay();log("GUIDED PASS COMPLETE");return;}advance(i-1);},4200);};
+document.getElementById("skip").onclick=function(){live=true;startBed();go(11);};
+document.getElementById("mute").onclick=function(e){muted=!muted;e.target.textContent=muted?"Unmute":"Mute";try{muted?bed.pause():live&&bed.play();}catch(x){}log(muted?"MUTED":"SOUND ON");};
+var cv=document.getElementById("dust"),cx=cv.getContext("2d"),ps=[];for(var k=0;k<40;k++)ps.push({x:Math.random()*360,y:Math.random()*800,r:Math.random()*2+.5,s:Math.random()*.4+.1});
+var gr=document.getElementById("grain"),gx=gr.getContext("2d"),gd=gx.createImageData(180,400);
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+(function loop(){cx.clearRect(0,0,360,800);cx.fillStyle="rgba(245,214,127,.5)";
+for(var i=0;i<ps.length;i++){var p=ps[i];if(!RM){p.y-=p.s;if(p.y<0){p.y=800;p.x=Math.random()*360;}}cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill();}
+if(!RM){for(var j=0;j<gd.data.length;j+=16){var v=Math.random()*255;gd.data[j]=gd.data[j+1]=gd.data[j+2]=v;gd.data[j+3]=14;}gx.putImageData(gd,0,0);}
+requestAnimationFrame(loop);})();
+go(0);
+</script>
+</body>
+</html>

@@ -132,3 +132,15 @@ test('notifications list + read-all', async () => {
   const j = await fetch(`${B}/notifications/read`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).then((r) => r.json());
   assert.equal(j.ok, true);
 });
+
+test('insights week vs month ranges', async () => {
+  const w = await fetch(`${B}/insights`).then((r) => r.json());
+  assert.equal(w.days.length, 7);
+  assert.equal(w.total_days, 7);
+  const m = await fetch(`${B}/insights?range=month`).then((r) => r.json());
+  assert.equal(m.range, 'month');
+  assert.equal(m.days.length, 30);
+  assert.equal(m.total_days, 30);
+  // Same trailing day in both views.
+  assert.equal(m.days[m.days.length - 1].date, w.days[w.days.length - 1].date);
+});
