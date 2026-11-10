@@ -1630,6 +1630,15 @@ private fun V2MealsScreen(draft: V2Draft, onNext: () -> Unit) {
 
 /* journey plan ----------------------------------------------------------- */
 
+fun fmtTime(t: String): String {
+    val p = t.split(":")
+    val h = p.getOrNull(0)?.toIntOrNull() ?: 0
+    val m = p.getOrNull(1)?.toIntOrNull() ?: 0
+    val ap = if (h >= 12) "PM" else "AM"
+    val hh = if (h % 12 == 0) 12 else h % 12
+    return "$hh:${m.toString().padStart(2, '0')} $ap"
+}
+
 private val V2_ORDER = listOf(
     "splash", "welcome", "meet", "goal", "diet", "body", "target",
     "activity", "meals", "building", "plan", "notify"

@@ -344,9 +344,10 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
                         try { vm.api().reset() } catch (_: Exception) { }
                         withContext(Dispatchers.Main) {
                             vm.showSnack("Data cleared")
+                            V2Draft(ctx).clear()
                             vm.refreshProfile()
                             vm.refreshHome()
-                            nav.navigate("splash") { popUpTo(0) }
+                            nav.navigate("v2") { popUpTo(0) }
                         }
                     }
                 }) { Text("Delete", color = Red) }

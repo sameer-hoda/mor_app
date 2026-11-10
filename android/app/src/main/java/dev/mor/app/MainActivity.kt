@@ -33,44 +33,32 @@ import androidx.navigation.navArgument
 import dev.mor.app.data.AppVm
 import dev.mor.app.data.ServerStore
 import dev.mor.app.data.friendlyErr
-import dev.mor.app.ui.ActivityScreen
 import dev.mor.app.ui.AddSheet
-import dev.mor.app.ui.BodyScreen
-import dev.mor.app.ui.BuildingScreen
 import dev.mor.app.ui.CameraScreen
 import dev.mor.app.ui.ChallengesScreen
 import dev.mor.app.ui.Chandan
-import dev.mor.app.ui.DietScreen
 import dev.mor.app.ui.FoodItemScreen
-import dev.mor.app.ui.GoalScreen
 import dev.mor.app.ui.HomeScreen
 import dev.mor.app.ui.InboxScreen
 import dev.mor.app.ui.InsightsScreen
 import dev.mor.app.ui.LoggedScreen
 import dev.mor.app.ui.MealDetailScreen
-import dev.mor.app.ui.MealTimesScreen
-import dev.mor.app.ui.MeetNeeluScreen
 import dev.mor.app.ui.MorButton
 import dev.mor.app.ui.MorField
 import dev.mor.app.ui.MorTheme
 import dev.mor.app.ui.MorToast
 import dev.mor.app.ui.Muted
 import dev.mor.app.ui.Neelu
-import dev.mor.app.ui.NotifyScreen
-import dev.mor.app.ui.PlanScreen
 import dev.mor.app.ui.PoseArt
 import dev.mor.app.ui.ProfileScreen
 import dev.mor.app.ui.RemindersScreen
 import dev.mor.app.ui.ResultScreen
 import dev.mor.app.ui.ScanningScreen
 import dev.mor.app.ui.SearchScreen
-import dev.mor.app.ui.SplashScreen
 import dev.mor.app.ui.StreakScreen
-import dev.mor.app.ui.TargetScreen
 import dev.mor.app.ui.Teal
 import dev.mor.app.ui.V2Onboarding
 import dev.mor.app.ui.WeightScreen
-import dev.mor.app.ui.WelcomeScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
@@ -117,18 +105,6 @@ fun AppNav(vm: AppVm) {
     val nav = rememberNavController()
     NavHost(nav, startDestination = "boot") {
         composable("boot") { BootScreen(nav, vm) }
-        composable("splash") { SplashScreen(nav) }
-        composable("welcome") { WelcomeScreen(nav) }
-        composable("meet") { MeetNeeluScreen(nav) }
-        composable("goal") { GoalScreen(nav, vm) }
-        composable("diet") { DietScreen(nav, vm) }
-        composable("body") { BodyScreen(nav, vm) }
-        composable("target") { TargetScreen(nav, vm) }
-        composable("activity") { ActivityScreen(nav, vm) }
-        composable("mealtimes") { MealTimesScreen(nav, vm) }
-        composable("building") { BuildingScreen(nav, vm) }
-        composable("plan") { PlanScreen(nav, vm) }
-        composable("notify") { NotifyScreen(nav, vm) }
         composable("v2") { V2Onboarding(nav, vm) }
         composable("home") { HomeScreen(nav, vm) }
         composable(
@@ -193,13 +169,9 @@ fun AppNav(vm: AppVm) {
     }
 }
 
-/** Boots fresh users into onboarding v2; splash (v1) stays reachable via
- *  Settings > Delete all data. Flip OFFBOARDING_V2_DEFAULT to false to revert. */
-const val ONBOARDING_V2_DEFAULT = true
-
+/** Boots every fresh or reset user into the one onboarding journey (v2). */
 private fun bootRoute(p: dev.mor.app.data.Profile?): String =
-    if (p?.onboarded == 1) "home"
-    else if (ONBOARDING_V2_DEFAULT) "v2" else "splash"
+    if (p?.onboarded == 1) "home" else "v2"
 
 /** Loads profile, then routes to home or splash. Server URL editable on failure
  *  (needed for real phones: point at http://<mac-lan-ip>:4000). */
