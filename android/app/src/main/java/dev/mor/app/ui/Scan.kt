@@ -16,6 +16,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,34 +29,46 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -207,7 +220,7 @@ fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) 
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Neelu("droop", 150.dp)
-                Text("Camera access needed", color = Color.White, fontSize = 30.sp,
+                Text("Camera access needed", color = Color.White, fontSize = 30.sp, fontFamily = MorDisplay,
                     fontWeight = FontWeight.ExtraBold)
                 Text("Neelu needs to see your food.", color = Color(0xFFC3D1D4), fontSize = 17.sp)
                 Spacer(Modifier.height(8.dp))
@@ -295,7 +308,6 @@ object ScanState {
 
 @Composable
 fun ScanningScreen(nav: NavController, vm: AppVm) {
-    var progress by remember { mutableFloatStateOf(0.08f) }
     var failMsg by remember { mutableStateOf<String?>(null) }
     var attempt by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
@@ -306,13 +318,6 @@ fun ScanningScreen(nav: NavController, vm: AppVm) {
             return@LaunchedEffect
         }
         failMsg = null
-        progress = 0.08f
-        scope.launch {
-            while (progress < 0.92f && failMsg == null) {
-                delay(420)
-                progress = minOf(0.92f, progress + (1..7).random() / 100f)
-            }
-        }
         scope.launch(Dispatchers.IO) {
             try {
                 val r = vm.api().scan(mapOf(
@@ -339,47 +344,30 @@ fun ScanningScreen(nav: NavController, vm: AppVm) {
 
     Box(Modifier.fillMaxSize().background(Color(0xFF0A0F12))) {
         val bmp = remember { ScanState.imageBitmap() }
+        Text("Reading your plate…", color = Color.White, fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 60.dp)
+                .clip(RoundedCornerShape(22.dp)).background(Color(0xB80A0F12)).padding(16.dp, 6.dp))
+        // Decorative develop loop: photo card ejects, develops, becomes a sticker.
+        // Purely decorative — it never claims detection progress (spec 10 Nov).
         if (bmp != null) {
             Image(bmp.asImageBitmap(), "Your plate",
                 Modifier.fillMaxWidth().height(420.dp).background(Color(0xFF0A0F12)),
                 contentScale = ContentScale.Crop, alpha = 0.5f)
-            Image(bmp.asImageBitmap(), "Your plate",
-                Modifier.size(180.dp).align(Alignment.TopCenter).padding(top = 100.dp)
-                    .clip(CircleShape).background(Color(0xFF3B2B21)),
-                contentScale = ContentScale.Crop)
+            DevelopLoop(bmp.asImageBitmap(),
+                modifier = Modifier.align(Alignment.Center),
+                reduced = rememberReducedMotion())
         }
-        Text("Reading your plate…", color = Color.White, fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 300.dp)
-                .clip(RoundedCornerShape(22.dp)).background(Color(0xB80A0F12)).padding(16.dp, 6.dp))
         Column(
             Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp, 28.dp, 0.dp, 0.dp))
-                .background(Color(0xFF142027)).padding(20.dp, 10.dp, 20.dp, 26.dp),
+                .background(Color(0xFF142027)).padding(20.dp, 18.dp, 20.dp, 26.dp),
         ) {
             Text("Reading your plate…", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(12.dp))
-            listOf("Reading dishes", "Estimating portions", "Counting oil").forEachIndexed { i, label ->
-                val active = progress > i * 0.33f
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (active && progress < (i + 1) * 0.33f + 0.1f)
-                        CircularProgressIndicator(Modifier.size(20.dp), color = Gold, strokeWidth = 2.5.dp)
-                    else Box(Modifier.size(20.dp).clip(CircleShape)
-                        .background(if (active) Panna else Color.Transparent)
-                        .border(2.dp, Panna, CircleShape),
-                        contentAlignment = Alignment.Center) {
-                        if (active) Text("✓", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Text(label, color = Color.White.copy(alpha = if (active) 1f else 0.4f),
-                        fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(Modifier.height(10.dp))
-            }
-            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(),
-                color = Gold, trackColor = Color(0xFF3E5560))
+            Spacer(Modifier.height(4.dp))
+            Text("Usually takes a few seconds", color = Color(0xFF9FB4BB), fontSize = 14.sp)
             if (failMsg == null) {
                 Text("Cancel", color = Color(0xFFC3D1D4),
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp)
+                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 14.dp)
                         .clickable { nav.navigate("camera?slot=${vm.pendingSlot}") })
             } else {
                 Spacer(Modifier.height(12.dp))
@@ -395,6 +383,126 @@ fun ScanningScreen(nav: NavController, vm: AppVm) {
                     }
                     Box(Modifier.weight(1f)) {
                         MorButton("Try again") { attempt++ }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** The eject → develop → sticker wait, one ~4.6s infinite loop. Reduced motion
+ *  freezes at the developed end state (crisp photo, ring on, no sparkles). */
+@Composable
+private fun DevelopLoop(photo: androidx.compose.ui.graphics.ImageBitmap, modifier: Modifier, reduced: Boolean) {
+    val inf = rememberInfiniteTransition(label = "develop")
+    val t by inf.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(4600, easing = LinearEasing)),
+        label = "developT",
+    )
+    val u = if (reduced) 1f else t
+    // Beats (all times ms): eject ease-out to 650; develop 650→2250; ring pop
+    // ~2250→2600; sparkles staggered pops 2700→3300; hold to 4600.
+    fun seg(a: Float, b: Float) = ((u - a) / (b - a)).coerceIn(0f, 1f)
+    val outPow = 1f - (1f - seg(0f, 650f / 4600f)).let { it * it }      // ease-out cubic-ish
+    val ejectY = (1f - outPow) * 340f                                  // slides up into centre
+    val ejectRot = (1f - outPow) * -7f
+    val dev = seg(650f / 4600f, 2250f / 4600f)
+    val sat = dev.coerceAtLeast(0f)
+    val photoBlur = (1f - dev) * 12f
+    val photoAlpha = 0.45f + 0.55f * dev
+    val ring = (seg(2250f / 4600f, 2600f / 4600f))
+    val ringScale = 0.6f + 0.4f * (ring * ring)                        // soft pop
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(210.dp, 214.dp)) {
+            // White photo card + its white sticker ring.
+            Canvas(
+                Modifier.matchParentSize(),
+            ) {
+                val r = size.minDimension / 2f + 14.dp.toPx()
+                if (ring > 0f) {
+                    drawCircle(
+                        Color.White.copy(alpha = ring), r * ringScale,
+                        style = Stroke(6.dp.toPx() * ring),
+                    )
+                }
+            }
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationY = ejectY
+                        rotationZ = ejectRot
+                        scaleX = 0.94f + 0.06f * outPow
+                        scaleY = 0.94f + 0.06f * outPow
+                    },
+            ) {
+                Column(
+                    Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White)
+                        .padding(7.dp),
+                ) {
+                    Box(
+                        Modifier.size(196.dp, 148.dp).clip(RoundedCornerShape(10.dp)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Image(
+                            photo,
+                            "Your plate photo",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize().alpha(photoAlpha).blur(photoBlur.dp),
+                            colorFilter = ColorFilter.colorMatrix(
+                                ColorMatrix().apply { setToSaturation(0.15f + 0.85f * sat) },
+                            ),
+                        )
+                    }
+                    Text(
+                        "plate_01", fontFamily = MorBody,
+                        fontSize = 10.sp, color = Sub,
+                        modifier = Modifier.padding(4.dp, 4.dp, 0.dp, 0.dp),
+                    )
+                }
+            }
+            if (reduced || u > 0.5f) {
+                // Mosaic Neelu (thinking) watches from the card's lower-right.
+                NeeluBitmap("thinking", Modifier.size(56.dp).align(Alignment.BottomEnd),
+                    contentDescription = null)
+            }
+            // Three gold sparkles, staggered pops after the sticker lands.
+            (0..2).map { i ->
+                val s0 = (2700f + i * 180f) / 4600f
+                val s1 = s0 + 260f / 4600f
+                val sp = seg(s0, s1)
+                val sizeDp = if (i == 1) 9f else 6f
+                val px = when (i) {
+                    0 -> 40.dp
+                    1 -> 176.dp
+                    else -> 96.dp
+                }
+                val py = when (i) {
+                    0 -> 26.dp
+                    1 -> 16.dp
+                    else -> 194.dp
+                }
+                if (sp > 0f && !reduced) {
+                    Canvas(
+                        Modifier
+                            .offset(x = px, y = py)
+                            .size(sizeDp.dp * (0.5f + sp)),
+                    ) {
+                        val r = size.minDimension / 2f
+                        drawPath(
+                            Path().apply {
+                                moveTo(center.x - r * sp / 2.4f, center.y)
+                                quadraticTo(center.x, center.y, center.x, center.y - r * sp)
+                                quadraticTo(center.x, center.y, center.x + r * sp / 2.4f, center.y)
+                                quadraticTo(center.x, center.y, center.x, center.y + r * sp)
+                                quadraticTo(center.x, center.y, center.x - r * sp / 2.4f, center.y)
+                            },
+                            color = Gold.copy(alpha = sp),
+                        )
                     }
                 }
             }
@@ -491,7 +599,7 @@ fun ResultScreen(nav: NavController, vm: AppVm, scanId: Long) {
                         Text("${vm.pendingSlot.replaceFirstChar { it.uppercase() }} · Just now",
                             fontSize = 13.sp, color = Sub, fontWeight = FontWeight.SemiBold)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(s.meal_name ?: "Your meal", fontSize = 24.sp,
+                            Text(s.meal_name ?: "Your meal", fontSize = 24.sp, fontFamily = MorDisplay,
                                 fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
                             Pill("AI estimate", LavBg, Jamun)
                         }

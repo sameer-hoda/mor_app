@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -57,6 +58,7 @@ import dev.mor.app.ui.Muted
 import dev.mor.app.ui.Neelu
 import dev.mor.app.ui.NotifyScreen
 import dev.mor.app.ui.PlanScreen
+import dev.mor.app.ui.PoseArt
 import dev.mor.app.ui.ProfileScreen
 import dev.mor.app.ui.RemindersScreen
 import dev.mor.app.ui.ResultScreen
@@ -66,6 +68,7 @@ import dev.mor.app.ui.SplashScreen
 import dev.mor.app.ui.StreakScreen
 import dev.mor.app.ui.TargetScreen
 import dev.mor.app.ui.Teal
+import dev.mor.app.ui.V2Onboarding
 import dev.mor.app.ui.WeightScreen
 import dev.mor.app.ui.WelcomeScreen
 import kotlinx.coroutines.Dispatchers
@@ -78,6 +81,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         vm.init(ServerStore(applicationContext))
+        lifecycleScope.launch(Dispatchers.Default) { PoseArt.decodeAllAsync(applicationContext) }
         setContent {
             MorTheme {
                 // Item 13: designed toast overlay driven straight from the
@@ -125,6 +129,7 @@ fun AppNav(vm: AppVm) {
         composable("building") { BuildingScreen(nav, vm) }
         composable("plan") { PlanScreen(nav, vm) }
         composable("notify") { NotifyScreen(nav, vm) }
+        composable("v2") { V2Onboarding(nav, vm) }
         composable("home") { HomeScreen(nav, vm) }
         composable(
             "add?slot={slot}",
@@ -188,6 +193,14 @@ fun AppNav(vm: AppVm) {
     }
 }
 
+/** Boots fresh users into onboarding v2; splash (v1) stays reachable via
+ *  Settings > Delete all data. Flip OFFBOARDING_V2_DEFAULT to false to revert. */
+const val ONBOARDING_V2_DEFAULT = true
+
+private fun bootRoute(p: dev.mor.app.data.Profile?): String =
+    if (p?.onboarded == 1) "home"
+    else if (ONBOARDING_V2_DEFAULT) "v2" else "splash"
+
 /** Loads profile, then routes to home or splash. Server URL editable on failure
  *  (needed for real phones: point at http://<mac-lan-ip>:4000). */
 @Composable
@@ -199,7 +212,7 @@ fun BootScreen(nav: androidx.navigation.NavController, vm: AppVm) {
         vm.refreshProfile { p ->
             if (p != null) {
                 vm.refreshHome()
-                nav.navigate(if (p.onboarded == 1) "home" else "splash") {
+                nav.navigate(bootRoute(p)) {
                     popUpTo("boot") { inclusive = true }
                 }
             } else err = "unreachable"
@@ -231,7 +244,7 @@ fun BootScreen(nav: androidx.navigation.NavController, vm: AppVm) {
                 vm.refreshProfile { p ->
                     if (p != null) {
                         vm.refreshHome()
-                        nav.navigate(if (p.onboarded == 1) "home" else "splash") {
+                        nav.navigate(bootRoute(p)) {
                             popUpTo("boot") { inclusive = true }
                         }
                     } else err = "unreachable"

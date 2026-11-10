@@ -62,14 +62,8 @@ fun SplashScreen(nav: NavController) {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
-                Modifier
-                    .size(150.dp)
-                    .border(5.dp, Gold, CircleShape)
-                    .background(Color(0x14FFFFFF), CircleShape)
-                    .padding(12.dp),
-                contentAlignment = Alignment.Center,
-            ) { Neelu("splash", 124.dp) }
+            // Just the peacock artwork on the teal — no ring, no badge circle.
+            Neelu("splash", 150.dp)
             Spacer(Modifier.height(18.dp))
             Text("Mor", fontSize = 44.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
             Text("Eat well, the Indian way.", fontSize = 15.sp, color = Color(0xFFCFE7E1))
@@ -96,10 +90,16 @@ fun WelcomeScreen(nav: NavController) {
             FeatherBackdrop(Modifier.matchParentSize(), alpha = 0.5f)
             Neelu("wave", 240.dp, enter = true, idle = true)
         }
-        Column(Modifier.padding(24.dp, 6.dp, 24.dp, 0.dp).weight(1f)) {
-            H1("Snap your meal. Know your calories.", 32)
+        Column(
+            Modifier.padding(24.dp, 6.dp, 24.dp, 0.dp).weight(1f).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            H1("Snap your meal. Know your calories.", 32, TextAlign.Center)
             Spacer(Modifier.height(6.dp))
-            Muted("Point the camera at your thali. Neelu reads it in seconds — English-first, Indian food, minimal words.")
+            Muted(
+                "Point the camera at your thali. Neelu reads it in seconds — English-first, Indian food, minimal words.",
+                align = TextAlign.Center,
+            )
             Spacer(Modifier.weight(1f))
             MorButton("Get started") { nav.navigate("meet") }
             Text("No sign-up needed", fontSize = 13.sp, color = Sub,

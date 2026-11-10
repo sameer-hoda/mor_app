@@ -116,8 +116,10 @@ fun HomeScreen(nav: NavController, vm: AppVm) {
         "over" -> "shrug"; "goal" -> "dance"; "missed" -> "hungry"; else -> "wave"
     }
 
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             // Header scene: time-of-day art (item 26) with a readability scrim.
             Box(Modifier.fillMaxWidth().height(300.dp)) {
                 androidx.compose.foundation.Image(
@@ -235,7 +237,7 @@ fun HomeScreen(nav: NavController, vm: AppVm) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text("🪔", fontSize = 26.sp)
-                    Text("${h.streak}", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                    Text("${h.streak}", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                     Text(" day streak", fontSize = 14.sp, color = Amber,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     val todayIdx = (java.time.LocalDate.now().dayOfWeek.value - 1 + 7) % 7
@@ -276,7 +278,7 @@ fun HomeScreen(nav: NavController, vm: AppVm) {
                                 fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Sub)
                             Text(
                                 (if (over) h.kcal_eaten - h.kcal_target else h.kcal_left).toInt().toString(),
-                                fontSize = 44.sp, fontWeight = FontWeight.ExtraBold,
+                                fontSize = 44.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay,
                                 color = if (over) Amber else Teal)
                             Text("of ${h.kcal_target.toInt()} kcal · ${h.kcal_eaten.toInt()} eaten",
                                 fontSize = 13.sp, color = Sub)
@@ -374,10 +376,12 @@ fun HomeScreen(nav: NavController, vm: AppVm) {
                     }
                 }
 
-                Spacer(Modifier.height(80.dp))
+                // Content scrolls behind the floating pill; ~96dp clearance plus
+                // pill height keeps the last card clear.
+                Spacer(Modifier.height(150.dp))
             }
         }
-        MorBottomNav("home") { nav.navigate(it) }
+        MorBottomNav("home", Modifier.align(Alignment.BottomCenter)) { nav.navigate(it) }
     }
     if (sheet) AddSheet(nav, vm) { sheet = false }
 }
@@ -512,7 +516,7 @@ fun AddSheet(nav: NavController, vm: AppVm, initialSlot: String? = null, onClose
         Row(verticalAlignment = Alignment.CenterVertically) {
             Neelu("peek", 54.dp)
             Spacer(Modifier.width(10.dp))
-            Text("Log a meal", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+            Text("Log a meal", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
         }
         Spacer(Modifier.height(10.dp))
         Segmented(listOf("breakfast", "lunch", "snack", "dinner"), slot, tall = true) { slot = it }

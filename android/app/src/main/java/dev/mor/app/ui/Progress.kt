@@ -82,9 +82,14 @@ fun InsightsScreen(nav: NavController, vm: AppVm) {
     val loggedDays = d?.logged_days ?: 0
     val goal = d?.kcal_target ?: 2000.0
 
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        MorTopBar("Insights")
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp, 0.dp, 16.dp, 16.dp),
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            MorTopBar("Insights")
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    .padding(16.dp, 0.dp, 16.dp, 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(Modifier.width(200.dp)) {
                 Segmented(listOf("week", "month"), range) { range = it }
@@ -95,7 +100,7 @@ fun InsightsScreen(nav: NavController, vm: AppVm) {
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Neelu("think", 150.dp)
                         Text("Log ${3 - loggedDays} days to unlock", fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold)
+                            fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                         Muted("Your weekly view appears after 3 logged days." +
                             if (loggedDays > 0) " $loggedDays of 3 so far." else "",
                             align = TextAlign.Center)
@@ -117,7 +122,7 @@ fun InsightsScreen(nav: NavController, vm: AppVm) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column {
                             Text("Daily average", fontSize = 13.sp, color = Sub)
-                            Text("%,d".format(d.avg), fontSize = 38.sp, fontWeight = FontWeight.ExtraBold)
+                            Text("%,d".format(d.avg), fontSize = 38.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                             Text("kcal/day", fontSize = 13.sp, color = Sub)
                         }
                         Spacer(Modifier.weight(1f))
@@ -166,7 +171,7 @@ fun InsightsScreen(nav: NavController, vm: AppVm) {
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Text("${d.weights.lastOrNull()?.kg ?: home?.weight_kg} kg",
-                                fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                                fontSize = 22.sp, fontWeight = FontWeight.Bold, fontFamily = MorDisplay)
                             Text(
                                 if (d.weight_trend < 0) "▼ ${Math.abs(d.weight_trend)} kg since first log"
                                 else if (d.weight_trend > 0) "▲ ${d.weight_trend} kg"
@@ -194,10 +199,11 @@ fun InsightsScreen(nav: NavController, vm: AppVm) {
                             fontSize = 13.sp, color = Sub)
                     }
                 }
-                Spacer(Modifier.height(80.dp))
+                Spacer(Modifier.height(24.dp))
             }
         }
-        MorBottomNav("insights") { nav.navigate(it) }
+        }
+        MorBottomNav("insights", Modifier.align(Alignment.BottomCenter)) { nav.navigate(it) }
     }
     if (weightSheet) {
         WeightSheet(home?.weight_kg ?: 72.0, {
@@ -220,7 +226,7 @@ fun WeightSheet(current: Double, onClose: () -> Unit, vm: AppVm) {
         MorCard(Modifier.fillMaxWidth()) {
             Column(Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("%.1f kg".format(kg), fontSize = 40.sp, fontWeight = FontWeight.ExtraBold)
+                Text("%.1f kg".format(kg), fontSize = 40.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                 Slider(kg.toFloat(), { kg = ((it * 10).toInt() / 10.0) },
                     valueRange = 35f..150f,
                     colors = SliderDefaults.colors(thumbColor = Teal, activeTrackColor = Teal))
@@ -373,16 +379,19 @@ fun ChallengesScreen(nav: NavController, vm: AppVm) {
         }
         return
     }
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        Row(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 18.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 18.dp),
+                verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Challenges", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                Text("Challenges", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, fontFamily = MorDisplay)
                 Text("Small wins every day", fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
             }
             Pill("🪙 ${d.coins} coins", Gold, Amber)
         }
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp, 8.dp, 16.dp, 16.dp)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp, 8.dp, 16.dp, 24.dp)) {
             @Composable
             fun Group(title: String, sub: String, list: List<Challenge>) {
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -451,9 +460,10 @@ fun ChallengesScreen(nav: NavController, vm: AppVm) {
                     Text("View ›", color = Teal, fontWeight = FontWeight.Bold)
                 }
             }
-            Spacer(Modifier.height(80.dp))
+            Spacer(Modifier.height(24.dp))
         }
-        MorBottomNav("challenges") { nav.navigate(it) }
+        }
+        MorBottomNav("challenges", Modifier.align(Alignment.BottomCenter)) { nav.navigate(it) }
     }
     if (badge) BadgeModal(vm) { badge = false }
 }
@@ -467,7 +477,7 @@ fun BadgeModal(vm: AppVm, onClose: () -> Unit) {
             Neelu("dance", 130.dp)
             Spacer(Modifier.height(8.dp))
             Text("🏅", fontSize = 44.sp)
-            Text("Protein Pro", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+            Text("Protein Pro", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
             Muted("Protein goal, 3 days in a row.", 13, TextAlign.Center)
             Spacer(Modifier.height(4.dp))
             Pill("+50 coins", Color(0xFFFFF3DC), Amber)

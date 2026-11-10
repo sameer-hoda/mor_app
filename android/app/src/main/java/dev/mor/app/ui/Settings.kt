@@ -87,8 +87,11 @@ fun InboxScreen(nav: NavController, vm: AppVm) {
         }
         return
     }
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        MorTopBar("Notifications", onBack = { nav.navigate("home") }, right = {
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            MorTopBar("Notifications", onBack = { nav.navigate("home") }, right = {
             Text("Mark all read", fontSize = 13.sp, color = Teal,
                 modifier = Modifier.clickable {
                     scope.launch(Dispatchers.IO) {
@@ -103,7 +106,7 @@ fun InboxScreen(nav: NavController, vm: AppVm) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center) {
                 Neelu("sleep", 160.dp)
-                Text("All caught up", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                Text("All caught up", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                 Muted("No new reminders. Neelu is napping.", align = TextAlign.Center)
                 Spacer(Modifier.height(10.dp))
                 Box(Modifier.width(220.dp)) {
@@ -123,6 +126,7 @@ fun InboxScreen(nav: NavController, vm: AppVm) {
                 }
             }
         }
+    }
     }
 }
 
@@ -206,10 +210,13 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Column(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 20.dp)) {
-                Text(p.name ?: "Guest", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold,
+                Text(p.name ?: "Guest", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay,
                     color = Color.White)
                 Text("🔥 ${h.streak}-day streak   🪙 ${h.coins} coins",
                     fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
@@ -292,10 +299,11 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
                         devTaps++
                         if (devTaps >= 5) { devTaps = 0; editServer = true }
                     }, textAlign = TextAlign.Center)
-                Spacer(Modifier.height(80.dp))
+                Spacer(Modifier.height(24.dp))
             }
         }
-        MorBottomNav("profile") { nav.navigate(it) }
+        }
+        MorBottomNav("profile", Modifier.align(Alignment.BottomCenter)) { nav.navigate(it) }
     }
 
     if (editServer) {
@@ -358,8 +366,11 @@ fun RemindersScreen(nav: NavController, vm: AppVm) {
     val off = profile?.reminders_on != 1
     val slots = listOf("breakfast", "lunch", "snack", "dinner")
 
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        MorTopBar("Reminders", onBack = { vm.refreshHome(); nav.popBackStack() })
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            MorTopBar("Reminders", onBack = { vm.refreshHome(); nav.popBackStack() })
         if (off) {
             Row(Modifier.fillMaxWidth().background(RedBg).padding(16.dp, 10.dp),
                 verticalAlignment = Alignment.CenterVertically) {
@@ -433,5 +444,6 @@ fun RemindersScreen(nav: NavController, vm: AppVm) {
                 Neelu("hungry", 140.dp)
             }
         }
+    }
     }
 }

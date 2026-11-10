@@ -1,5 +1,6 @@
 package dev.mor.app.ui
 
+import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -57,11 +60,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -283,7 +289,8 @@ fun SliderCard(
                     labelAction()
                 }
             }
-            Text(valueText, fontSize = 40.sp, fontWeight = FontWeight.ExtraBold, color = Ink)
+            Text(valueText, fontSize = 40.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
+                    fontFamily = MorDisplay)
             androidx.compose.material3.Slider(
                 value = sliderValue,
                 onValueChange = onValue,
@@ -535,60 +542,90 @@ fun MacroBars(eatenP: Double, eatenC: Double, eatenF: Double, goalP: Double, goa
 data class NavTab(val key: String, val label: String, val icon: ImageVector?, val route: String)
 
 @Composable
-fun MorBottomNav(active: String, onNav: (String) -> Unit) {
-    NavigationBar(containerColor = Color.White, modifier = Modifier.navigationBarsPadding()) {
-        val tabs = listOf(
-            NavTab("home", "Home", Icons.Filled.Home, "home"),
-            NavTab("insights", "Insights", Icons.Filled.ShowChart, "insights"),
-            NavTab("log", "Log", null, "add"),
-            // Item 14: tab matches the screen — Challenges with a fire icon.
-            NavTab("challenges", "Challenges", Icons.Filled.Whatshot, "challenges"),
-            NavTab("profile", "Profile", Icons.Filled.Person, "profile"),
+/** Standard M3 NavigationBar on the dark-teal floating pill: same five
+ *  destinations in the same order (Home, Trends, centre scan, Wins, Profile).
+ *  Icons are one consistent size; selected = Mor gold, unselected = Mor cream
+ *  (strong contrast on teal, not pale white); every tab gets the same M3
+ *  indicator highlight plus an always-on label. The centre camera is a gold
+ *  FAB — an action, not a tab — sized to keep the row even and aligned. */
+fun MorBottomNav(active: String, modifier: Modifier = Modifier, onNav: (String) -> Unit) {
+    val tabs = listOf(
+        NavTab("home", "Home", Icons.Filled.Home, "home"),
+        NavTab("insights", "Trends", Icons.Filled.ShowChart, "insights"),
+        NavTab("log", "Log", null, "add"),
+        // Item 14: tab matches the screen — Challenges with a fire icon.
+        NavTab("challenges", "Wins", Icons.Filled.Whatshot, "challenges"),
+        NavTab("profile", "Profile", Icons.Filled.Person, "profile"),
+    )
+    val core = tabs.filter { t -> t.key != "log" }
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
+        // Soft Chandan fade so content scrolling behind the bar stays readable.
+        Box(
+            Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(88.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Chandan.copy(alpha = 0f), Chandan.copy(alpha = 0.95f))
+                    )
+                ),
         )
-        tabs.forEach { t ->
-            if (t.key == "log") {
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { onNav("add") },
-                    icon = {
-                        // Obvious camera action in brand treatment (item 31).
-                        Box(
-                            Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .background(Teal)
-                                .border(3.dp, Gold, CircleShape),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Box(
-                                Modifier
-                                    .size(42.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(Icons.Filled.PhotoCamera, "Log a meal",
-                                    tint = Teal, modifier = Modifier.size(26.dp))
-                            }
-                        }
-                    },
-                    label = { Text("") },
-                    colors = NavigationBarItemDefaults.colors(indicatorColor = Color.Transparent),
-                )
-            } else {
+        NavigationBar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 12.dp)
+                .shadow(22.dp, RoundedCornerShape(28.dp), spotColor = TealDark.copy(alpha = 0.45f))
+                .clip(RoundedCornerShape(28.dp)),
+            containerColor = TealDark,
+            tonalElevation = 0.dp,
+            windowInsets = WindowInsets(0.dp),
+        ) {
+            core.forEach { t ->
                 NavigationBarItem(
                     selected = active == t.key,
                     onClick = { onNav(t.route) },
-                    icon = { Icon(t.icon ?: Icons.Filled.Home, t.label) },
-                    label = { Text(t.label, fontSize = 11.sp) },
+                    modifier = Modifier.weight(1f),
+                    icon = {
+                        Icon(t.icon ?: Icons.Filled.Home, t.label, modifier = Modifier.size(24.dp))
+                    },
+                    label = {
+                        Text(
+                            t.label,
+                            fontFamily = MorBody,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                        )
+                    },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Teal,
-                        selectedTextColor = Teal,
-                        indicatorColor = Mint2,
-                        unselectedIconColor = Sub,
-                        unselectedTextColor = Sub,
+                        selectedIconColor = Gold,
+                        unselectedIconColor = Chandan,
+                        selectedTextColor = Gold,
+                        unselectedTextColor = Chandan,
+                        indicatorColor = Gold.copy(alpha = 0.30f),
                     ),
                 )
+                if (t.key == "insights") {
+                    // Centre scan action (not a destination): gold FAB, evenly
+                    // slotted so the whole row reads as one aligned line.
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        FloatingActionButton(
+                            onClick = { onNav("add") },
+                            shape = CircleShape,
+                            containerColor = Gold,
+                            contentColor = TealDark,
+                            modifier = Modifier.size(56.dp),
+                        ) {
+                            Icon(
+                                Icons.Filled.PhotoCamera, "Log a meal",
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -596,24 +633,13 @@ fun MorBottomNav(active: String, onNav: (String) -> Unit) {
 
 // ---------- Neelu mascot ----------
 
-private val moodRes = mapOf(
-    "happy" to R.drawable.neelu_happy,
-    "hungry" to R.drawable.neelu_hungry,
-    "sleepy" to R.drawable.neelu_sleepy,
-    "thinking" to R.drawable.neelu_thinking,
-    "joy" to R.drawable.neelu_joy,
-    "cool" to R.drawable.neelu_cool,
-    "love" to R.drawable.neelu_love,
-)
-
-/** Web anim name -> bundled mood art. */
-fun moodFor(anim: String): Int = moodRes[
+/** Web anim name -> bundled mood pose key. */
+fun poseFor(anim: String): String =
     mapOf(
         "splash" to "cool", "flex" to "cool", "wave" to "happy", "peek" to "happy",
         "hop" to "love", "dance" to "joy", "think" to "thinking", "shrug" to "thinking",
         "hungry" to "hungry", "droop" to "hungry", "sleep" to "sleepy",
-    )[anim] ?: "happy",
-] ?: R.drawable.neelu_happy
+    )[anim] ?: "happy"
 
 @Composable
 fun Neelu(
@@ -625,6 +651,8 @@ fun Neelu(
 ) {
     // Entrance: gentle fade+rise once (no spring jump, item A5). Idle: a light
     // endless bob for the welcome moments (item A2). Otherwise a still image.
+    // Painted through PoseArt so poses are preloaded at app start and fade in
+    // at decode time — never an empty image frame (never-empty rule).
     var shown by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(!enter) }
     androidx.compose.runtime.LaunchedEffect(Unit) { shown = true }
     val alpha by androidx.compose.animation.core.animateFloatAsState(
@@ -650,17 +678,25 @@ fun Neelu(
         }
     }
     val bob = bobAnim.value
-    androidx.compose.foundation.Image(
-        painter = painterResource(moodFor(anim)),
-        contentDescription = "Neelu",
-        modifier = modifier
+    val bmp = rememberPose(poseFor(anim))
+    Box(
+        modifier
             .size(size)
             .graphicsLayer {
                 this.alpha = alpha
                 translationY = rise + bob
             },
-        contentScale = ContentScale.Fit,
-    )
+        contentAlignment = Alignment.Center,
+    ) {
+        bmp?.let {
+            androidx.compose.foundation.Image(
+                bitmap = it,
+                contentDescription = "Neelu",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit,
+            )
+        }
+    }
 }
 
 /**

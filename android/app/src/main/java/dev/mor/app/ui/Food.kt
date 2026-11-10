@@ -111,9 +111,12 @@ fun SearchScreen(nav: NavController, vm: AppVm, slot: String, q0: String, voice0
 
     val cartTotal = cart.sumOf { it.kcal * it.qty }.toInt()
 
-    Column(Modifier.fillMaxSize().background(Chandan).imePadding()) {
-        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp, 14.dp, 16.dp, 8.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan).imePadding()) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp, 14.dp, 16.dp, 8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(40.dp).clip(CircleShape).background(Color.White)
                 .border(1.dp, Line, CircleShape).clickable { if (!nav.popBackStack()) nav.navigate("add") },
                 contentAlignment = Alignment.Center) { Text("✕", fontSize = 16.sp) }
@@ -157,7 +160,7 @@ fun SearchScreen(nav: NavController, vm: AppVm, slot: String, q0: String, voice0
                     Column(Modifier.fillMaxSize().padding(30.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Neelu("think", 140.dp)
-                        Text("No match for “$q”", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                        Text("No match for “$q”", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                         Muted("Neelu can estimate it from its name.", align = TextAlign.Center)
                         Spacer(Modifier.height(10.dp))
                         MorButton(if (estimating) "Estimating…" else "Estimate with Neelu",
@@ -252,7 +255,7 @@ fun SearchScreen(nav: NavController, vm: AppVm, slot: String, q0: String, voice0
         }
         if (cartSheet) {
             MorSheet({ cartSheet = false }) {
-                Text("Servings", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                Text("Servings", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                 Spacer(Modifier.height(4.dp))
                 Muted("Set how much of each item you ate.", 13)
                 Spacer(Modifier.height(12.dp))
@@ -295,6 +298,7 @@ fun SearchScreen(nav: NavController, vm: AppVm, slot: String, q0: String, voice0
                 Spacer(Modifier.height(14.dp))
                 MorButton("Log $cartTotal kcal") { cartSheet = false; logCart() }
             }
+        }
         }
     }
 }
@@ -474,9 +478,12 @@ fun FoodItemScreen(nav: NavController, vm: AppVm, name: String, slot: String) {
     val carbs = f.carbs_g * qty
     val fat = f.fat_g * qty * (if (oil == "more") 1.25 else if (oil == "less") 0.75 else 1.0)
 
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        Row(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 14.dp, 16.dp, 18.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 14.dp, 16.dp, 18.dp),
+                verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(40.dp).clip(CircleShape).background(Color(0x24FFFFFF))
                 .clickable { nav.popBackStack() }, contentAlignment = Alignment.Center) {
                 Text("‹", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
@@ -516,7 +523,7 @@ fun FoodItemScreen(nav: NavController, vm: AppVm, name: String, slot: String) {
                     }
                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("$qty ${unit.lowercase(Locale.ENGLISH)}${if (qty > 1) "s" else ""}",
-                            fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                            fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
                         if (unit == "Bowl") Text("≈ ${Math.round(150 * qty)} g",
                             fontSize = 13.sp, color = Sub)
                     }
@@ -542,7 +549,7 @@ fun FoodItemScreen(nav: NavController, vm: AppVm, name: String, slot: String) {
                     Text("${protein.toInt()} g protein · ${carbs.toInt()} g carbs · ${fat.toInt()} g fat",
                         fontSize = 13.sp, color = Sub)
                 }
-                Text("$kcal kcal", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Teal)
+                Text("$kcal kcal", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Teal, fontFamily = MorDisplay)
             }
         }
 
@@ -575,6 +582,7 @@ fun FoodItemScreen(nav: NavController, vm: AppVm, name: String, slot: String) {
             }
         }
     }
+}
 }
 
 // ---------- Meal detail ----------
@@ -609,9 +617,12 @@ fun MealDetailScreen(nav: NavController, vm: AppVm, id: Long) {
     val score = healthScore(m.kcal, m.fat_g, m.protein_g)
     val scoreColor = if (score >= 70) Green else Amber
 
-    Column(Modifier.fillMaxSize().background(Chandan)) {
-        Row(Modifier.fillMaxWidth().padding(16.dp, 14.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
+    Box(Modifier.fillMaxSize().background(Chandan)) {
+        MosaicWall(alpha = 0.42f)
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxWidth().padding(16.dp, 14.dp),
+                verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(40.dp).clip(CircleShape).background(Color.White)
                 .border(1.dp, Line, CircleShape).clickable { nav.navigate("home") },
                 contentAlignment = Alignment.Center) {
@@ -657,7 +668,7 @@ fun MealDetailScreen(nav: NavController, vm: AppVm, id: Long) {
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
                         Text(m.name, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                        Text("${m.kcal.toInt()} kcal", fontSize = 40.sp,
+                        Text("${m.kcal.toInt()} kcal", fontSize = 40.sp, fontFamily = MorDisplay,
                             fontWeight = FontWeight.ExtraBold, color = Teal)
                         Pill("$score · ${if (score >= 78) "Good" else "Okay"}",
                             Color.White, scoreColor)
@@ -708,4 +719,5 @@ fun MealDetailScreen(nav: NavController, vm: AppVm, id: Long) {
             }
         }
     }
+}
 }
