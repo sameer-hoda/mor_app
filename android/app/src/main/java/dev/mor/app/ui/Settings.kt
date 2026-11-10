@@ -215,6 +215,7 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
         MosaicWall(alpha = 0.42f)
         Column(Modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            // Bottom pad clears the floating nav bar so last rows stay tappable.
             Column(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 20.dp)) {
                 Text(p.name ?: "Guest", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay,
                     color = Color.White)
@@ -299,7 +300,8 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
                         devTaps++
                         if (devTaps >= 5) { devTaps = 0; editServer = true }
                     }, textAlign = TextAlign.Center)
-                Spacer(Modifier.height(24.dp))
+                // Clears the floating nav bar so every row above stays reachable.
+                Spacer(Modifier.height(144.dp))
             }
         }
         }

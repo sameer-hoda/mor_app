@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,6 +54,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -90,6 +93,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -503,7 +507,9 @@ private fun OptCard(o: V2Opt, on: Boolean, grid: Boolean, onPick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
-            .height(if (grid) 96.dp else 64.dp)
+            // Min height only: cards grow with the user's font/display scale so
+            // label + sub never spill out of the pill on dense screens.
+            .heightIn(min = if (grid) 96.dp else 64.dp)
             .graphicsLayer {
                 val s = pop.value
                 scaleX = s; scaleY = s
@@ -1237,20 +1243,21 @@ fun V2PlanScreen(
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             V2Top("plan", null, draft)
-            Column(
-                Modifier.fillMaxWidth().padding(top = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                GuideNeelu("plan", 150.dp)
-                Spacer(Modifier.height(6.dp))
-                Box(Modifier.width(300.dp)) {
-                    BubbleHeading("Your plan is ready!", null, null, center = true)
-                }
+        Column(
+            Modifier.fillMaxWidth().padding(top = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val compact = LocalConfiguration.current.screenHeightDp < 660
+            GuideNeelu("plan", if (compact) 112.dp else 150.dp)
+            if (!compact) Spacer(Modifier.height(6.dp))
+            Box(Modifier.width(300.dp)) {
+                BubbleHeading("Your plan is ready!", null, null, center = true)
             }
-            Column(
-                Modifier.weight(1f).fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 12.dp)
-            ) {
+        }
+        Column(
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
+                .padding(start = 20.dp, end = 20.dp, top = 12.dp)
+        ) {
                 Column(
                     Modifier.fillMaxWidth()
                         .shadow(2.dp, RoundedCornerShape(24.dp), spotColor = Ink.copy(alpha = 0.06f))

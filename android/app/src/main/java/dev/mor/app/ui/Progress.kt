@@ -89,7 +89,7 @@ fun InsightsScreen(nav: NavController, vm: AppVm) {
             MorTopBar("Insights")
             Column(
                 Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                    .padding(16.dp, 0.dp, 16.dp, 24.dp),
+                    .padding(16.dp, 0.dp, 16.dp, 144.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(Modifier.width(200.dp)) {
                 Segmented(listOf("week", "month"), range) { range = it }
@@ -391,7 +391,7 @@ fun ChallengesScreen(nav: NavController, vm: AppVm) {
             }
             Pill("🪙 ${d.coins} coins", Gold, Amber)
         }
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp, 8.dp, 16.dp, 24.dp)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp, 8.dp, 16.dp, 144.dp)) {
             @Composable
             fun Group(title: String, sub: String, list: List<Challenge>) {
                 Row(verticalAlignment = Alignment.Bottom) {
