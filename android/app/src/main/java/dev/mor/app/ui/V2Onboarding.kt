@@ -15,7 +15,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -119,11 +118,11 @@ import kotlin.math.roundToInt
 
 /** Phase A: first-time onboarding v2, ported natively from morzip.js. */
 
-private val V2_STEPN = mapOf("goal" to 1, "diet" to 2, "body" to 3, "target" to 4, "activity" to 5, "meals" to 6)
+private val V2_STEPN = mapOf("diet" to 2, "body" to 3, "target" to 4, "activity" to 5, "meals" to 6)
 private val V2_NEELU = mapOf(
-    "welcome" to "happy", "meet" to "wave", "goal" to "happy", "diet" to "hungry",
+    "splash" to "happy", "diet" to "hungry",
     "body" to "cool", "target" to "thinking", "activity" to "wave", "meals" to "hungry",
-    "building" to "thinking", "plan" to "joy", "notify" to "wave", "splash" to "joy"
+    "building" to "thinking", "plan" to "joy", "notify" to "wave"
 )
 private val V2_QUICK = mapOf(
     "breakfast" to listOf("07:30", "08:00", "08:30", "09:00"),
@@ -1447,127 +1446,7 @@ fun V2NotifyScreen(
     }
 }
 
-/* splash / welcome / meet ----------------------------------------------- */
-
-@Composable
-private fun V2SplashScreen(onStart: () -> Unit) {
-    val splashTap = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-    Box(
-        Modifier.fillMaxSize().background(Teal).clickable(
-            indication = null,
-            interactionSource = splashTap
-        ) { onStart() }
-    ) {
-        Column(
-            Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Just the peacock artwork on the teal — no ring, no badge circle.
-            NeeluBitmap("joy", Modifier.size(156.dp), contentDescription = null)
-            Text(
-                "Mor", fontFamily = MorDisplay, fontSize = 48.sp,
-                fontWeight = FontWeight.ExtraBold, color = Color.White,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            Text(
-                "Eat well, the Indian way.", fontFamily = MorBody, fontSize = 15.sp,
-                color = Color(0xFFCFE7E1)
-            )
-            Spacer(Modifier.height(42.dp))
-            Text(
-                "Tap anywhere to start your journey",
-                fontFamily = MorBody, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold,
-                color = Gold, letterSpacing = 0.2.sp,
-                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
-            )
-        }
-    }
-}
-
-@Composable
-private fun V2WelcomeScreen(draft: V2Draft, onNext: () -> Unit) {
-    Column(Modifier.fillMaxSize()) {
-        V2Top("welcome", null, draft)
-        Column(
-            Modifier.fillMaxWidth().padding(top = 30.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            GuideNeelu("welcome", 210.dp)
-            Spacer(Modifier.height(6.dp))
-            Box(Modifier.width(320.dp)) {
-                BubbleHeading(
-                    "Snap your meal. Know your calories.",
-                    "Point the camera at your thali. Neelu reads it in seconds — English-first, Indian food, minimal words.",
-                    null, center = true
-                )
-            }
-        }
-        Spacer(Modifier.weight(1f))
-        Column(
-            Modifier.padding(start = 20.dp, end = 20.dp)
-                .navigationBarsPadding().padding(bottom = 22.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            V2Button("Get started") { onNext() }
-            Spacer(Modifier.height(10.dp))
-            Text(
-                "No sign-up needed", fontFamily = MorBody, fontSize = 13.5.sp, color = Sub
-            )
-        }
-    }
-}
-
-@Composable
-private fun V2MeetScreen(draft: V2Draft, onNext: () -> Unit) {
-    Column(Modifier.fillMaxSize()) {
-        V2Top("meet", null, draft)
-        Column(
-            Modifier.fillMaxWidth().padding(top = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            GuideNeelu("meet", 230.dp)
-            Spacer(Modifier.height(6.dp))
-            Box(Modifier.width(320.dp)) {
-                BubbleHeading(
-                    "Hi, I'm Neelu.",
-                    "I'm happiest when you eat well. I'll count, you enjoy.",
-                    null, center = true
-                )
-            }
-        }
-        Column(
-            Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) { }
-        Box(Modifier.padding(start = 20.dp, end = 20.dp).navigationBarsPadding().padding(bottom = 22.dp)) {
-            V2Button("Let's go") { onNext() }
-        }
-    }
-}
-
 /* goal / diet / activity step wrappers ----------------------------------- */
-
-@Composable
-private fun V2GoalScreen(draft: V2Draft, onBack: () -> Unit, onNext: () -> Unit) {
-    V2Step("goal", "What's your goal?", null, draft, onBack,
-        enabled = draft.answers.goal.isNotEmpty(), onNext = onNext) {
-        Choicex(
-            listOf(
-                V2Opt("lose", "Lose weight", "Steady, sustainable pace"),
-                V2Opt("maintain", "Maintain weight", "Stay where you are"),
-                V2Opt("gain", "Gain weight", "Build up gently"),
-                V2Opt("healthy", "Eat healthier", "Better choices, same weight")
-            ),
-            draft.answers.goal,
-            { v, i ->
-                MorSound.select(i)
-                draft.answers = draft.answers.copy(goal = v); draft.save()
-            },
-            grid = false
-        )
-    }
-}
 
 @Composable
 private fun V2DietScreen(draft: V2Draft, onBack: () -> Unit, onNext: () -> Unit) {
@@ -1647,8 +1526,7 @@ fun fmtTime(t: String): String {
 }
 
 private val V2_ORDER = listOf(
-    "splash", "welcome", "meet", "goal", "diet", "body", "target",
-    "activity", "meals", "building", "plan", "notify"
+    "journey", "diet", "body", "target", "activity", "meals", "building", "plan", "notify"
 )
 
 /** Route host: Backdrop + drift; parallel enter/exit spring transitions
@@ -1658,7 +1536,7 @@ fun V2Onboarding(nav: androidx.navigation.NavController, vm: AppVm) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val draft = remember { V2Draft(ctx).apply { load() } }
-    var step by remember { mutableStateOf(if (draft.stepKey in V2_ORDER) draft.stepKey else "splash") }
+    var step by remember { mutableStateOf(if (draft.stepKey in V2_ORDER) draft.stepKey else "journey") }
     var dir by remember { mutableIntStateOf(1) }
     var busy by remember { mutableStateOf(false) }
     var planShown by remember { mutableStateOf<Plan?>(null) }
@@ -1693,12 +1571,7 @@ fun V2Onboarding(nav: androidx.navigation.NavController, vm: AppVm) {
                 if (reduced) {
                     (fadeIn(tween(180)) togetherWith fadeOut(tween(150)))
                 } else {
-                    // Welcome/meet enter in place (fade + slight scale) so the
-                    // centred assets never slide horizontally during the hop.
-                    val enter = if (targetState == "welcome" || targetState == "meet")
-                        fadeIn(M.ScreenSpring) + scaleIn(M.ScreenSpring, initialScale = 0.94f)
-                    else
-                        fadeIn(M.ScreenSpring) + slideInHorizontally(M.ScreenSpringIntOffset) { full -> (full * 0.135f).toInt() * d }
+                    val enter = fadeIn(M.ScreenSpring) + slideInHorizontally(M.ScreenSpringIntOffset) { full -> (full * 0.135f).toInt() * d }
                     enter togetherWith
                         (fadeOut(tween(200, easing = ExitEasing)) + slideOutHorizontally(tween(200, easing = ExitEasing)) { full -> (-full * 0.1f).toInt() * d })
                 }
@@ -1707,10 +1580,7 @@ fun V2Onboarding(nav: androidx.navigation.NavController, vm: AppVm) {
         ) { s ->
             Box(Modifier.fillMaxSize()) {
                 when (s) {
-                    "splash" -> V2SplashScreen { go(1) }
-                    "welcome" -> V2WelcomeScreen(draft) { go(1) }
-                    "meet" -> V2MeetScreen(draft) { go(1) }
-                    "goal" -> V2GoalScreen(draft, { go(-1) }) { go(1) }
+                    "journey" -> WelcomeJourney(draft) { go(1) }
                     "diet" -> V2DietScreen(draft, { go(-1) }) { go(1) }
                     "body" -> V2BodyScreen(draft, { go(-1) }) { go(1) }
                     "target" -> V2TargetScreen(draft, { go(-1) }) { go(1) }
