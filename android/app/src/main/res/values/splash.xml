@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mor_splash_cream">#F6F0E4</color>
+
+    <!-- Launch theme. Set android:theme="@style/Theme.Mor.Starting" on the launcher <activity>. -->
+    <style name="Theme.Mor.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/mor_splash_cream</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_mark</item>
+        <!-- No windowSplashScreenIconBackgroundColor: the mark sits straight on cream, no square or circle. -->
+        <item name="windowSplashScreenAnimationDuration">0</item>
+        <item name="postSplashScreenTheme">@style/Theme.Mor</item>
+    </style>
+</resources>

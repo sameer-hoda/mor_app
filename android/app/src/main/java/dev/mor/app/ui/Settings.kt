@@ -70,6 +70,7 @@ fun timeAgo(iso: String): String {
 
 @Composable
 fun InboxScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val scope = rememberCoroutineScope()
     var items by remember { mutableStateOf<List<Notif>?>(null) }
     LaunchedEffect(Unit) {
@@ -87,9 +88,7 @@ fun InboxScreen(nav: NavController, vm: AppVm) {
         }
         return
     }
-    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
     Box(Modifier.fillMaxSize().background(Chandan)) {
-        MosaicWall(alpha = 0.42f)
         Column(Modifier.fillMaxSize()) {
             MorTopBar("Notifications", onBack = { nav.navigate("home") }, right = {
             Text("Mark all read", fontSize = 13.sp, color = Teal,
@@ -177,6 +176,7 @@ private fun NotifRow(n: Notif, nav: NavController, vm: AppVm, onRead: () -> Unit
 
 @Composable
 fun ProfileScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val profile by vm.profile.collectAsState()
     val home by vm.home.collectAsState()
     val ctx = LocalContext.current
@@ -210,9 +210,7 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
         }
     }
 
-    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
     Box(Modifier.fillMaxSize().background(Chandan)) {
-        MosaicWall(alpha = 0.42f)
         Column(Modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             // Bottom pad clears the floating nav bar so last rows stay tappable.
@@ -239,7 +237,7 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
                         Column {
                             Row2("Goal", if (plan != null) "${p.weight_kg} → ${p.target_weight_kg} kg" else "—", "target")
                             Row2("Daily target", if (plan != null) "%,d kcal".format(plan.kcal_target) else "—", "plan")
-                            Row2("Diet", p.diet ?: "—", "diet")
+                            Row2("Diet", dietDisplay(p.diet), "diet")
                         }
                     }
                 }
@@ -363,15 +361,14 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
 
 @Composable
 fun RemindersScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val profile by vm.profile.collectAsState()
     val scope = rememberCoroutineScope()
     var times by remember(profile?.meal_times) { mutableStateOf(profile?.meal_times ?: emptyMap()) }
     val off = profile?.reminders_on != 1
     val slots = listOf("breakfast", "lunch", "snack", "dinner")
 
-    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
     Box(Modifier.fillMaxSize().background(Chandan)) {
-        MosaicWall(alpha = 0.42f)
         Column(Modifier.fillMaxSize()) {
             MorTopBar("Reminders", onBack = { vm.refreshHome(); nav.popBackStack() })
         if (off) {

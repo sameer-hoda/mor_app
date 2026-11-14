@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS meals (
   user_id INTEGER, slot TEXT, date TEXT, time TEXT,
   name TEXT, kcal INTEGER, protein_g REAL, carbs_g REAL, fat_g REAL,
   items_json TEXT, source TEXT, scan_id INTEGER, oil_level TEXT,
+  client_key TEXT,
   created_at TEXT DEFAULT (datetime('now'))
 );
 CREATE TABLE IF NOT EXISTS scans (
@@ -69,6 +70,9 @@ CREATE TABLE IF NOT EXISTS badges (
   PRIMARY KEY (user_id, key)
 );
 `);
+
+// Migration for databases created before client_key existed (v4 #10).
+try { db.prepare('ALTER TABLE meals ADD COLUMN client_key TEXT').run(); } catch { /* already there */ }
 
 db.prepare(`INSERT OR IGNORE INTO users (id) VALUES (1)`).run();
 

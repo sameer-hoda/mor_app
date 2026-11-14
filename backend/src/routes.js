@@ -199,6 +199,21 @@ router.post('/meals', (req, res) => {
   const items = Array.isArray(b.items) ? b.items.slice(0, 20) : [];
   if (!items.length) return res.status(400).json({ error: 'items_required' });
 
+  // v4 #10: idempotency key — a retried write with the same client_key
+  // returns the meal it already created instead of double-logging.
+  const clientKey = b.client_key ? String(b.client_key).slice(0, 64) : null;
+  if (clientKey) {
+    const dup = db.prepare('SELECT * FROM meals WHERE user_id=? AND client_key=?').get(u.id, clientKey);
+    if (dup) {
+      return res.json({
+        id: dup.id, slot: dup.slot, date: dup.date, name: dup.name,
+        kcal: dup.kcal, protein_g: dup.protein_g, carbs_g: dup.carbs_g, fat_g: dup.fat_g,
+        items: JSON.parse(dup.items_json || '[]'), coins_awarded: 0, coins: u.coins,
+        streak: calcStreak(mealDates(u.id)),
+      });
+    }
+  }
+
   let t = totals(items.map((it, i) => ({
     kcal: Number(it.kcal) || 0, protein_g: Number(it.protein_g) || 0,
     carbs_g: Number(it.carbs_g) || 0, fat_g: Number(it.fat_g) || 0,
@@ -207,11 +222,11 @@ router.post('/meals', (req, res) => {
   if (b.oil_level) t = applyOil(t, b.oil_level);
 
   const times = mealTimes(u);
-  const info = db.prepare(`INSERT INTO meals (user_id, slot, date, time, name, kcal, protein_g, carbs_g, fat_g, items_json, source, scan_id, oil_level)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+  const info = db.prepare(`INSERT INTO meals (user_id, slot, date, time, name, kcal, protein_g, carbs_g, fat_g, items_json, source, scan_id, oil_level, client_key)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
     u.id, slot, date, b.time || times[slot], b.name || 'Meal',
     t.kcal, t.protein_g, t.carbs_g, t.fat_g,
-    JSON.stringify(items), b.source || 'quick', b.scan_id || null, b.oil_level || null
+    JSON.stringify(items), b.source || 'quick', b.scan_id || null, b.oil_level || null, clientKey
   );
   const coins = coinsAward(b.source);
   db.prepare('UPDATE users SET coins = coins + ? WHERE id=?').run(coins, u.id);
@@ -275,6 +290,36 @@ router.get('/foods', (req, res) => {
     rows = db.prepare('SELECT * FROM foods ORDER BY verified DESC, name LIMIT 20').all();
   }
   res.json({ items: rows });
+});
+
+/** v4 #10: the Recent tab — this user's last 20 logged foods, newest first.
+ *  Never fills from the food database; a new user gets an empty list. */
+router.get('/foods/recent', (req, res) => {
+  const u = getUser(req);
+  const meals = db.prepare('SELECT items_json, created_at FROM meals WHERE user_id=? ORDER BY created_at DESC, id DESC LIMIT 20').all(u.id);
+  const seen = new Set();
+  const out = [];
+  for (const m of meals) {
+    let items = [];
+    try { items = JSON.parse(m.items_json || '[]'); } catch { items = []; }
+    for (const it of items) {
+      const name = String(it.name || '').trim();
+      const key = name.toLowerCase();
+      if (!name || seen.has(key)) continue;
+      seen.add(key);
+      const f = db.prepare('SELECT veg, verified FROM foods WHERE lower(name)=lower(?)').get(name) || {};
+      out.push({
+        name,
+        kcal: Number(it.kcal) || 0, protein_g: Number(it.protein_g) || 0,
+        carbs_g: Number(it.carbs_g) || 0, fat_g: Number(it.fat_g) || 0,
+        portion: it.portion || '', veg: f.veg || null, verified: f.verified ?? null,
+        logged_at: m.created_at,
+      });
+      if (out.length >= 20) break;
+    }
+    if (out.length >= 20) break;
+  }
+  res.json({ items: out });
 });
 
 router.post('/foods/estimate', async (req, res) => {

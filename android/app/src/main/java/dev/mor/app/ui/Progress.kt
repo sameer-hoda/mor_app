@@ -59,6 +59,7 @@ import java.util.Locale
 
 @Composable
 fun InsightsScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val home by vm.home.collectAsState()
     var range by remember { mutableStateOf("week") }
     var data by remember { mutableStateOf<Insights?>(null) }
@@ -82,9 +83,7 @@ fun InsightsScreen(nav: NavController, vm: AppVm) {
     val loggedDays = d?.logged_days ?: 0
     val goal = d?.kcal_target ?: 2000.0
 
-    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
     Box(Modifier.fillMaxSize().background(Chandan)) {
-        MosaicWall(alpha = 0.42f)
         Column(Modifier.fillMaxSize()) {
             MorTopBar("Insights")
             Column(
@@ -255,6 +254,7 @@ fun WeightSheet(current: Double, onClose: () -> Unit, vm: AppVm) {
 
 @Composable
 fun WeightScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val home by vm.home.collectAsState()
     Column(Modifier.fillMaxSize().background(Chandan)) {
         MorTopBar("Log weight", onBack = { nav.popBackStack() })
@@ -270,6 +270,7 @@ fun WeightScreen(nav: NavController, vm: AppVm) {
 
 @Composable
 fun StreakScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val scope = rememberCoroutineScope()
     var data by remember { mutableStateOf<dev.mor.app.data.StreakInfo?>(null) }
     LaunchedEffect(Unit) {
@@ -360,6 +361,7 @@ fun StreakScreen(nav: NavController, vm: AppVm) {
 
 @Composable
 fun ChallengesScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val scope = rememberCoroutineScope()
     var data by remember { mutableStateOf<dev.mor.app.data.Challenges?>(null) }
     var badge by remember { mutableStateOf(false) }
@@ -379,9 +381,7 @@ fun ChallengesScreen(nav: NavController, vm: AppVm) {
         }
         return
     }
-    // Wall surface: feather mosaic behind solid Chandan (~42%), per redesign spec.
     Box(Modifier.fillMaxSize().background(Chandan)) {
-        MosaicWall(alpha = 0.42f)
         Column(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 18.dp),
                 verticalAlignment = Alignment.CenterVertically) {

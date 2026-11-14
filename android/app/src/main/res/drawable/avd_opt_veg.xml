@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="24dp" android:height="24dp"
+            android:viewportWidth="24" android:viewportHeight="24">
+            <group android:name="g1">
+                <path android:name="p1" android:pathData="M 3,12.5 l 18,0 c 0,4.4 -4,7.8 -9,7.8 s -9,-3.4 -9,-7.8 z"
+                    android:fillColor="#00000000" android:strokeColor="#FF7A1D16" android:strokeWidth="1.9"
+                    android:strokeLineCap="round" android:strokeLineJoin="round" />
+            </group>
+            <group android:name="g2">
+                <path android:name="p2" android:pathData="M 9,20.3 l 6,0"
+                    android:fillColor="#00000000" android:strokeColor="#FF7A1D16" android:strokeWidth="1.9"
+                    android:strokeLineCap="round" android:strokeLineJoin="round" />
+            </group>
+            <group android:name="g3" android:pivotX="12.48" android:pivotY="12.5">
+                <path android:name="p3" android:pathData="M 7.5,12.5 c -0.3,-2.6 0.9,-4.6 3.2,-5.6"
+                    android:fillColor="#00000000" android:strokeColor="#FF7A1D16" android:strokeWidth="1.9"
+                    android:strokeLineCap="round" android:strokeLineJoin="round" />
+                <path android:name="p4" android:pathData="M 12.2,12.5 c 0.2,-2.9 2.2,-4.8 5.3,-4.9"
+                    android:fillColor="#00000000" android:strokeColor="#FF7A1D16" android:strokeWidth="1.9"
+                    android:strokeLineCap="round" android:strokeLineJoin="round" />
+                <path android:name="p5" android:pathData="M 16.1,11 A 1.1,1.1 0 0,1 15,12.1 A 1.1,1.1 0 0,1 13.9,11 A 1.1,1.1 0 0,1 15,9.9 A 1.1,1.1 0 0,1 16.1,11 Z"
+                    android:fillColor="#00000000" android:strokeColor="#FF7A1D16" android:strokeWidth="1.9"
+                    android:strokeLineCap="round" android:strokeLineJoin="round" />
+                <path android:name="p6" android:pathData="M 11,10.6 A 1,1 0 0,1 10,11.6 A 1,1 0 0,1 9,10.6 A 1,1 0 0,1 10,9.6 A 1,1 0 0,1 11,10.6 Z"
+                    android:fillColor="#00000000" android:strokeColor="#FF7A1D16" android:strokeWidth="1.9"
+                    android:strokeLineCap="round" android:strokeLineJoin="round" />
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="p1">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="strokeColor" android:valueFrom="#FF7A1D16" android:valueTo="#FFFFF1D2" android:duration="350" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="0" android:valueTo="1" android:duration="550" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="p2">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="strokeColor" android:valueFrom="#FF7A1D16" android:valueTo="#FFFFF1D2" android:duration="350" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="0" android:valueTo="1" android:duration="550" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="g3">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="scaleX" android:valueFrom="1" android:valueTo="0.2" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="scaleX" android:valueFrom="0.2" android:valueTo="1" android:duration="550" android:startOffset="150" android:interpolator="@android:anim/overshoot_interpolator" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="scaleY" android:valueFrom="1" android:valueTo="0.2" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="scaleY" android:valueFrom="0.2" android:valueTo="1" android:duration="550" android:startOffset="150" android:interpolator="@android:anim/overshoot_interpolator" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="translateY" android:valueFrom="0" android:valueTo="3" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="translateY" android:valueFrom="3" android:valueTo="0" android:duration="550" android:startOffset="150" android:interpolator="@android:anim/overshoot_interpolator" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="p3">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="strokeColor" android:valueFrom="#FF7A1D16" android:valueTo="#FFFFF1D2" android:duration="350" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="0" android:valueTo="1" android:duration="550" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="0" android:valueTo="1" android:duration="550" android:startOffset="150" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="p4">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="strokeColor" android:valueFrom="#FF7A1D16" android:valueTo="#FFFFF1D2" android:duration="350" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="0" android:valueTo="1" android:duration="550" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="0" android:valueTo="1" android:duration="550" android:startOffset="150" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="p5">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="strokeColor" android:valueFrom="#FF7A1D16" android:valueTo="#FFFFF1D2" android:duration="350" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="0" android:valueTo="1" android:duration="550" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="0" android:valueTo="1" android:duration="550" android:startOffset="150" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="p6">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="strokeColor" android:valueFrom="#FF7A1D16" android:valueTo="#FFFFF1D2" android:duration="350" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="0" android:valueTo="1" android:duration="550" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="1" android:valueTo="0" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="strokeAlpha" android:valueFrom="0" android:valueTo="1" android:duration="550" android:startOffset="150" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

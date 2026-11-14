@@ -16,18 +16,38 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -36,15 +56,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -61,17 +79,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -80,6 +113,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import dev.mor.app.R
 import dev.mor.app.data.AppVm
 import dev.mor.app.data.ScanResult
 import dev.mor.app.data.friendlyErr
@@ -89,6 +123,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlin.math.abs
 
 // ---------- image helpers (mirror web downscaleToJpeg: max edge 1024, q85) ----------
 
@@ -109,13 +144,17 @@ fun bitmapToBase64(b: Bitmap): String =
 fun readBitmap(ctx: Context, uri: Uri): Bitmap? =
     ctx.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
 
-// ---------- Camera ----------
+// ---------- Camera (09-camera-scan-13b: ivory deck, no rainbow ring) ----------
+
+private val GuideEase = CubicBezierEasing(0.3f, 0.8f, 0.2f, 1f)
 
 @Composable
 fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) {
+    MorSystemBars(dark = true)
     val ctx = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
+    val haptics = LocalHapticFeedback.current
     var hasCam by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) ==
             PackageManager.PERMISSION_GRANTED)
@@ -123,8 +162,12 @@ fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) 
     val permLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()) { hasCam = it }
     var mode by remember { mutableStateOf("meal") }
+    var flashOn by remember { mutableStateOf(false) }
     var denied by remember { mutableStateOf(false) }
     var capture: ImageCapture? by remember { mutableStateOf(null) }
+    var flashKey by remember { mutableIntStateOf(0) }     // >0 = a capture just happened
+    var capturing by remember { mutableStateOf(false) }   // fades the guide + hint
+    val flash = remember { Animatable(0f) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -134,6 +177,7 @@ fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) 
             if (bmp != null) {
                 ScanState.imageB64 = bitmapToBase64(bmp)
                 bmp.recycle()
+                ScanState.mode = mode
                 vm.pendingSlot = slot
                 ScanState.fromGallery = true
                 withContext(Dispatchers.Main) {
@@ -150,141 +194,421 @@ fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) 
         if (gallery) galleryLauncher.launch("image/*")
     }
 
-    DisposableEffect(Unit) { onDispose { } }
+    LaunchedEffect(flashKey) {
+        if (flashKey > 0) {
+            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            flash.snapTo(0.85f)
+            flash.animateTo(0f, tween(350, easing = LinearEasing))
+        }
+    }
 
-    Box(Modifier.fillMaxSize().background(Color(0xFF0A0F12))) {
-        if (hasCam && !denied) {
-            AndroidView(
-                factory = { c ->
-                    PreviewView(c).also { pv ->
-                        val provider = ProcessCameraProvider.getInstance(c).get()
-                        val preview = Preview.Builder().build()
-                        preview.setSurfaceProvider(pv.surfaceProvider)
-                        val ic = ImageCapture.Builder()
-                            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                            .build()
-                        capture = ic
-                        try {
-                            provider.unbindAll()
-                            provider.bindToLifecycle(
-                                lifecycle as androidx.lifecycle.LifecycleOwner,
-                                CameraSelector.DEFAULT_BACK_CAMERA, preview, ic)
-                        } catch (e: Exception) {
-                            Log.e("Mor", "camera bind", e)
-                            denied = true
+    fun shift(d: Int) {
+        val tabs = listOf("meal", "label", "barcode")
+        mode = tabs[((tabs.indexOf(mode) + d) % tabs.size + tabs.size) % tabs.size]
+    }
+
+    fun shoot() {
+        val ic = capture ?: return
+        capturing = true
+        flashKey++
+        val out = File(ctx.cacheDir, "mor_${System.currentTimeMillis()}.jpg")
+        ic.takePicture(
+            ImageCapture.OutputFileOptions.Builder(out).build(),
+            ContextCompat.getMainExecutor(ctx),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(o: ImageCapture.OutputFileResults) {
+                    scope.launch(Dispatchers.IO) {
+                        val bmp = BitmapFactory.decodeFile(out.absolutePath)
+                        if (bmp != null) {
+                            ScanState.imageB64 = bitmapToBase64(bmp)
+                            bmp.recycle()
+                            ScanState.mode = mode
+                            vm.pendingSlot = slot
+                            ScanState.fromGallery = false
+                            out.delete()
+                            withContext(Dispatchers.Main) {
+                                nav.navigate("scanning") { popUpTo("add") }
+                            }
                         }
                     }
-                },
-                modifier = Modifier.fillMaxSize(),
-            )
-            // Frame guide
-            Box(Modifier.align(Alignment.Center).size(280.dp)
-                .border(4.dp, Gold, RoundedCornerShape(6.dp)))
-            Text("Fit the whole plate", color = Color.White, fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.align(Alignment.Center)
-                    .padding(top = 340.dp)
-                    .clip(RoundedCornerShape(22.dp))
-                    .background(Color(0xB80A0F12)).padding(16.dp, 6.dp))
-        }
+                }
+                override fun onError(e: ImageCaptureException) {
+                    capturing = false
+                    vm.showSnack("Capture failed: ${e.message}", true)
+                }
+            })
+    }
 
-        // Top bar
-        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp, 18.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(44.dp).clip(CircleShape).background(Color(0x24FFFFFF))
-                .clickable { if (!nav.popBackStack()) nav.navigate("add") },
-                contentAlignment = Alignment.Center) {
-                Text("✕", color = Color.White, fontSize = 18.sp)
-            }
-            Spacer(Modifier.weight(1f))
-            Row(Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0x990A0F12)).padding(3.dp)) {
-                listOf("meal", "label", "barcode").forEach { m ->
-                    val on = mode == m
-                    Box(Modifier.clip(RoundedCornerShape(17.dp))
-                        .background(if (on) Color.White else Color.Transparent)
-                        .clickable { mode = m }.padding(12.dp, 8.dp)) {
-                        Text(m.replaceFirstChar { it.uppercase() }, fontSize = 13.sp,
-                            fontWeight = if (on) FontWeight.Bold else FontWeight.SemiBold,
-                            color = if (on) Color(0xFF142027) else Color(0xFFE5ECEE))
+    val guideW = when (mode) { "meal" -> 300.dp; "label" -> 230.dp; else -> 300.dp }
+    val guideH = when (mode) { "meal" -> 300.dp; "label" -> 320.dp; else -> 140.dp }
+    val wAnim by animateDpAsState(guideW, tween(if (rememberReducedMotion()) 1 else 450, easing = GuideEase), label = "gw")
+    val hAnim by animateDpAsState(guideH, tween(if (rememberReducedMotion()) 1 else 450, easing = GuideEase), label = "gh")
+    val uiAlpha by animateFloatAsState(if (capturing) 0f else 1f, tween(200), label = "guideFade")
+
+    Box(Modifier.fillMaxSize().background(MorColor.Ivory)) {
+        Column(Modifier.fillMaxSize()) {
+            // -- Preview: top 71%, bottom corners 28dp, edge-to-edge under the status bar.
+            BoxWithConstraints(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(71f)
+                    .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                    .background(Color(0xFF0A0F12))
+                    .pointerInput(Unit) {
+                        var acc = 0f
+                        detectHorizontalDragGestures(
+                            onDragStart = { acc = 0f },
+                            onDragEnd = {
+                                if (acc < -90f) shift(1)
+                                else if (acc > 90f) shift(-1)
+                            },
+                            onDragCancel = { acc = 0f },
+                        ) { change, amt ->
+                            change.consume()
+                            acc += amt
+                        }
+                    },
+            ) {
+                if (hasCam && !denied) {
+                    AndroidView(
+                        factory = { c ->
+                            PreviewView(c).also { pv ->
+                                val provider = ProcessCameraProvider.getInstance(c).get()
+                                val preview = Preview.Builder().build()
+                                preview.setSurfaceProvider(pv.surfaceProvider)
+                                val ic = ImageCapture.Builder()
+                                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                                    .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+                                    .build()
+                                capture = ic
+                                try {
+                                    provider.unbindAll()
+                                    provider.bindToLifecycle(
+                                        lifecycle as androidx.lifecycle.LifecycleOwner,
+                                        CameraSelector.DEFAULT_BACK_CAMERA, preview, ic)
+                                } catch (e: Exception) {
+                                    Log.e("Mor", "camera bind", e)
+                                    denied = true
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    // Legibility gradient over the first 22% of the preview.
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.22f)
+                            .drawBehind {
+                                drawRect(
+                                    Brush.verticalGradient(
+                                        0f to Color(0x80140C08), 1f to Color.Transparent,
+                                    )
+                                )
+                            },
+                    )
+                    // Framing guide, centred and nudged 2% up.
+                    val guideAlpha by animateFloatAsState(uiAlpha, tween(200), label = "g")
+                    Box(
+                        Modifier
+                            .align(Alignment.Center)
+                            .offset(y = -maxHeight * 0.02f)
+                            .alpha(guideAlpha)
+                            .size(wAnim, hAnim),
+                    ) {
+                        AnimatedContent(
+                            targetState = mode,
+                            transitionSpec = {
+                                fadeIn(tween(300)) togetherWith fadeOut(tween(300))
+                            },
+                            label = "guide",
+                        ) { m ->
+                            GuideArt(m, Modifier.fillMaxSize())
+                        }
+                    }
+                    // Hint chip, 22dp above the preview's bottom edge.
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 22.dp)
+                            .alpha(uiAlpha),
+                    ) {
+                        AnimatedContent(
+                            targetState = mode,
+                            transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
+                            label = "hint",
+                        ) { m ->
+                            Text(
+                                when (m) {
+                                    "meal" -> "Fit the whole plate"
+                                    "label" -> "Line up the nutrition label"
+                                    else -> "Centre the barcode"
+                                },
+                                fontSize = 13.sp, color = Color(0xFF3A2F25),
+                                fontFamily = MorInter, fontWeight = FontWeight.Medium,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xEBFFFBF3))
+                                    .padding(14.dp, 7.dp),
+                            )
+                        }
+                    }
+                } else {
+                    Column(
+                        Modifier.align(Alignment.Center).padding(20.dp)
+                            .clip(RoundedCornerShape(28.dp)).background(Color(0xFF142027)).padding(24.dp, 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Neelu("droop", 150.dp)
+                        Text("Camera access needed", color = Color.White, fontSize = 30.sp, fontFamily = MorDisplay,
+                            fontWeight = FontWeight.ExtraBold)
+                        Text("Neelu needs to see your food.", color = Color(0xFFC3D1D4), fontSize = 17.sp)
+                        Spacer(Modifier.height(8.dp))
+                        MorButton("Search food instead") { nav.navigate("search?slot=$slot") }
                     }
                 }
             }
-            Spacer(Modifier.weight(1f))
-            Spacer(Modifier.width(44.dp))
-        }
 
-        if (!hasCam || denied) {
+            // -- Ivory deck: mode tabs + dock.
             Column(
-                Modifier.align(Alignment.Center).padding(20.dp)
-                    .clip(RoundedCornerShape(28.dp)).background(Color(0xFF142027)).padding(24.dp, 20.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .weight(29f)
+                    .background(MorColor.Ivory)
+                    .navigationBarsPadding()
+                    .padding(bottom = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Neelu("droop", 150.dp)
-                Text("Camera access needed", color = Color.White, fontSize = 30.sp, fontFamily = MorDisplay,
-                    fontWeight = FontWeight.ExtraBold)
-                Text("Neelu needs to see your food.", color = Color(0xFFC3D1D4), fontSize = 17.sp)
-                Spacer(Modifier.height(8.dp))
-                MorButton("Search food instead") { nav.navigate("search?slot=$slot") }
-            }
-        }
-
-        // Bottom controls
-        if (hasCam && !denied) {
-            Row(
-                Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                    .background(Color(0xFF0A0F12)).navigationBarsPadding().padding(24.dp, 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                Box(Modifier.size(52.dp).clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF2A3A40)).border(2.dp, Color.White, RoundedCornerShape(14.dp))
-                    .clickable { galleryLauncher.launch("image/*") },
-                    contentAlignment = Alignment.Center) {
-                    Text("🖼️", fontSize = 28.sp)
-                }
-                val ic = capture
-                Box(
-                    Modifier.size(84.dp).clip(CircleShape).border(4.dp, Color.White, CircleShape)
-                        .clickable(enabled = ic != null) {
-                            val out = File(ctx.cacheDir, "mor_${System.currentTimeMillis()}.jpg")
-                            ic?.takePicture(
-                                ImageCapture.OutputFileOptions.Builder(out).build(),
-                                ContextCompat.getMainExecutor(ctx),
-                                object : ImageCapture.OnImageSavedCallback {
-                                    override fun onImageSaved(o: ImageCapture.OutputFileResults) {
-                                        scope.launch(Dispatchers.IO) {
-                                            val bmp = BitmapFactory.decodeFile(out.absolutePath)
-                                            if (bmp != null) {
-                                                ScanState.imageB64 = bitmapToBase64(bmp)
-                                                bmp.recycle()
-                                                vm.pendingSlot = slot
-                                                ScanState.fromGallery = false
-                                                out.delete()
-                                                withContext(Dispatchers.Main) {
-                                                    nav.navigate("scanning") { popUpTo("add") }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    override fun onError(e: ImageCaptureException) {
-                                        vm.showSnack("Capture failed: ${e.message}", true)
-                                    }
-                                })
-                        },
-                    contentAlignment = Alignment.Center,
+                Row(
+                    Modifier.selectableGroup().padding(top = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(22.dp),
                 ) {
-                    Box(Modifier.size(66.dp).clip(CircleShape).background(Gold),
-                        contentAlignment = Alignment.Center) {
-                        Box(Modifier.size(50.dp).clip(CircleShape).background(Pankh),
-                            contentAlignment = Alignment.Center) {
-                            Box(Modifier.size(30.dp).clip(CircleShape).background(Jamun))
+                    listOf("meal", "label", "barcode").forEach { m ->
+                        val on = mode == m
+                        Column(
+                            Modifier
+                                .width(IntrinsicSize.Min)
+                                .height(44.dp)
+                                .selectable(
+                                    selected = on, role = Role.Tab,
+                                    onClick = { if (mode != m) { mode = m; MorSound.ensure(ctx); MorSound.select(2) } },
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                m.replaceFirstChar { it.uppercase() },
+                                fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                                color = if (on) MorColor.Maroon else Color(0xFF6B5E4E),
+                                fontFamily = MorInter,
+                            )
+                            Spacer(Modifier.height(5.dp))
+                            Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(2.5.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(if (on) MorColor.Maroon else Color.Transparent),
+                            )
                         }
                     }
                 }
-                Box(Modifier.size(52.dp).clip(CircleShape).background(Color(0x24FFFFFF))
-                    .clickable { nav.navigate("search?slot=$slot") },
-                    contentAlignment = Alignment.Center) {
-                    Text("🔍", fontSize = 22.sp, color = Color.White)
+                Spacer(Modifier.weight(1f))
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            Modifier
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .background(MorColor.Card)
+                                .border(1.5.dp, Color(0xFFD9C49B), CircleShape)
+                                .clickable {
+                                    MorSound.ensure(ctx)
+                                    MorSound.select(1)
+                                    galleryLauncher.launch("image/*")
+                                }
+                                .semantics { this.contentDescription = "Pick from gallery" },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.ic_cam_gallery), null,
+                                tint = MorColor.Maroon, modifier = Modifier.size(24.dp),
+                            )
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text("Gallery", fontSize = 11.5.sp, color = Color(0xFF6B5E4E), fontFamily = MorInter)
+                    }
+                    // Shutter: 78dp maroon disc, gold hairline, ivory gap, gold ring.
+                    val sInter = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                    val pressed by sInter.collectIsPressedAsState()
+                    val scale by animateFloatAsState(if (pressed) 0.92f else 1f, tween(120), label = "shutter")
+                    Box(
+                        Modifier
+                            .size(78.dp)
+                            .graphicsLayer { scaleX = scale; scaleY = scale }
+                            .shadow(10.dp, CircleShape, spotColor = MorColor.Maroon.copy(alpha = 0.3f))
+                            .clip(CircleShape)
+                            .background(MorColor.Maroon)
+                            .clickable(interactionSource = sInter, indication = null, onClick = ::shoot)
+                            .semantics { this.contentDescription = "Take photo" },
+                    ) {
+                        Canvas(Modifier.fillMaxSize()) {
+                            val c = Offset(size.width / 2f, size.height / 2f)
+                            drawCircle(MorColor.Gold, size.width / 2f - 1.25.dp.toPx(), c, style = Stroke(2.5.dp.toPx()))
+                            drawCircle(MorColor.Ivory, size.width / 2f - 4.25.dp.toPx(), c, style = Stroke(4.dp.toPx()))
+                            drawCircle(MorColor.Gold.copy(alpha = 0.6f), 30.dp.toPx(), c, style = Stroke(1.5.dp.toPx()))
+                        }
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            Modifier
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .background(MorColor.Card)
+                                .border(1.5.dp, Color(0xFFD9C49B), CircleShape)
+                                .clickable {
+                                    MorSound.ensure(ctx)
+                                    MorSound.select(1)
+                                    nav.navigate("search?slot=$slot&voice=1")
+                                }
+                                .semantics { this.contentDescription = "Describe by voice" },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.ic_cam_mic), null,
+                                tint = MorColor.Maroon, modifier = Modifier.size(24.dp),
+                            )
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text("Speak", fontSize = 11.5.sp, color = Color(0xFF6B5E4E), fontFamily = MorInter)
+                    }
+                }
+            }
+        }
+
+        // Top bar over the preview: Close + Flash.
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(16.dp, 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xE0FFFBF3))
+                    .clickable { if (!nav.popBackStack()) nav.navigate("add") }
+                    .semantics { this.contentDescription = "Close" },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_cam_close), null,
+                    tint = MorColor.Maroon, modifier = Modifier.size(24.dp),
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            Box(
+                Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xE0FFFBF3))
+                    .clickable {
+                        flashOn = !flashOn
+                        capture?.flashMode =
+                            if (flashOn) ImageCapture.FLASH_MODE_ON else ImageCapture.FLASH_MODE_OFF
+                    }
+                    .semantics { this.contentDescription = if (flashOn) "Flash on" else "Flash off" },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painterResource(if (flashOn) R.drawable.ic_cam_flash_on else R.drawable.ic_cam_flash_off), null,
+                    tint = MorColor.Maroon, modifier = Modifier.size(24.dp),
+                )
+            }
+        }
+
+        // Capture flash: white 85% → 0 over 350ms, over the preview only.
+        if (flash.value > 0f) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.71f)
+                    .graphicsLayer { alpha = flash.value }
+                    .background(Color.White),
+            )
+        }
+    }
+}
+
+/** The dotted ring / corner brackets / barcode line, drawn in the animated guide box. */
+@Composable
+private fun GuideArt(mode: String, modifier: Modifier) {
+    val reduced = rememberReducedMotion()
+    when (mode) {
+        "meal" -> {
+            val inf = rememberInfiniteTransition(label = "ring")
+            val rot by inf.animateFloat(
+                0f, 360f,
+                infiniteRepeatable(tween(if (reduced) 1 else 14000, easing = LinearEasing)),
+                label = "ringRot",
+            )
+            Canvas(modifier.rotate(rot)) {
+                drawCircle(
+                    Color(0xFFF2C86A), size.width / 2f - 1.5.dp.toPx(), center,
+                    style = Stroke(
+                        3.dp.toPx(), cap = StrokeCap.Round,
+                        pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                            floatArrayOf(2.dp.toPx(), 12.dp.toPx()),
+                        ),
+                    ),
+                )
+            }
+        }
+        else -> {
+            val inf = rememberInfiniteTransition(label = "scan")
+            val line by inf.animateFloat(
+                -46f, 46f,
+                infiniteRepeatable(
+                    tween(if (reduced) 1 else 1100, easing = FastOutSlowInEasing),
+                    repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+                ),
+                label = "scanY",
+            )
+            Canvas(modifier) {
+                val r = 16.dp.toPx()
+                val arm = 36.dp.toPx()
+                val s = 3.dp.toPx()
+                val g = Color(0xFFF2C86A)
+                // Four corner brackets: arm → quarter arc → arm.
+                listOf(
+                    listOf(Offset(0f, arm), Offset(0f, 0f), Offset(arm, 0f)),
+                    listOf(Offset(size.width - arm, 0f), Offset(size.width, 0f), Offset(size.width, arm)),
+                    listOf(Offset(size.width, size.height - arm), Offset(size.width, size.height), Offset(size.width - arm, size.height)),
+                    listOf(Offset(arm, size.height), Offset(0f, size.height), Offset(0f, size.height - arm)),
+                ).forEach { pts ->
+                    val p = Path()
+                    p.moveTo(pts[0].x, pts[0].y)
+                    p.lineTo(pts[1].x, pts[1].y)
+                    p.lineTo(pts[2].x, pts[2].y)
+                    drawPath(p, g, style = Stroke(s, cap = StrokeCap.Round))
+                }
+                if (mode == "barcode") {
+                    // Gold scan line with a soft glow, ±46dp around the middle.
+                    val y = center.y + line.dp.toPx()
+                    drawLine(
+                        g.copy(alpha = 0.25f), Offset(6.dp.toPx(), y), Offset(size.width - 6.dp.toPx(), y),
+                        6.dp.toPx(), cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        g, Offset(6.dp.toPx(), y), Offset(size.width - 6.dp.toPx(), y),
+                        2.dp.toPx(), cap = StrokeCap.Round,
+                    )
                 }
             }
         }
@@ -295,6 +619,8 @@ fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) 
 object ScanState {
     var imageB64: String? = null
     var fromGallery: Boolean = false
+    /** Camera mode that captured the photo — drives the "Reading …" copy. */
+    var mode: String = "meal"
 
     fun imageBitmap(): Bitmap? = try {
         imageB64?.let {
@@ -308,6 +634,7 @@ object ScanState {
 
 @Composable
 fun ScanningScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = true)
     var failMsg by remember { mutableStateOf<String?>(null) }
     var attempt by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
@@ -344,33 +671,53 @@ fun ScanningScreen(nav: NavController, vm: AppVm) {
 
     Box(Modifier.fillMaxSize().background(Color(0xFF0A0F12))) {
         val bmp = remember { ScanState.imageBitmap() }
-        Text("Reading your plate…", color = Color.White, fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 60.dp)
-                .clip(RoundedCornerShape(22.dp)).background(Color(0xB80A0F12)).padding(16.dp, 6.dp))
-        // Decorative develop loop: photo card ejects, develops, becomes a sticker.
-        // Purely decorative — it never claims detection progress (spec 10 Nov).
+        // Reading state (09): the captured plate, dimmed, behind a gold dash frame.
         if (bmp != null) {
             Image(bmp.asImageBitmap(), "Your plate",
-                Modifier.fillMaxWidth().height(420.dp).background(Color(0xFF0A0F12)),
-                contentScale = ContentScale.Crop, alpha = 0.5f)
-            DevelopLoop(bmp.asImageBitmap(),
-                modifier = Modifier.align(Alignment.Center),
-                reduced = rememberReducedMotion())
+                Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop, alpha = 0.35f)
         }
-        Column(
-            Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp, 28.dp, 0.dp, 0.dp))
-                .background(Color(0xFF142027)).padding(20.dp, 18.dp, 20.dp, 26.dp),
-        ) {
-            Text("Reading your plate…", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(4.dp))
-            Text("Usually takes a few seconds", color = Color(0xFF9FB4BB), fontSize = 14.sp)
-            if (failMsg == null) {
-                Text("Cancel", color = Color(0xFFC3D1D4),
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 14.dp)
-                        .clickable { nav.navigate("camera?slot=${vm.pendingSlot}") })
-            } else {
-                Spacer(Modifier.height(12.dp))
+        Box(Modifier.fillMaxSize().background(Color(0x80140C08)))
+
+        if (failMsg == null) {
+            val title = when (ScanState.mode) {
+                "label" -> "Reading the label…"
+                "barcode" -> "Looking up the product…"
+                else -> "Reading your plate…"
+            }
+            Column(
+                Modifier.align(Alignment.Center).padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                ReadingFrame()
+                Spacer(Modifier.height(22.dp))
+                Text(
+                    title, fontFamily = Cormorant, fontWeight = FontWeight.SemiBold,
+                    fontSize = 26.sp, color = Color(0xFFFFF6E6), textAlign = TextAlign.Center,
+                    modifier = Modifier.semantics {
+                        liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+                    },
+                )
+                Spacer(Modifier.height(4.dp))
+                Text("Usually a few seconds", fontSize = 13.sp, color = Color(0xFFEADBC0))
+                Spacer(Modifier.height(18.dp))
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(999.dp))
+                        .border(1.dp, Color(0x66EADBC0), RoundedCornerShape(999.dp))
+                        .clickable { nav.navigate("camera?slot=${vm.pendingSlot}") }
+                        .padding(horizontal = 24.dp, vertical = 9.dp),
+                ) {
+                    Text("Cancel", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                        color = Color(0xFFF6F0E4), fontFamily = MorInter)
+                }
+            }
+        } else {
+            Column(
+                Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+                    .clip(RoundedCornerShape(28.dp, 28.dp, 0.dp, 0.dp))
+                    .background(Color(0xFF142027)).padding(20.dp, 18.dp, 20.dp, 26.dp),
+            ) {
                 Text(failMsg!!, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -390,123 +737,47 @@ fun ScanningScreen(nav: NavController, vm: AppVm) {
     }
 }
 
-/** The eject → develop → sticker wait, one ~4.6s infinite loop. Reduced motion
- *  freezes at the developed end state (crisp photo, ring on, no sparkles). */
+/** 300dp rounded square, radius 36: a faint gold track with one bright dash
+ *  (60/340 of the loop) running around it in a 1.4s linear loop. */
 @Composable
-private fun DevelopLoop(photo: androidx.compose.ui.graphics.ImageBitmap, modifier: Modifier, reduced: Boolean) {
-    val inf = rememberInfiniteTransition(label = "develop")
+private fun ReadingFrame() {
+    val reduced = rememberReducedMotion()
+    val inf = rememberInfiniteTransition(label = "read")
     val t by inf.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(4600, easing = LinearEasing)),
-        label = "developT",
+        0f, 1f,
+        infiniteRepeatable(tween(if (reduced) 1 else 1400, easing = LinearEasing)),
+        label = "readT",
     )
-    val u = if (reduced) 1f else t
-    // Beats (all times ms): eject ease-out to 650; develop 650→2250; ring pop
-    // ~2250→2600; sparkles staggered pops 2700→3300; hold to 4600.
-    fun seg(a: Float, b: Float) = ((u - a) / (b - a)).coerceIn(0f, 1f)
-    val outPow = 1f - (1f - seg(0f, 650f / 4600f)).let { it * it }      // ease-out cubic-ish
-    val ejectY = (1f - outPow) * 340f                                  // slides up into centre
-    val ejectRot = (1f - outPow) * -7f
-    val dev = seg(650f / 4600f, 2250f / 4600f)
-    val sat = dev.coerceAtLeast(0f)
-    val photoBlur = (1f - dev) * 12f
-    val photoAlpha = 0.45f + 0.55f * dev
-    val ring = (seg(2250f / 4600f, 2600f / 4600f))
-    val ringScale = 0.6f + 0.4f * (ring * ring)                        // soft pop
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(210.dp, 214.dp)) {
-            // White photo card + its white sticker ring.
-            Canvas(
-                Modifier.matchParentSize(),
-            ) {
-                val r = size.minDimension / 2f + 14.dp.toPx()
-                if (ring > 0f) {
-                    drawCircle(
-                        Color.White.copy(alpha = ring), r * ringScale,
-                        style = Stroke(6.dp.toPx() * ring),
-                    )
-                }
-            }
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationY = ejectY
-                        rotationZ = ejectRot
-                        scaleX = 0.94f + 0.06f * outPow
-                        scaleY = 0.94f + 0.06f * outPow
-                    },
-            ) {
-                Column(
-                    Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White)
-                        .padding(7.dp),
-                ) {
-                    Box(
-                        Modifier.size(196.dp, 148.dp).clip(RoundedCornerShape(10.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Image(
-                            photo,
-                            "Your plate photo",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize().alpha(photoAlpha).blur(photoBlur.dp),
-                            colorFilter = ColorFilter.colorMatrix(
-                                ColorMatrix().apply { setToSaturation(0.15f + 0.85f * sat) },
-                            ),
-                        )
-                    }
-                    Text(
-                        "plate_01", fontFamily = MorBody,
-                        fontSize = 10.sp, color = Sub,
-                        modifier = Modifier.padding(4.dp, 4.dp, 0.dp, 0.dp),
-                    )
-                }
-            }
-            if (reduced || u > 0.5f) {
-                // Mosaic Neelu (thinking) watches from the card's lower-right.
-                NeeluBitmap("thinking", Modifier.size(56.dp).align(Alignment.BottomEnd),
-                    contentDescription = null)
-            }
-            // Three gold sparkles, staggered pops after the sticker lands.
-            (0..2).map { i ->
-                val s0 = (2700f + i * 180f) / 4600f
-                val s1 = s0 + 260f / 4600f
-                val sp = seg(s0, s1)
-                val sizeDp = if (i == 1) 9f else 6f
-                val px = when (i) {
-                    0 -> 40.dp
-                    1 -> 176.dp
-                    else -> 96.dp
-                }
-                val py = when (i) {
-                    0 -> 26.dp
-                    1 -> 16.dp
-                    else -> 194.dp
-                }
-                if (sp > 0f && !reduced) {
-                    Canvas(
-                        Modifier
-                            .offset(x = px, y = py)
-                            .size(sizeDp.dp * (0.5f + sp)),
-                    ) {
-                        val r = size.minDimension / 2f
-                        drawPath(
-                            Path().apply {
-                                moveTo(center.x - r * sp / 2.4f, center.y)
-                                quadraticTo(center.x, center.y, center.x, center.y - r * sp)
-                                quadraticTo(center.x, center.y, center.x + r * sp / 2.4f, center.y)
-                                quadraticTo(center.x, center.y, center.x, center.y + r * sp)
-                                quadraticTo(center.x, center.y, center.x - r * sp / 2.4f, center.y)
-                            },
-                            color = Gold.copy(alpha = sp),
-                        )
-                    }
-                }
-            }
+    Canvas(Modifier.size(300.dp)) {
+        val r = 36.dp.toPx()
+        drawRoundRect(
+            Color(0xFFF2C86A).copy(alpha = 0.25f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(r),
+            style = Stroke(3.dp.toPx(), cap = StrokeCap.Round),
+        )
+        // The moving dash: measure the rounded-rect path, slice [start, start+dash].
+        val rect = Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    0f, 0f, size.width, size.height,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(r),
+                )
+            )
         }
+        val pm = androidx.compose.ui.graphics.PathMeasure()
+        pm.setPath(rect, false)
+        val len = pm.length
+        val dash = len * 60f / 340f
+        val start = (t % 1f) * len
+        val end = start + dash
+        val seg = Path()
+        if (end <= len) {
+            pm.getSegment(start, end, seg, true)
+        } else {
+            pm.getSegment(start, len, seg, true)
+            pm.getSegment(0f, end - len, seg, true)
+        }
+        drawPath(seg, Color(0xFFF2C86A), style = Stroke(3.dp.toPx(), cap = StrokeCap.Round))
     }
 }
 
@@ -514,6 +785,7 @@ private fun DevelopLoop(photo: androidx.compose.ui.graphics.ImageBitmap, modifie
 
 @Composable
 fun ResultScreen(nav: NavController, vm: AppVm, scanId: Long) {
+    MorSystemBars(dark = true)
     val scope = rememberCoroutineScope()
     var scan by remember { mutableStateOf(vm.lastScan?.takeIf { it.scan_id == scanId }) }
     var oil by remember { mutableStateOf("normal") }
@@ -721,6 +993,7 @@ private fun swapItem(
 
 @Composable
 fun LoggedScreen(nav: NavController, vm: AppVm) {
+    MorSystemBars(dark = false)
     val log = vm.lastLog
     val home by vm.home.collectAsState()
     LaunchedEffect(Unit) { vm.refreshHome() }

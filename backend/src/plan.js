@@ -30,14 +30,18 @@ export function milestone(weight, target) {
 }
 
 export function computePlan(profile) {
-  const { weight_kg, target_weight_kg, goal } = profile;
+  const { weight_kg, target_weight_kg } = profile;
+  // v4 #5: the target decides the intent, not the goal word. Below current is
+  // treated as loss for calories, above current as gain, equal as maintenance.
+  const tgt = target_weight_kg || weight_kg;
+  const delta = tgt - weight_kg;
+  const intent = delta < -0.25 ? 'lose' : delta > 0.25 ? 'gain' : 'maintain';
   let kcal = tdee(profile);
-  if (goal === 'lose') kcal -= 500;
-  if (goal === 'gain') kcal += 300;
+  if (intent === 'lose') kcal -= 500;
+  if (intent === 'gain') kcal += 300;
   const min = profile.sex === 'male' ? 1500 : 1200;
   kcal = Math.max(min, Math.round(kcal / 10) * 10);
 
-  const tgt = target_weight_kg || weight_kg;
   const protein_g = Math.min(120, Math.max(40, Math.round(1.15 * tgt)));
   const fat_g = Math.min(90, Math.max(35, Math.round(0.9 * tgt)));
   const carbs_g = Math.max(100, Math.round((kcal - protein_g * 4 - fat_g * 9) / 4));

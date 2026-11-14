@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector android:width="18dp" android:height="18dp" android:viewportWidth="18" android:viewportHeight="18">
+            <group android:name="g" android:pivotX="9" android:pivotY="9">
+                <path android:name="gem" android:pathData="M9 1.5L16.5 9 9 16.5 1.5 9z" android:fillColor="#00000000"
+                    android:strokeColor="#FFCDBFA4" android:strokeWidth="1.6" android:strokeLineJoin="round" />
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="g">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="rotation" android:valueFrom="0" android:valueTo="-45" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="rotation" android:valueFrom="-45" android:valueTo="0" android:duration="450" android:interpolator="@android:anim/overshoot_interpolator" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="scaleX" android:valueFrom="1" android:valueTo="0.5" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="scaleX" android:valueFrom="0.5" android:valueTo="1" android:duration="450" android:interpolator="@android:anim/overshoot_interpolator" android:valueType="floatType" />
+                </set>
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="scaleY" android:valueFrom="1" android:valueTo="0.5" android:duration="1" android:interpolator="@android:interpolator/linear" android:valueType="floatType" />
+                    <objectAnimator android:propertyName="scaleY" android:valueFrom="0.5" android:valueTo="1" android:duration="450" android:interpolator="@android:anim/overshoot_interpolator" android:valueType="floatType" />
+                </set>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="gem">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="fillColor" android:valueFrom="#00000000" android:valueTo="#FFC99A3B" android:duration="300" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+                <objectAnimator android:propertyName="strokeColor" android:valueFrom="#FFCDBFA4" android:valueTo="#FFC99A3B" android:duration="300" android:interpolator="@android:interpolator/fast_out_slow_in" android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

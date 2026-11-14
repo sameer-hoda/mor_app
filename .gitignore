@@ -13,3 +13,7 @@ android/build/
 android/app/build/
 android/local.properties
 *.apk
+*.jks
+*.keystore
+design-ref/journey/out/
+design-ref/journey/tmp/

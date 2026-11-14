@@ -394,6 +394,7 @@ fun MorField(
     placeholder: String = "",
     isError: Boolean = false,
     numeric: Boolean = false,
+    modifier: Modifier = Modifier,
 ) {
     TextField(
         value = value,
@@ -401,7 +402,7 @@ fun MorField(
         placeholder = { Text(placeholder, color = Sub) },
         isError = isError,
         singleLine = true,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,

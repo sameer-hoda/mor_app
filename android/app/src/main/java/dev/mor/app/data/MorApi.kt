@@ -45,6 +45,9 @@ interface MorApi {
         @Query("q") q: String? = null,
     ): FoodsResp
 
+    @GET("api/foods/recent")
+    suspend fun recentFoods(): FoodsResp
+
     @POST("api/foods/estimate")
     suspend fun estimate(
         @Body body: Map<String, @JvmSuppressWildcards Any?>,
