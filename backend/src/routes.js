@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, today } from './db.js';
-import { parseScanCsv, classify, totals, applyOil } from './scanCsv.js';
+import { parseScanCsv, parseCandidateCsv, classify, totals, applyOil } from './scanCsv.js';
 import { computePlan } from './plan.js';
 import * as gemini from './gemini.js';
 
@@ -322,6 +322,27 @@ router.get('/foods/recent', (req, res) => {
   res.json({ items: out });
 });
 
+/** Next-version items 12 + 15: every food lookup (photo, voice, text) goes
+ *  through AI + internet search; this is the shared lookup behind text and
+ *  voice. Returns 3-5 candidates, best match first, each labeled as an
+ *  estimate. Nothing is written here - the client logs only after a pick. */
+router.post('/foods/ai-search', async (req, res) => {
+  const q = String(req.body?.query || '').trim().slice(0, 160);
+  if (!q) return res.status(400).json({ error: 'query_required' });
+  try {
+    let raw = await gemini.searchDishes(q);
+    let items = parseCandidateCsv(raw);
+    if (items.length === 0) {
+      raw = await gemini.searchDishes(q);
+      items = parseCandidateCsv(raw);
+    }
+    if (items.length === 0) return res.status(502).json({ error: 'no_candidates', raw_csv: raw });
+    res.json({ query: q, source: 'ai+web', model: gemini.model, items });
+  } catch (e) {
+    res.status(e.status || 500).json({ error: e.message });
+  }
+});
+
 router.post('/foods/estimate', async (req, res) => {
   const b = req.body || {};
   const name = String(b.name || '').trim().slice(0, 80);
@@ -437,8 +458,19 @@ router.get('/insights', (req, res) => {
   const days = [];
   for (let i = span; i >= 0; i--) {
     const date = today(-i);
-    const kcal = db.prepare('SELECT COALESCE(SUM(kcal),0) AS k FROM meals WHERE user_id=? AND date=?').get(u.id, date).k;
-    days.push({ date, kcal, on_track: kcal > 0 && kcal <= kcalTarget * 1.05, weekday: new Date(date).toLocaleDateString('en', { weekday: 'short' }) });
+    // Next-version item 17: the stacked day bars need each day's macros, not
+    // just kcal. Days with no meals stay at zero and render as an empty track.
+    const row = db.prepare(`SELECT COALESCE(SUM(kcal),0) AS k, COALESCE(SUM(protein_g),0) AS p,
+      COALESCE(SUM(carbs_g),0) AS c, COALESCE(SUM(fat_g),0) AS f,
+      COUNT(*) AS n FROM meals WHERE user_id=? AND date=?`).get(u.id, date);
+    const kcal = row.k;
+    days.push({
+      date, kcal,
+      protein_g: Math.round(row.p), carbs_g: Math.round(row.c), fat_g: Math.round(row.f),
+      logged: row.n > 0,
+      on_track: kcal > 0 && kcal <= kcalTarget * 1.05,
+      weekday: new Date(date).toLocaleDateString('en', { weekday: 'short' }),
+    });
   }
   const logged = days.filter((d) => d.kcal > 0);
   const avg = logged.length ? Math.round(logged.reduce((a, d) => a + d.kcal, 0) / logged.length) : 0;

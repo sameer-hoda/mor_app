@@ -37,6 +37,21 @@ name,kcal,protein_g,carbs_g,fat_g,portion,confidence,unsure,alternatives
 
 Rules: standard Indian dish names; realistic kcal per stated portion; confidence 0.0-1.0; unsure 1 only if ambiguous, alternatives separated by "|".`;
 
+const SEARCH_PROMPT = `You are Mor's food search engine. Use web search to look up the dish or meal the user described, as typically served in India, then return candidate matches as a strict CSV — nothing else. No markdown, no code fences, no commentary.
+
+Output exactly this shape:
+
+name,kcal,protein_g,carbs_g,fat_g,portion
+<one row per candidate, most likely first>
+
+Rules:
+- Return 3 to 5 candidates, most likely first.
+- kcal: integer for the stated portion; protein_g, carbs_g, fat_g: integers or empty.
+- portion: short human text like "2 pieces", "1 plate", "1 bowl".
+- Use standard Indian dish names where relevant, Title Case, <=40 chars.
+- If the text describes several foods in one meal, treat the whole meal as ONE candidate with totals for the full meal, then add alternative meal interpretations.
+- Typical/average figures are fine; never invent fake precision.`;
+
 function key() {
   const k = process.env.GEMINI_API_KEY;
   if (!k) throw Object.assign(new Error('GEMINI_API_KEY missing'), { status: 503 });
@@ -87,6 +102,18 @@ export async function parseTranscript(transcript) {
   const body = {
     contents: contents(`${VOICE_PROMPT}\nTranscript: ${transcript}`),
     generationConfig: { temperature: 0.2, maxOutputTokens: 768, thinkingConfig: { thinkingBudget: 0 } },
+  };
+  return call(body);
+}
+
+/** Next-version item 12: every food lookup goes through AI + internet search.
+ *  Google Search grounding gives the model real reference figures instead of
+ *  a static catalog. Returns a candidate CSV (3-5 rows, best match first). */
+export async function searchDishes(query) {
+  const body = {
+    contents: contents(`${SEARCH_PROMPT}\nQuery: ${query}`),
+    tools: [{ google_search: {} }],
+    generationConfig: { temperature: 0.3, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
   };
   return call(body);
 }

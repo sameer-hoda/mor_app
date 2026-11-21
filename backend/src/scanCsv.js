@@ -125,3 +125,38 @@ export function applyOil(tot, oilLevel) {
     fat_g: Math.round(tot.fat_g * (oilLevel === 'more' ? 1.25 : oilLevel === 'less' ? 0.75 : 1)),
   };
 }
+
+const MATCH_LABELS = ['Closest match', 'Also likely', 'Possible', 'Possible', 'Possible'];
+
+/** Next-version item 12/15: parse the AI + web search candidate CSV into at
+ *  most five choice rows. Tolerant of stray prose, bold text and code fences;
+ *  a row without a usable name or kcal is dropped rather than faked. */
+export function parseCandidateCsv(raw) {
+  if (typeof raw !== 'string') return [];
+  const text = raw.trim()
+    .replace(/^```(?:csv)?/i, '')
+    .replace(/```$/, '')
+    .trim();
+  const out = [];
+  for (const line of text.split(/\r?\n/)) {
+    const clean = line.replace(/\*\*/g, '').trim();
+    if (!clean || /^name\s*,/i.test(clean)) continue;
+    const cols = splitCsvLine(clean);
+    if (cols.length < 2) continue;
+    const name = String(cols[0] || '').replace(/^["']|["']$/g, '').trim().slice(0, 60);
+    if (!name) continue;
+    const kcal = toNum(cols[1], { max: MAX_KCAL, allowEmpty: false });
+    if (kcal === null || kcal <= 0) continue;
+    out.push({
+      name: titleCase(name),
+      kcal: Math.round(kcal),
+      protein_g: Math.round(toNum(cols[2], { max: 500 })),
+      carbs_g: Math.round(toNum(cols[3], { max: 500 })),
+      fat_g: Math.round(toNum(cols[4], { max: 500 })),
+      portion: String(cols[5] || '1 serving').replace(/^["']|["']$/g, '').trim().slice(0, 40) || '1 serving',
+      match: MATCH_LABELS[out.length] || 'Possible',
+    });
+    if (out.length >= 5) break;
+  }
+  return out;
+}
