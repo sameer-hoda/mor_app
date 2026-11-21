@@ -148,10 +148,16 @@ fun AddSheet(nav: NavController, vm: AppVm, initialSlot: String? = null, onClose
             }
             Spacer(Modifier.height(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                WayRow(R.drawable.ic_scan_camera, "Scan meal", "camera?slot=$slot", nav)
-                WayRow(R.drawable.ic_search, "Search food", "search?slot=$slot", nav)
-                WayRow(R.drawable.ic_mic, "Speak", "search?slot=$slot&voice=1", nav)
-                WayRow(R.drawable.ic_gallery, "Gallery", "camera?slot=$slot&gallery=1", nav)
+                // Next-version items 12-15: search and voice resolve through
+                // AI + web and end in the candidate chooser. A photo scan from
+                // here stays on the legacy result sheet.
+                WayRow(R.drawable.ic_scan_camera, "Scan meal", "camera?slot=$slot", nav,
+                    onBefore = { ScanState.next = false })
+                WayRow(R.drawable.ic_search, "Search food",
+                    "nextlog?slot=$slot&mode=text", nav)
+                WayRow(R.drawable.ic_mic, "Speak", "nextlog?slot=$slot&mode=voice", nav)
+                WayRow(R.drawable.ic_gallery, "Gallery", "camera?slot=$slot&gallery=1", nav,
+                    onBefore = { ScanState.next = false })
             }
             Spacer(Modifier.height(14.dp))
             Row(
@@ -213,7 +219,7 @@ fun AddSheet(nav: NavController, vm: AppVm, initialSlot: String? = null, onClose
                                         "items" to listOf(mapOf("name" to "Snack", "kcal" to 150 * qaQty,
                                             "portion" to if (qaQty == 1) "1 serving" else "$qaQty servings"))))
                                     vm.refreshHome()
-                                    vm.showSnack("Logged ${150 * qaQty} kcal to ${slot.replaceFirstChar { it.uppercase() }} · +${r.coins_awarded} coins")
+                                    vm.showSnack("Logged ${150 * qaQty} kcal to ${slot.replaceFirstChar { it.uppercase() }}")
                                     onClose()
                                 } catch (e: Exception) {
                                     vm.showSnack("Quick add failed: ${friendlyErr(e)}", true)
@@ -230,20 +236,33 @@ fun AddSheet(nav: NavController, vm: AppVm, initialSlot: String? = null, onClose
                     )
                 }
             }
+            Spacer(Modifier.height(8.dp))
+            // Issue 26 (assumption): quick add stays calories-only, said plainly.
+            Text(
+                "Adds calories only. Protein, carbs and fat stay the same.",
+                fontSize = 12.sp, color = H2Muted, fontFamily = FontFamily.Default,
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            )
         }
     }
 }
 
 /** One "way" row: mint icon circle, label, teal chevron, hair bottom edge. */
 @Composable
-private fun WayRow(icon: Int, label: String, route: String, nav: NavController) {
+private fun WayRow(
+    icon: Int,
+    label: String,
+    route: String,
+    nav: NavController,
+    onBefore: (() -> Unit)? = null,
+) {
     Row(
         Modifier
             .fillMaxWidth()
             .height(54.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
-            .clickable { nav.navigate(route) }
+            .clickable { onBefore?.invoke(); nav.navigate(route) }
             .drawBehind {
                 drawLine(
                     Color(0x140F5560),

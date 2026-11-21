@@ -44,6 +44,7 @@ data class FoodItem(
     val unsure: Boolean? = null,
     val alternatives: List<String>? = null,
     val idx: Int? = null,
+    val match: String? = null,
     val veg: String? = null,
     val verified: Int? = null,
     val source: String? = null,
@@ -145,6 +146,10 @@ data class MealDetail(
 data class DayKcal(
     val date: String = "",
     val kcal: Double = 0.0,
+    val protein_g: Double = 0.0,
+    val carbs_g: Double = 0.0,
+    val fat_g: Double = 0.0,
+    val logged: Boolean = false,
     val on_track: Boolean = false,
     val weekday: String = "",
 )
@@ -214,6 +219,13 @@ data class ClaimResp(val ok: Boolean = false, val coins: Int = 0, val awarded: I
 data class WaterResp(val glasses: Int = 0)
 data class WeightResp(val kg: Double = 0.0, val delta: Double = 0.0)
 data class FoodsResp(val items: List<FoodItem> = emptyList())
+/** Next-version items 12/15: AI + web search returns 3-5 candidates, best
+ *  match first, each labeled as an estimate. Nothing is logged by this call. */
+data class AiSearchResp(
+    val query: String = "",
+    val source: String? = null,
+    val items: List<FoodItem> = emptyList(),
+)
 data class NotifsResp(val items: List<Notif> = emptyList())
 data class EstimateResp(val item: FoodItem = FoodItem(), val raw_csv: String? = null)
 data class OkResp(val ok: Boolean = false)

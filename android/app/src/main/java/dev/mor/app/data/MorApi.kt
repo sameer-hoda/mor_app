@@ -48,6 +48,11 @@ interface MorApi {
     @GET("api/foods/recent")
     suspend fun recentFoods(): FoodsResp
 
+    @POST("api/foods/ai-search")
+    suspend fun aiSearch(
+        @Body body: Map<String, @JvmSuppressWildcards Any?>,
+    ): AiSearchResp
+
     @POST("api/foods/estimate")
     suspend fun estimate(
         @Body body: Map<String, @JvmSuppressWildcards Any?>,

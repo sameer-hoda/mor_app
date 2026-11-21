@@ -1,0 +1,59 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Issue 6, settled: the chai cup (option 1 in mocks/snack-icon-options.png).
+         Maroon line at the mock's weight, gold fill, saucer and three steam curls. -->
+
+    <!-- steam -->
+    <path
+        android:pathData="M8.1,2.8 C7.2,4.2 8.9,5.3 8.0,6.7"
+        android:strokeColor="#7A1D16"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M12,1.9 C11.0,3.4 12.8,4.5 11.8,6.1"
+        android:strokeColor="#7A1D16"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M15.9,2.8 C14.9,4.2 16.7,5.3 15.8,6.7"
+        android:strokeColor="#7A1D16"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- handle -->
+    <path
+        android:pathData="M17.6,10.4 C20.8,10.2 21.6,14.1 17.9,15.3"
+        android:strokeColor="#7A1D16"
+        android:strokeWidth="1.7"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent" />
+
+    <!-- cup body: gold fill, maroon outline -->
+    <path
+        android:pathData="M4.4,9.2 L17.8,9.2 C17.8,14.6 15.4,17.4 11.1,17.4 C6.8,17.4 4.4,14.6 4.4,9.2 Z"
+        android:fillColor="#C9A227"
+        android:strokeColor="#7A1D16"
+        android:strokeWidth="1.7"
+        android:strokeLineJoin="round" />
+
+    <!-- tea rim -->
+    <path
+        android:pathData="M5.2,10.6 L17.0,10.6"
+        android:strokeColor="#7A1D16"
+        android:strokeWidth="1.1"
+        android:strokeLineCap="round" />
+
+    <!-- saucer -->
+    <path
+        android:pathData="M3.2,19.6 L20.8,19.6"
+        android:strokeColor="#7A1D16"
+        android:strokeWidth="1.7"
+        android:strokeLineCap="round" />
+</vector>

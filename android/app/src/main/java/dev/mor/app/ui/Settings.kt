@@ -217,7 +217,7 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
             Column(Modifier.fillMaxWidth().background(Teal).statusBarsPadding().padding(16.dp, 20.dp)) {
                 Text(p.name ?: "Guest", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay,
                     color = Color.White)
-                Text("🔥 ${h.streak}-day streak   🪙 ${h.coins} coins",
+                Text("🔥 ${h.streak}-day streak",
                     fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
             }
             Column(Modifier.padding(16.dp, 12.dp, 16.dp, 16.dp),
@@ -342,6 +342,7 @@ fun ProfileScreen(nav: NavController, vm: AppVm) {
                     confirmDelete = false
                     scope.launch(Dispatchers.IO) {
                         try { vm.api().reset() } catch (_: Exception) { }
+                        vm.macroPct.clear()
                         withContext(Dispatchers.Main) {
                             vm.showSnack("Data cleared")
                             V2Draft(ctx).clear()

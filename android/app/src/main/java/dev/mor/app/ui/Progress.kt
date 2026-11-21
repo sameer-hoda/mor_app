@@ -389,7 +389,6 @@ fun ChallengesScreen(nav: NavController, vm: AppVm) {
                 Text("Challenges", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, fontFamily = MorDisplay)
                 Text("Small wins every day", fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
             }
-            Pill("🪙 ${d.coins} coins", Gold, Amber)
         }
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp, 8.dp, 16.dp, 144.dp)) {
             @Composable
@@ -427,7 +426,7 @@ fun ChallengesScreen(nav: NavController, vm: AppVm) {
                                             try {
                                                 val r = vm.api().claim(mapOf("key" to c.key))
                                                 withContext(Dispatchers.Main) {
-                                                    vm.showSnack("+${r.awarded} coins!")
+                                                    vm.showSnack("Collected!")
                                                     load()
                                                 }
                                             } catch (e: Exception) {
@@ -437,10 +436,10 @@ fun ChallengesScreen(nav: NavController, vm: AppVm) {
                                             }
                                         }
                                     }.padding(14.dp, 10.dp)) {
-                                    Text("+${c.coins}", color = Color.White, fontWeight = FontWeight.Bold)
+                                    Text("Collect", color = Color.White, fontWeight = FontWeight.Bold)
                                 }
                             } else if (c.claimed) Pill("Done", GreenBg, Green)
-                            else Text("🪙${c.coins}", fontSize = 13.sp)
+                            else { }
                         }
                     }
                     Spacer(Modifier.height(10.dp))
@@ -480,7 +479,6 @@ fun BadgeModal(vm: AppVm, onClose: () -> Unit) {
             Text("Protein Pro", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, fontFamily = MorDisplay)
             Muted("Protein goal, 3 days in a row.", 13, TextAlign.Center)
             Spacer(Modifier.height(4.dp))
-            Pill("+50 coins", Color(0xFFFFF3DC), Amber)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(Modifier.weight(1f)) { MorSecondaryButton("Share") { } }
@@ -491,7 +489,7 @@ fun BadgeModal(vm: AppVm, onClose: () -> Unit) {
                                 val r = vm.api().awardBadge(mapOf("key" to "protein_pro"))
                                 withContext(Dispatchers.Main) {
                                     awarded = true
-                                    vm.showSnack("Badge collected · +${r.awarded} coins")
+                                    vm.showSnack("Badge collected")
                                     onClose()
                                 }
                             } catch (e: Exception) {

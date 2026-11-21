@@ -83,15 +83,19 @@ fun rememberIsNight(): Boolean {
     return night
 }
 
-/** Full-bleed background behind Home; cross-fades 600 ms, never flashes. */
+/** Full-bleed background behind Home; cross-fades 600 ms, never flashes.
+ *  `dim` is the next-version item 18 evening state: late at night with nothing
+ *  logged, the stage dims so Neelu's single quiet reminder reads as a whisper. */
 @Composable
-fun HomeBackground(night: Boolean, modifier: Modifier = Modifier) {
+fun HomeBackground(night: Boolean, modifier: Modifier = Modifier, dim: Boolean = false) {
     AnimatedContent(
         targetState = night,
         transitionSpec = { fadeIn(tween(600)) togetherWith fadeOut(tween(600)) },
         label = "homeBg",
         modifier = modifier.fillMaxSize(),
     ) { isNight ->
-        Box(Modifier.fillMaxSize().background(if (isNight) NightBackgroundBrush else DayBackgroundBrush))
+        Box(Modifier.fillMaxSize().background(if (isNight) NightBackgroundBrush else DayBackgroundBrush)) {
+            if (dim) Box(Modifier.fillMaxSize().background(Color(0x1A140C08)))
+        }
     }
 }

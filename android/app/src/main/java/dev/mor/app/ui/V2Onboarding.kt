@@ -20,6 +20,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -77,6 +78,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -220,6 +222,15 @@ private val CubicOut = CubicBezierEasing(0.33f, 1f, 0.68f, 1f)
 private fun fmtKg(v: Float): String =
     if (abs(v % 1f) < 0.05f) v.roundToInt().toString() else "%.1f".format(v)
 
+/** Issue 13: one date style across target and plan ("12 Mar"). */
+private fun shortPlanDate(iso: String?): String {
+    if (iso.isNullOrBlank()) return ""
+    return runCatching {
+        java.time.LocalDate.parse(iso)
+            .format(DateTimeFormatter.ofPattern("d MMM", java.util.Locale.ENGLISH))
+    }.getOrDefault(iso)
+}
+
 @Composable
 private fun rememberHaptics(): () -> Unit {
     val view = androidx.compose.ui.platform.LocalView.current
@@ -296,10 +307,10 @@ private fun BubbleHeading(title: String, sub: String?) {
 /* option groups (04-option-icons) --------------------------------------- */
 
 private val GOAL_OPTS = listOf(
-    OptionSpec("lose", "Lose weight", "Steady, no crash diets", R.drawable.ic_opt_lose, R.drawable.ic_opt_lose_selected, R.drawable.avd_opt_lose),
-    OptionSpec("maintain", "Maintain weight", "Stay here, eat better", R.drawable.ic_opt_maintain, R.drawable.ic_opt_maintain_selected, R.drawable.avd_opt_maintain),
-    OptionSpec("gain", "Gain weight", "Build up gently", R.drawable.ic_opt_gain, R.drawable.ic_opt_gain_selected, R.drawable.avd_opt_gain),
-    OptionSpec("healthy", "Eat healthier", "Same weight, better thalis", R.drawable.ic_opt_healthy, R.drawable.ic_opt_healthy_selected, R.drawable.avd_opt_healthy),
+    OptionSpec("lose", "Lose weight", "A gentle deficit", R.drawable.ic_opt_lose, R.drawable.ic_opt_lose_selected, R.drawable.avd_opt_lose),
+    OptionSpec("maintain", "Maintain weight", "Hold where you are", R.drawable.ic_opt_maintain, R.drawable.ic_opt_maintain_selected, R.drawable.avd_opt_maintain),
+    OptionSpec("gain", "Gain weight", "A steady surplus", R.drawable.ic_opt_gain, R.drawable.ic_opt_gain_selected, R.drawable.avd_opt_gain),
+    OptionSpec("healthy", "Eat healthier", "Quality first", R.drawable.ic_opt_healthy, R.drawable.ic_opt_healthy_selected, R.drawable.avd_opt_healthy),
 )
 private val DIET_OPTS = listOf(
     OptionSpec("vegan", "Vegan", "No animal products", R.drawable.ic_opt_vegan, R.drawable.ic_opt_vegan_selected, R.drawable.avd_opt_vegan),
@@ -345,7 +356,10 @@ private data class WheelSpec(
 )
 
 @Composable
-private fun WheelCard(spec: WheelSpec, onValue: (Float) -> Unit, onTapCentre: () -> Unit) {
+private fun WheelCard(
+    spec: WheelSpec, onValue: (Float) -> Unit, onTapCentre: () -> Unit,
+    showTypeHint: Boolean = true,
+) {
     Column(
         Modifier
             .clip(RoundedCornerShape(MorShape.Tile))
@@ -396,10 +410,12 @@ private fun WheelCard(spec: WheelSpec, onValue: (Float) -> Unit, onTapCentre: ()
             contentDescription = spec.description,
             modifier = Modifier.fillMaxWidth(),
         )
-        Text(
-            "Tap to type", fontFamily = MorInter, fontSize = 11.sp,
-            color = Color(0xFF8A7A62),
-        )
+        if (showTypeHint) {
+            Text(
+                "Tap to type", fontFamily = MorInter, fontSize = 11.sp,
+                color = Color(0xFF8A7A62),
+            )
+        }
     }
 }
 
@@ -504,11 +520,26 @@ private fun ObKeypad(
 
 private fun stepPose(step: String): String = V2_NEELU[step] ?: "happy"
 
+/* next-version flow (pack S2) -------------------------------------------- */
+// About you first, then Objective, then Target only for reduce/gain, then
+// Diet. Activity and Meals stay after Diet because the plan maths uses them.
+private val FLOW_BASE = listOf("body", "goal", "target", "diet", "activity", "meals")
+private val V2_STEP_KEYS = FLOW_BASE.toSet()
+
+private fun flowFor(goal: String): List<String> =
+    FLOW_BASE.filter { it != "target" || (goal != "maintain" && goal != "healthy") }
+
+private fun stepNoFor(key: String, goal: String): Int =
+    (flowFor(goal).indexOf(key) + 1).coerceAtLeast(1)
+
+private fun totalFor(goal: String): Int = flowFor(goal).size
+
 @Composable
 private fun GoalStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
     OnboardingScaffold(
-        step = 1, artKey = "goal",
-        bubble = "Let’s start with the big one.",
+        step = stepNoFor("goal", draft.answers.goal),
+        total = totalFor(draft.answers.goal),
+        bubble = "Let’s start with the big why.",
         title = "What’s your goal?",
         primaryText = "Continue", primaryEnabled = draft.answers.goal.isNotEmpty(),
         primaryDisabledText = "Choose one to continue",
@@ -525,7 +556,8 @@ private fun GoalStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
 @Composable
 private fun DietStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
     OnboardingScaffold(
-        step = 2, artKey = "diet",
+        step = stepNoFor("diet", draft.answers.goal),
+        total = totalFor(draft.answers.goal),
         bubble = "Now, the important bit. Food!",
         title = "What do you eat?",
         primaryText = "Continue", primaryEnabled = draft.answers.diet.isNotEmpty(),
@@ -577,7 +609,7 @@ private fun BodyStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
     )
 
     OnboardingScaffold(
-        step = 3, artKey = "body",
+        step = stepNoFor("body", a.goal), total = totalFor(a.goal),
         bubble = "A few numbers, so the maths is yours.",
         title = "About you",
         widePadding = true,
@@ -707,6 +739,7 @@ private val GAIN_PACES = listOf(
     Pace("faster", "Faster", 0.54f, 450, "Quicker results. Keep protein up and sleep well."),
 )
 private val HORIZON_WEEKS = 16.1f
+private const val BUILDING_CARD_FRAC = 0.68f
 
 private fun tdeeOf(a: V2Answers): Float {
     val bmr = if (a.sex == "male") {
@@ -747,326 +780,170 @@ private fun bezierPoint(p0: Offset, p1: Offset, p2: Offset, p3: Offset, t: Float
 private fun TargetStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
     val a = draft.answers
     val reduced = rememberReducedMotion()
-    val ctx = LocalContext.current
-    val prefs = remember { ctx.getSharedPreferences(V2_PREFS, Context.MODE_PRIVATE) }
-    val lb = prefs.getString("v2_wunit", "kg") == "lb"
-    val haptics = LocalHapticFeedback.current
-
-    // v5 #5: every goal gets the same pace-driven target screen (Gradual /
-    // Steady / Faster). The goal word is still stored for meal suggestions.
-    val start = a.weightKg
-    val maintaining = false
     val gain = a.goal == "gain"
-    val losing = a.goal == "lose"
     val paces = if (gain) GAIN_PACES else PACES
     val pace = paces[a.paceIdx.coerceIn(0, paces.lastIndex)]
+    val start = a.weightKg
     val projected = (if (gain) start + pace.rate * HORIZON_WEEKS else start - pace.rate * HORIZON_WEEKS)
         .coerceIn(35f, 160f)
-    val shown = if (maintaining) start else projected
 
-    // One date for everything: the headline, the chart's end and the goal line.
-    val horizonDate = LocalDateTime.now()
-        .plusDays((HORIZON_WEEKS * 7).roundToInt().toLong())
-        .format(DateTimeFormatter.ofPattern("d MMMM"))
+    // One date for the headline, the chart axis and the stored target.
+    val horizon = LocalDateTime.now().plusDays((HORIZON_WEEKS * 7).roundToInt().toLong())
+    val horizonDate = horizon.format(DateTimeFormatter.ofPattern("d MMM"))
+    val axis = remember {
+        val now = LocalDateTime.now()
+        val m = DateTimeFormatter.ofPattern("MMM")
+        listOf(
+            "Today",
+            now.plusDays(28).format(m),
+            now.plusDays(56).format(m),
+            now.plusDays(84).format(m),
+            horizon.format(DateTimeFormatter.ofPattern("d MMM")),
+        )
+    }
 
     LaunchedEffect(Unit) {
-        draft.answers = draft.answers.copy(targetKg = shown)
+        // Issue 13: one decimal before it is stored or sent; the server used to
+        // print three (70.102 kg) because this value went over unrounded.
+        val rounded = (projected * 10f).roundToInt() / 10f
+        draft.answers = draft.answers.copy(targetKg = rounded)
         draft.save()
     }
 
-    var scrubX by remember { mutableStateOf<Float?>(null) }
-    val animTarget by animateFloatAsState(shown, tween(if (reduced) 1 else 450, easing = CubicOut), label = "targetNum")
-    val animRate by animateFloatAsState(pace.rate, tween(if (reduced) 1 else 450, easing = CubicOut), label = "rate")
-
-    // The kcal chip shows exactly what the plan will deliver (pace-driven delta,
-    // rounded to 10 like the server's plan).
+    val animTarget by animateFloatAsState(
+        projected, tween(if (reduced) 1 else 450, easing = CubicOut), label = "targetNum",
+    )
     val minKcal = if (a.sex == "male") 1500 else 1200
-    val planKcal = when {
-        maintaining -> tdeeOf(a).roundToInt()
-        else -> (((tdeeOf(a).roundToInt() + pace.dailyDelta) + 5) / 10 * 10)
-            .coerceAtLeast(minKcal)
-    }
-    val change = shown - start
+    val planKcal = (((tdeeOf(a).roundToInt() + pace.dailyDelta) + 5) / 10 * 10)
+        .coerceAtLeast(minKcal)
+    val change = projected - start
+    // Issue 5: the curve's end point follows the chosen pace (0.18..0.54 kg/wk).
+    val curveFrac by animateFloatAsState(
+        (pace.rate / 0.54f).coerceIn(0f, 1f),
+        tween(if (reduced) 1 else 300, easing = CubicOut),
+        label = "curveFrac",
+    )
 
     OnboardingScaffold(
-        step = 4, artKey = "target",
+        step = stepNoFor("target", a.goal), total = totalFor(a.goal),
         bubble = "Three paces. Pick what feels right.",
         title = "Set your target weight",
-        artHeight = ArtHeight.Compact,
         widePadding = true,
         primaryText = "Continue", primaryEnabled = true,
         dir = dir, onPrimary = onNext,
     ) {
-        Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (maintaining) {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                "BY ${horizonDate.uppercase()} YOU COULD BE",
+                fontFamily = MorInter, fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp, color = MorColor.GoldText,
+            )
+            Spacer(Modifier.height(2.dp))
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    "YOUR TARGET",
-                    fontFamily = MorInter, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.14.em, color = MorColor.Eyebrow,
+                    "%.1f".format(animTarget), fontFamily = Cormorant,
+                    fontSize = 48.sp, fontWeight = FontWeight.SemiBold, color = MorColor.Ink,
+                    lineHeight = 50.sp,
                 )
-                Spacer(Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        "Stay at", fontFamily = Cormorant,
-                        fontSize = 34.sp, fontWeight = FontWeight.Medium, color = MorColor.Ink,
-                        modifier = Modifier.padding(bottom = 10.dp),
-                    )
-                    Text(
-                        "%.1f".format(animTarget), fontFamily = Cormorant,
-                        fontSize = 84.sp, fontWeight = FontWeight.SemiBold, color = MorColor.Ink,
-                        lineHeight = 86.sp,
-                    )
-                    Text(
-                        " kg", fontFamily = MorInter, fontSize = 20.sp,
-                        color = MorColor.Muted, modifier = Modifier.padding(bottom = 12.dp),
-                    )
-                }
-                Spacer(Modifier.height(6.dp))
+                Text(
+                    " kg", fontFamily = MorInter, fontSize = 16.sp,
+                    color = MorColor.Muted, modifier = Modifier.padding(bottom = 7.dp),
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Pill(
+                    "${if (change < 0) "\u2212" else "+"}${"%.1f".format(abs(change))} kg",
+                    bg = Color(0xFFF1E4D3), fg = Color(0xFF5E3A0E),
+                )
                 Pill(
                     "${"%,d".format(planKcal)} kcal a day",
                     bg = MorColor.Track, fg = Color(0xFF4A3F33),
                 )
-            } else {
-                Text(
-                    "BY ${horizonDate.uppercase()} YOU COULD BE",
-                    fontFamily = MorInter, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.14.em, color = MorColor.Eyebrow,
-                )
-                Spacer(Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        "%.1f".format(animTarget), fontFamily = Cormorant,
-                        fontSize = 84.sp, fontWeight = FontWeight.SemiBold, color = MorColor.Ink,
-                        lineHeight = 86.sp,
-                    )
-                    Text(
-                        " kg", fontFamily = MorInter, fontSize = 20.sp,
-                        color = MorColor.Muted, modifier = Modifier.padding(bottom = 12.dp),
-                    )
-                }
-                Spacer(Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Pill(
-                        "${if (change < 0) "−" else "+"}${"%.1f".format(abs(change))} kg",
-                        bg = Color(0xFFF3E3C6), fg = Color(0xFF5E3A0E),
-                    )
-                    Pill(
-                        "${"%,d".format(planKcal)} kcal a day",
-                        bg = MorColor.Track, fg = Color(0xFF4A3F33),
-                    )
-                }
             }
-        }
-        Spacer(Modifier.height(14.dp))
-        if (maintaining) {
-            // v5 #3: a flat projection line, no pace buttons.
-            Canvas(Modifier.fillMaxWidth().height(110.dp).padding(horizontal = 8.dp)) {
-                val y = size.height / 2f
-                drawLine(
-                    MorColor.Maroon, Offset(0f, y), Offset(size.width, y), 3.dp.toPx(),
-                    cap = StrokeCap.Round,
-                )
-                drawCircle(MorColor.Maroon, 4.5.dp.toPx(), Offset(0f, y))
-                drawCircle(Color(0xFFF7F1E6), 8.5.dp.toPx(), Offset(size.width, y))
-                drawCircle(MorColor.Gold, 6.dp.toPx(), Offset(size.width, y))
-            }
-        } else {
-            Spacer(Modifier.height(14.dp))
-            // v4 #4+#6: S1 sliding-pill pace control; hidden while maintaining.
-            PillSegmentedControl(
-                paces.map { p ->
-                    Segment(p.key, p.label, "%.2f kg/wk".format(p.rate))
-                },
-                selectedKey = pace.key,
-                onSelect = { k ->
-                    val idx = paces.indexOfFirst { it.key == k }.coerceAtLeast(0)
-                    MorSound.select(idx)
-                    val p = paces[idx]
-                    val newTarget = (if (gain) start + p.rate * HORIZON_WEEKS else start - p.rate * HORIZON_WEEKS)
-                        .coerceIn(35f, 160f)
-                    draft.answers = draft.answers.copy(paceIdx = idx, targetKg = newTarget)
-                    draft.save()
-                },
-                height = 62.dp,
-                contentDescription = "Pace",
-            )
-            Spacer(Modifier.height(14.dp))
-            WeightChart(
-                start = start, targetAnim = animTarget, rateAnim = animRate, gain = gain,
-                scrubX = scrubX,
-                onScrub = { scrubX = it },
-                onScrubEnd = { scrubX = null },
-            )
-            Text(
-                "Drag across the chart to see any day",
-                fontFamily = MorInter, fontSize = 11.5.sp, color = Color(0xFF8A7A62),
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
-            AnimatedContent(
-                targetState = pace.guidance,
-                transitionSpec = {
-                    if (reduced) {
-                        fadeIn(tween(1)) togetherWith fadeOut(tween(1))
-                    } else {
-                        fadeIn(tween(150)) togetherWith fadeOut(tween(150))
+            Spacer(Modifier.height(12.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                paces.forEach { p ->
+                    val on = p.key == pace.key
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (on) MorColor.Maroon else Color(0xFFF1E4D3))
+                            .clickable {
+                                val idx = paces.indexOf(p).coerceAtLeast(0)
+                                MorSound.select(idx)
+                                val nt = (if (gain) start + p.rate * HORIZON_WEEKS
+                                else start - p.rate * HORIZON_WEEKS).coerceIn(35f, 160f)
+                                draft.answers = draft.answers.copy(
+                                    paceIdx = idx,
+                                    targetKg = (nt * 10f).roundToInt() / 10f,
+                                )
+                                draft.save()
+                            }
+                            .padding(vertical = 9.dp, horizontal = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            p.label, fontFamily = MorInter, fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (on) Color(0xFFFFFDF6) else MorColor.Ink,
+                        )
+                        Text(
+                            "${"%.2f".format(p.rate)} kg/wk ${if (gain) "gain" else "loss"}",
+                            fontFamily = MorInter, fontSize = 10.sp,
+                            color = if (on) Color(0xFFFFFDF6).copy(alpha = 0.85f) else MorColor.Muted,
+                        )
                     }
-                },
-                label = "guidance",
-            ) { g ->
-                Text(
-                    g, fontFamily = MorInter, fontSize = 15.sp, lineHeight = (15 * 1.45).sp,
-                    color = MorColor.Ink2, textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                }
             }
+            Spacer(Modifier.height(12.dp))
+            SpecCurve(gain, curveFrac)
+            Row(
+                Modifier.fillMaxWidth().padding(top = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                axis.forEach { l ->
+                    Text(l, fontFamily = MorInter, fontSize = 10.sp, color = Color(0xFF8A7F68))
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Illustrative figures only.", fontFamily = MorInter, fontSize = 10.sp,
+                color = MorColor.NoteFaint,
+            )
         }
-    }
-
-    LaunchedEffect(scrubX) {
-        if (scrubX != null) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 }
 
-/** 110dp chart with morphing pace curves, ghost lines and drag scrubbing. */
+/** The approved target curve (viewBox 220x84), now pace-aware (issue 5):
+ *  `frac` 0.33 / 0.67 / 1.0 for Gradual / Steady / Faster. Gain rises, loss falls. */
 @Composable
-private fun WeightChart(
-    start: Float, targetAnim: Float, rateAnim: Float, gain: Boolean,
-    scrubX: Float?, onScrub: (Float?) -> Unit, onScrubEnd: () -> Unit,
-) {
-    val chartH = 110.dp
-    val density = LocalDensity.current
-    var widthPx by remember { mutableStateOf(0f) }
-    val minKg = if (gain) start - 1f else targetAnim - 1f
-    val maxKg = if (gain) targetAnim + 2f else start + 2f
-    val span = (maxKg - minKg).coerceAtLeast(1f)
-    val horizonDate = LocalDateTime.now().plusDays((HORIZON_WEEKS * 7).roundToInt().toLong())
-    val monthFmt = DateTimeFormatter.ofPattern("MMM")
-    val dateFmt = DateTimeFormatter.ofPattern("d MMM")
-    val labels = remember {
-        val now = LocalDateTime.now()
-        listOf(
-            "Today",
-            now.plusDays((HORIZON_WEEKS * 7 / 4).roundToInt().toLong()).format(monthFmt),
-            now.plusDays((HORIZON_WEEKS * 7 / 2).roundToInt().toLong()).format(monthFmt),
-            now.plusDays((HORIZON_WEEKS * 7 * 3 / 4).roundToInt().toLong()).format(monthFmt),
-            horizonDate.format(dateFmt),
-        )
-    }
-    val scrubValue = scrubX?.let { sx ->
-        // Find t for the finger's x by binary search on the Bézier's x(t).
-        val w = widthPx
-        if (w <= 0f) null
-        else {
-            val yFn: (Float) -> Float = { v -> (maxKg - v) / span * with(density) { chartH.toPx() } }
-            val path = pacePath(w, with(density) { chartH.toPx() }, start, targetAnim, rateAnim, yFn)
-            val p0 = Offset(0f, yFn(start))
-            val p1 = Offset(0.35f * w, yFn(start - (if (gain) 1f else -1f) * rateAnim * 4f))
-            val p2 = Offset(0.65f * w, yFn(targetAnim + (if (gain) 1f else -1f) * rateAnim * 3f))
-            val p3 = Offset(w, yFn(targetAnim))
-            var lo = 0f; var hi = 1f
-            repeat(24) {
-                val mid = (lo + hi) / 2f
-                val pt = bezierPoint(p0, p1, p2, p3, mid)
-                if (pt.x < sx) lo = mid else hi = mid
-            }
-            val t = (lo + hi) / 2f
-            val pt = bezierPoint(p0, p1, p2, p3, t)
-            val kg = maxKg - pt.y / with(density) { chartH.toPx() } * span
-            Triple(sx.coerceIn(0f, w), pt.y, kg)
+private fun SpecCurve(gain: Boolean, frac: Float) {
+    Canvas(Modifier.fillMaxWidth().height(84.dp)) {
+        val sx = size.width / 220f
+        val sy = size.height / 84f
+        val startY = if (gain) 54f else 12f
+        val endY = if (gain) 54f - 42f * frac else 12f + 42f * frac
+        val d = endY - startY
+        val path = Path().apply {
+            moveTo(14f * sx, startY * sy)
+            cubicTo(
+                70f * sx, (startY + d * 0.12f) * sy,
+                150f * sx, (startY + d * 0.70f) * sy,
+                206f * sx, endY * sy,
+            )
         }
-    }
-
-    Column(Modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(chartH)
-                .pointerInput(start, gain) {
-                    detectDragGestures(
-                        onDragStart = { onScrub(it.x) },
-                        onDrag = { c, _ -> onScrub(c.position.x) },
-                        onDragEnd = onScrubEnd,
-                        onDragCancel = onScrubEnd,
-                    )
-                }
-        ) {
-            Canvas(Modifier.fillMaxSize().onSizeChanged { widthPx = it.width.toFloat() }) {
-                val w = size.width
-                val h = size.height
-                fun yFn(v: Float): Float = (maxKg - v) / span * h
-
-                // Ghost lines for the other paces.
-                val allPaces = if (gain) GAIN_PACES else PACES
-                allPaces.filter { "%.2f".format(it.rate) != "%.2f".format(rateAnim) }.forEach { p ->
-                    drawPath(
-                        pacePath(w, h, start, paceTarget(V2Answers(weightKg = start, goal = if (gain) "gain" else "lose"), p), p.rate, ::yFn),
-                        Color(0xFFE2D4BA),
-                        style = Stroke(
-                            1.5.dp.toPx(), cap = StrokeCap.Round,
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f)),
-                        ),
-                    )
-                }
-                // Active path: maroon with a gradient fill below.
-                val active = pacePath(w, h, start, targetAnim, rateAnim, ::yFn)
-                val fill = Path().apply {
-                    addPath(active)
-                    lineTo(w, h); lineTo(0f, h); close()
-                }
-                drawPath(
-                    fill,
-                    Brush.verticalGradient(
-                        listOf(MorColor.Maroon.copy(alpha = 0.12f), MorColor.Maroon.copy(alpha = 0f)),
-                        startY = 0f, endY = h,
-                    ),
-                )
-                drawPath(active, MorColor.Maroon, style = Stroke(3.dp.toPx(), cap = StrokeCap.Round))
-                // Start + end dots.
-                drawCircle(MorColor.Maroon, 4.5.dp.toPx(), Offset(0f, yFn(start)))
-                drawCircle(MorColor.Gold, 6.dp.toPx(), Offset(w, yFn(targetAnim)))
-                drawCircle(MorColor.Ivory, 6.dp.toPx() + 2.5.dp.toPx(), Offset(w, yFn(targetAnim)), style = Stroke(2.5.dp.toPx()))
-                // Scrub hairline + tooltip dot.
-                scrubValue?.let { (sx, sy, _) ->
-                    drawLine(
-                        MorColor.Ink.copy(alpha = 0.35f), Offset(sx, 0f), Offset(sx, h), 1.dp.toPx(),
-                    )
-                    drawCircle(MorColor.Maroon, 4.dp.toPx(), Offset(sx, sy))
-                    drawCircle(MorColor.Ivory, 4.dp.toPx() + 2.dp.toPx(), Offset(sx, sy), style = Stroke(2.dp.toPx()))
-                }
-            }
-            scrubValue?.let { (sx, _, kg) ->
-                val date = LocalDateTime.now().plusDays(
-                    (HORIZON_WEEKS * 7 * (sx / widthPx.coerceAtLeast(1f))).roundToInt().toLong()
-                ).format(dateFmt)
-                val text = "$date · ${"%.1f".format(kg)} kg"
-                val tooltipW = with(density) { 150.dp.toPx() }
-                val tx = (sx - tooltipW / 2f).coerceIn(0f, widthPx - tooltipW)
-                Box(
-                    Modifier
-                        .offset(x = with(density) { tx.toDp() }, y = 4.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MorColor.Ink.copy(alpha = 0.92f))
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
-                ) {
-                    Text(text, fontFamily = MorInter, fontSize = 11.sp, color = MorColor.Ivory)
-                }
-            }
-        }
-        Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            labels.forEach { l ->
-                Text(l, fontFamily = MorInter, fontSize = 11.sp, color = Color(0xFF7D6F5A))
-            }
-        }
+        drawPath(path, MorColor.Maroon, style = Stroke(2.5.dp.toPx(), cap = StrokeCap.Round))
+        drawCircle(MorColor.Maroon, 4.dp.toPx(), Offset(14f * sx, startY * sy))
+        drawCircle(MorColor.Gold, 4.dp.toPx(), Offset(206f * sx, endY * sy))
     }
 }
 
 @Composable
 private fun ActivityStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
     OnboardingScaffold(
-        step = 5, artKey = "activity",
+        step = stepNoFor("activity", draft.answers.goal), total = totalFor(draft.answers.goal),
         bubble = "Almost there. How do your days go?",
         title = "How active are you?",
         primaryText = "Continue", primaryEnabled = draft.answers.activity.isNotEmpty(),
@@ -1084,7 +961,7 @@ private fun ActivityStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
 @Composable
 private fun MealsStep(draft: V2Draft, dir: Int, onNext: () -> Unit) {
     OnboardingScaffold(
-        step = 6, artKey = "meals",
+        step = stepNoFor("meals", draft.answers.goal), total = totalFor(draft.answers.goal),
         bubble = "When do you usually eat?",
         title = "Your meal times",
         primaryText = "Build my plan", primaryEnabled = true,
@@ -1113,10 +990,10 @@ private fun PlanStep(plan: Plan, draft: V2Draft, onStart: () -> Unit) {
     }
     Box(Modifier.fillMaxSize()) {
         OnboardingScaffold(
-            step = 6, artKey = "plan",
+            step = totalFor(draft.answers.goal), total = totalFor(draft.answers.goal),
             bubble = "Built around your plate.",
             title = "Your plan is ready!",
-            primaryText = "Start", primaryEnabled = true,
+            primaryText = "Go to Home", primaryEnabled = true,
             dir = 1, onPrimary = onStart,
         ) {
             Column(
@@ -1150,13 +1027,16 @@ private fun PlanStep(plan: Plan, draft: V2Draft, onStart: () -> Unit) {
                     MacroRow("Carbs", plan.carbs_g, Genda, (plan.carbs_g * 4 / mx).toFloat(), cardStagger.value)
                     MacroRow("Fat", plan.fat_g, Pankh, (plan.fat_g * 9 / mx).toFloat(), cardStagger.value)
                 }
+                // Issue 13: no goal pill when there is no weight change; the
+                // date uses the same short style as the target screen.
+                val g = draft.answers.goal
                 val line = plan.goal_line
-                if (line != null) {
+                if (line != null && (g == "lose" || g == "gain")) {
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     ) {
-                        Pill("$line · by ${plan.target_date?.let { prettyDate(it) } ?: ""}", bg = MorColor.Track, fg = MorColor.Maroon)
+                        Pill("$line · by ${shortPlanDate(plan.target_date)}", bg = MorColor.Track, fg = MorColor.Maroon)
                     }
                 }
             }
@@ -1190,13 +1070,15 @@ private fun MacroRow(label: String, grams: Double, color: Color, frac: Float, sh
 /** Small confetti burst for the plan reveal (two volleys, Mor palette colors). */
 @Composable
 private fun Confetti(t: Float) {
-    if (t <= 0f) return
+    // Issue 11: at t=1 every dot must be gone. The old denominator (/2) left
+    // ~57% of the dots frozen on screen forever.
+    if (t <= 0f || t >= 1f) return
     Canvas(Modifier.fillMaxSize()) {
         val colors = listOf(MorColor.Maroon, MorColor.Gold, MorColor.GoldLight, Neel, Genda)
         val r = size
         fun burst(seed: Int, count: Int, spread: Float, vel: Float, at: Float, scale: Float) {
-            val rel = (t - at) / 2f
-            if (rel <= 0f || rel > 1f) return
+            val rel = ((t - at) / (1f - at)).coerceIn(0f, 1f)
+            if (rel <= 0f || rel >= 1f) return
             val rnd = java.util.Random(seed.toLong())
             for (i in 0 until count) {
                 val ang = (-90f + (rnd.nextFloat() - 0.5f) * spread) * (Math.PI / 180).toFloat()
@@ -1211,46 +1093,6 @@ private fun Confetti(t: Float) {
         }
         burst(7, 90, 150f, 0.9f, 380f / 2700f, 0.9f)
         burst(13, 50, 220f, 0.6f, 600f / 2700f, 0.8f)
-    }
-}
-
-/** "You're all set" — the final onboarding step (07-plan-ready-flow). */
-@Composable
-private fun AllSetScreen(nav: androidx.navigation.NavController, vm: AppVm, draft: V2Draft) {
-    OnboardingScaffold(
-        step = 6, artKey = "allset",
-        bubble = "Welcome to Mor.",
-        title = "You’re all set",
-        subtitle = "Welcome to Mor. Let’s eat well.",
-        primaryText = "Go to Home", primaryEnabled = true,
-        dir = 1, onPrimary = {
-            vm.refreshProfile()
-            vm.refreshHome()
-            // popUpTo the graph root, so Back from Home exits the app.
-            nav.navigate("home") { popUpTo("boot") { inclusive = true } }
-            draft.clear()
-            MorSound.done()
-        },
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(MorShape.Card))
-                .background(MorColor.Card)
-                .border(1.dp, MorColor.CardBorder, RoundedCornerShape(MorShape.Card))
-                .padding(14.dp, 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Canvas(Modifier.size(20.dp)) {
-                drawCircle(MorColor.Muted, 3.dp.toPx(), Offset(center.x, center.y - 5.dp.toPx()))
-                drawLine(MorColor.Muted, Offset(center.x, center.y - 1.dp.toPx()), Offset(center.x, center.y + 6.dp.toPx()), 2.dp.toPx(), cap = StrokeCap.Round)
-            }
-            Spacer(Modifier.width(10.dp))
-            Text(
-                "Meal reminders are off. You can turn them on from settings.",
-                fontFamily = MorInter, fontSize = 13.5.sp, color = MorColor.Ink2,
-            )
-        }
     }
 }
 
@@ -1333,13 +1175,26 @@ private fun TimeSheet(
     slot: String, initial: String,
     onSave: (String) -> Unit, onDismiss: () -> Unit,
 ) {
-    var pick by remember { mutableStateOf(initial) }
-    val st = rememberTimePickerState(
-        initialHour = initial.substringBefore(":").toIntOrNull() ?: 8,
-        initialMinute = initial.substringAfter(":").toIntOrNull() ?: 30,
-        is24Hour = true,
-    )
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MorColor.Ivory) {
+    // Issue 9 (settled): option B — the About roller, reused as three WheelCards.
+    // One source of truth; Save converts once to 24h HH:MM.
+    val h24 = initial.substringBefore(":").toIntOrNull()?.coerceIn(0, 23) ?: 8
+    val m0 = initial.substringAfter(":").toIntOrNull()?.coerceIn(0, 59) ?: 30
+    var hour12 by remember { mutableIntStateOf(if (h24 % 12 == 0) 12 else h24 % 12) }
+    var minute by remember { mutableIntStateOf(m0) }
+    var pm by remember { mutableIntStateOf(if (h24 >= 12) 1 else 0) }
+    var keypad by remember { mutableStateOf<String?>(null) }
+
+    val hourItems = (1..12).map { WheelItem(it.toFloat(), "$it", "hr") }
+    val minuteItems = (0..59).map { WheelItem(it.toFloat(), "%02d".format(it), "min") }
+    val ampmItems = listOf(WheelItem(0f, "AM", ""), WheelItem(1f, "PM", ""))
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MorColor.Ivory,
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        ),
+    ) {
         Column(
             Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -1349,46 +1204,80 @@ private fun TimeSheet(
                 fontWeight = FontWeight.SemiBold, color = MorColor.Ink,
                 modifier = Modifier.align(Alignment.Start).padding(horizontal = 20.dp),
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(10.dp))
             Row(
+                Modifier.fillMaxWidth().padding(horizontal = 14.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.align(Alignment.Start).padding(horizontal = 20.dp),
             ) {
-                (V2_QUICK[slot] ?: emptyList()).forEach { t ->
-                    TimeChip(t, t == pick) { pick = t }
+                Box(Modifier.weight(1f)) {
+                    WheelCard(
+                        WheelSpec(
+                            "Hour", hourItems, hour12 - 1, "Hour", null, null,
+                            false, 1f..12f, "1–12",
+                        ),
+                        onValue = { hour12 = it.roundToInt().coerceIn(1, 12) },
+                        onTapCentre = { keypad = "hour" },
+                    )
+                }
+                Box(Modifier.weight(1f)) {
+                    WheelCard(
+                        WheelSpec(
+                            "Minute", minuteItems, minute, "Minute", null, null,
+                            false, 0f..59f, "0–59",
+                        ),
+                        onValue = { minute = it.roundToInt().coerceIn(0, 59) },
+                        onTapCentre = { keypad = "minute" },
+                    )
+                }
+                Box(Modifier.weight(1f)) {
+                    WheelCard(
+                        WheelSpec(
+                            "AM/PM", ampmItems, pm, "AM or PM", null, null,
+                            false, 0f..1f, "AM or PM",
+                        ),
+                        onValue = { pm = if (it >= 0.5f) 1 else 0 },
+                        onTapCentre = { },
+                        showTypeHint = false,
+                    )
                 }
             }
             Spacer(Modifier.height(12.dp))
-            TimePicker(state = st)
-            Spacer(Modifier.height(8.dp))
-            ObPrimaryButton("Save", enabled = true) {
-                onSave("%02d:%02d".format(st.hour, st.minute))
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                ObPrimaryButton("Save", enabled = true) {
+                    val out = (hour12 % 12) + if (pm == 1) 12 else 0
+                    onSave("%02d:%02d".format(out, minute))
+                }
             }
         }
     }
-}
 
-@Composable
-private fun TimeChip(text: String, on: Boolean, onClick: () -> Unit) {
-    val view = androidx.compose.ui.platform.LocalView.current
-    Box(
-        Modifier
-            .height(40.dp).clip(RoundedCornerShape(20.dp))
-            .background(if (on) MorColor.Maroon else MorColor.Card)
-            .border(1.dp, if (on) MorColor.Maroon else Color(0xFFD9C9AA), RoundedCornerShape(20.dp))
-            .clickable { MorSound.ensure(view.context); MorSound.select(1); onClick() }
-            .padding(horizontal = 14.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text, fontFamily = MorInter, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-            color = if (on) MorColor.CreamText else MorColor.Ink,
+    when (keypad) {
+        "hour" -> ObKeypad(
+            "Enter hour", "$hour12", "hr", false, 1f..12f, "1–12",
+            onSet = { hour12 = it.roundToInt().coerceIn(1, 12) },
+            onDismiss = { keypad = null },
+        )
+        "minute" -> ObKeypad(
+            "Enter minute", "%02d".format(minute), "min", false, 0f..59f, "0–59",
+            onSet = { minute = it.roundToInt().coerceIn(0, 59) },
+            onDismiss = { keypad = null },
         )
     }
 }
 
 @Composable
 private fun SlotIcon(slot: String) {
+    // Issue 6 (settled): the Snack row uses the chai cup from the mock. The other
+    // three meal icons are untouched.
+    if (slot == "snack") {
+        Box(Modifier.size(34.dp), contentAlignment = Alignment.Center) {
+            Image(
+                painterResource(R.drawable.ic_snack_chai), null,
+                Modifier.size(28.dp),
+            )
+        }
+        return
+    }
     Canvas(Modifier.size(34.dp)) {
         when (slot) {
             "breakfast" -> {
@@ -1406,12 +1295,6 @@ private fun SlotIcon(slot: String) {
                 drawCircle(MorColor.Ivory, 2.6.dp.toPx(), Offset(center.x + 3.dp.toPx(), center.y - 2.4.dp.toPx()))
                 drawCircle(Color(0xFFD9B48A), 2.6.dp.toPx(), Offset(center.x, center.y + 2.6.dp.toPx()))
             }
-            "snack" -> {
-                drawCircle(Color(0xFF8A5A2B), 5.5.dp.toPx(), Offset(center.x - 0.5.dp.toPx(), center.y + 1.dp.toPx()))
-                drawCircle(MorColor.Ivory, 5.dp.toPx(), Offset(center.x - 0.5.dp.toPx(), center.y - 2.dp.toPx()))
-                drawLine(Color(0xFF9B9B9B), Offset(center.x - 4.dp.toPx(), center.y - 9.dp.toPx()), Offset(center.x - 6.dp.toPx(), center.y - 4.dp.toPx()), 0.9.dp.toPx())
-                drawLine(Color(0xFF9B9B9B), Offset(center.x + 3.dp.toPx(), center.y - 9.dp.toPx()), Offset(center.x + 5.dp.toPx(), center.y - 4.dp.toPx()), 0.9.dp.toPx())
-            }
             else -> {
                 drawCircle(MorColor.GoldLight, 8.dp.toPx(), Offset(center.x, center.y + 1.dp.toPx()))
                 drawCircle(MorColor.GoldPale, 8.dp.toPx(), Offset(center.x, center.y - 1.dp.toPx()))
@@ -1427,12 +1310,20 @@ private fun SlotIcon(slot: String) {
 internal fun v2CommitMap(draft: V2Draft): Map<String, Any?> {
     val a = draft.answers
     val meals = a.times.filterKeys { a.mealOn[it] == true }
+    // Issue 13: Maintain and Eat healthier skip the Target step, so the draft
+    // still holds an old target. Send a clean value instead of a stale one:
+    // maintain = current weight, healthier = no target at all.
+    val target: Any? = when (a.goal) {
+        "maintain" -> a.weightKg
+        "healthy" -> null
+        else -> (a.targetKg * 10f).roundToInt() / 10f
+    }
     return mapOf(
         "goal" to a.goal, "diet" to a.diet, "sex" to a.sex, "age" to a.age,
-        "height_cm" to a.heightCm, "weight_kg" to a.weightKg, "target_weight_kg" to a.targetKg,
+        "height_cm" to a.heightCm, "weight_kg" to a.weightKg, "target_weight_kg" to target,
         "activity" to a.activity, "meal_times" to meals, "complete" to true,
-        // v4 07: the reminder question is gone, so reminders default to off.
-        "reminders_on" to false,
+        // next: the Meal times step owns this now — on when any slot is on.
+        "reminders_on" to a.mealOn.values.any { it },
     )
 }
 
@@ -1493,57 +1384,81 @@ fun V2BuildingScreen(
         }
     }
 
-    Column(Modifier.fillMaxSize()) {
-        V2Top("building", draft)
-        Box(
-            Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 4.dp),
-        ) {
-            BubbleHeading(
-                "Building your plan…",
-                planSubtitle(a.diet, a.goal),
-            )
-        }
-        Column(
-            Modifier.weight(1f).fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, top = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                lines.forEachIndexed { i, line ->
-                    if (i > doneCount) return@forEachIndexed
-                    Row(
-                        Modifier
-                            .shadow(2.dp, RoundedCornerShape(18.dp), spotColor = Ink.copy(alpha = 0.06f))
-                            .clip(RoundedCornerShape(18.dp, 18.dp, 18.dp, 6.dp))
-                            .background(MorColor.Card)
-                            .padding(10.dp, 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        StatusDot(if (failed && i == lines.lastIndex) "fail" else "done")
-                        Spacer(Modifier.width(10.dp))
-                        Text(
-                            line + if (failed && i == lines.lastIndex) " — that took too long." else "",
-                            fontFamily = MorBody, fontSize = 15.sp, color = Ink,
-                        )
+    Box(Modifier.fillMaxSize().background(MorColor.FrameCream)) {
+        Image(
+            painterResource(R.drawable.court), null,
+            Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+        )
+        // Issue 10 (assumption): card centre at 68% of screen height, one constant.
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val frac = BUILDING_CARD_FRAC
+            Column(
+                Modifier
+                    .align(Alignment.Center)
+                    .offset(y = maxHeight * (frac - 0.5f))
+                    .padding(horizontal = 20.dp),
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(MorColor.ScreenCream.copy(alpha = 0.97f))
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                ) {
+                    Text(
+                        "Building your plan…", fontFamily = Cormorant, fontSize = 24.sp,
+                        fontWeight = FontWeight.SemiBold, color = MorColor.Ink,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        lines.forEachIndexed { i, line ->
+                            if (i <= doneCount) {
+                                CascadeRow(
+                                    line + if (failed && i == lines.lastIndex) " — that took too long." else "",
+                                    failed && i == lines.lastIndex,
+                                )
+                            }
+                        }
                     }
                 }
-            }
-            LinearProgressIndicator(
-                progress = { progress / 100f },
-                color = MorColor.Maroon, trackColor = MorColor.Track,
-                modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-            )
-        }
-        if (failed) {
-            Row(
-                Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp)
-                    .navigationBarsPadding().padding(bottom = 22.dp),
-            ) {
-                Box(Modifier.weight(1f)) {
-                    V2Button("Try again") { attempt += 1 }
+                if (failed) {
+                    Spacer(Modifier.height(14.dp))
+                    ObPrimaryButton("Try again", enabled = true) { attempt += 1 }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CascadeRow(text: String, fail: Boolean) {
+    val reduced = rememberReducedMotion()
+    val appear = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        appear.animateTo(
+            1f, tween(if (reduced) 1 else 450, easing = CubicBezierEasing(0.2f, 0.9f, 0.3f, 1.2f)),
+        )
+    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                alpha = appear.value
+                translationY = (1f - appear.value) * 8.dp.toPx()
+            },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Canvas(Modifier.size(20.dp)) {
+            drawCircle(if (fail) Kumkum else MorColor.Fat, 10.dp.toPx(), center)
+            if (!fail) {
+                drawLine(Color.White, Offset(center.x - 5.dp.toPx(), center.y + 0.5.dp.toPx()),
+                    Offset(center.x - 1.dp.toPx(), center.y + 4.5.dp.toPx()), 2.2.dp.toPx(), cap = StrokeCap.Round)
+                drawLine(Color.White, Offset(center.x - 1.dp.toPx(), center.y + 4.5.dp.toPx()),
+                    Offset(center.x + 5.dp.toPx(), center.y - 4.dp.toPx()), 2.2.dp.toPx(), cap = StrokeCap.Round)
+            }
+        }
+        Spacer(Modifier.width(10.dp))
+        Text(text, fontFamily = MorInter, fontSize = 13.sp, color = MorColor.Ink)
     }
 }
 
@@ -1591,96 +1506,122 @@ fun fmtTime(t: String): String {
     return "$hh:${m.toString().padStart(2, '0')} $ap"
 }
 
-private val V2_ORDER = listOf(
-    "journey", "goal", "diet", "body", "target", "activity", "meals", "building", "plan", "allset",
-)
+/** The peel-with-curl easing and transform (pack A1 / S7). */
+private val PeelEase = CubicBezierEasing(0.45f, 0f, 0.65f, 0.4f)
 
-/** Route host: step system after the palace door; parallel enter/exit spring
- *  transitions; pose hold. */
+private fun Modifier.peelOut(p: Float): Modifier = this.graphicsLayer {
+    val tip = 0.35f
+    val ty = if (p <= tip) (p / tip) * 0.12f
+    else 0.12f + ((p - tip) / (1f - tip)) * 0.94f
+    val rot = if (p <= tip) -2.5f * (p / tip)
+    else -2.5f - 2.5f * ((p - tip) / (1f - tip))
+    transformOrigin = TransformOrigin(0.12f, 1f)
+    translationY = size.height * ty
+    rotationZ = rot
+    alpha = 1f - 0.1f * p
+    shadowElevation = 18.dp.toPx()
+    shape = RoundedCornerShape(20.dp)
+    clip = false
+}
+
+@Composable
+private fun V2Screen(
+    key: String, draft: V2Draft, vm: AppVm, nav: androidx.navigation.NavController,
+    plan: Plan?, onPlan: (Plan?) -> Unit, onNext: () -> Unit,
+) {
+    when (key) {
+        "journey" -> WelcomeJourney(draft) { onNext() }
+        "body" -> BodyStep(draft, 1, onNext)
+        "goal" -> GoalStep(draft, 1, onNext)
+        "target" -> TargetStep(draft, 1, onNext)
+        "diet" -> DietStep(draft, 1, onNext)
+        "activity" -> ActivityStep(draft, 1, onNext)
+        "meals" -> MealsStep(draft, 1, onNext)
+        "building" -> V2BuildingScreen(draft, vm, onPlan = onPlan, advance = onNext)
+        "plan" -> PlanStep(plan ?: Plan(), draft) {
+            // Issue 12: the plan screen is the last step; it goes straight Home.
+            vm.refreshProfile()
+            vm.refreshHome()
+            nav.navigate("home") { popUpTo("boot") { inclusive = true } }
+            draft.clear()
+            MorSound.done()
+        }
+    }
+}
+
+/** Route host: palace intro, then the pack step cards, then building / plan /
+ *  all-set. Step-to-step moves use the approved peel-with-curl; the incoming
+ *  card is mounted first and never moves. */
 @Composable
 fun V2Onboarding(nav: androidx.navigation.NavController, vm: AppVm) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val draft = remember { V2Draft(ctx).apply { load() } }
-    var step by remember { mutableStateOf(if (draft.stepKey in V2_ORDER) draft.stepKey else "journey") }
-    var dir by remember { mutableIntStateOf(1) }
-    var busy by remember { mutableStateOf(false) }
-    var planShown by remember { mutableStateOf<Plan?>(null) }
     val reduced = rememberReducedMotion()
     val density = LocalDensity.current
 
+    fun routeList(): List<String> =
+        listOf("journey") + flowFor(draft.answers.goal) + listOf("building", "plan")
+
+    var step by remember {
+        mutableStateOf(routeList().let { if (draft.stepKey in it) draft.stepKey else "journey" })
+    }
+    var busy by remember { mutableStateOf(false) }
+    var planShown by remember { mutableStateOf<Plan?>(null) }
+    var leaving by remember { mutableStateOf<String?>(null) }
+    val peel = remember { Animatable(1f) }
+
     fun go(d: Int) {
         if (busy) return
-        val i = V2_ORDER.indexOf(step) + d
-        var j = i.coerceIn(0, V2_ORDER.lastIndex)
-        if (d < 0 && V2_ORDER[j] == "building") j-- // back from Plan never re-runs Building
-        // v4 #5: every goal reaches the target-weight step; no skipping.
-        if (j == V2_ORDER.indexOf(step)) return
-        busy = true
-        dir = d
-        scope.launch {
-            MorSound.ensure(ctx)
-            if (d > 0) MorSound.next() else MorSound.back()
-            PoseArt.await(V2_NEELU[V2_ORDER[j]] ?: "happy")
-            draft.stepKey = V2_ORDER[j]
-            draft.save()
-            step = V2_ORDER[j]
-            busy = false
+        val keys = routeList()
+        val i = keys.indexOf(step)
+        if (i < 0) return
+        var j = (i + d).coerceIn(0, keys.lastIndex)
+        // Back from Plan never re-runs Building.
+        if (d < 0 && keys[j] == "building") j--
+        val next = keys[j]
+        if (next == step) return
+
+        val animatePeel = step in V2_STEP_KEYS && next in V2_STEP_KEYS && !reduced
+        MorSound.ensure(ctx)
+        if (d > 0) MorSound.next() else MorSound.back()
+
+        leaving = if (animatePeel) step else null
+        step = next
+        draft.stepKey = next
+        draft.save()
+
+        if (animatePeel) {
+            busy = true
+            scope.launch {
+                peel.snapTo(0f)
+                peel.animateTo(1f, tween(550, easing = PeelEase))
+                leaving = null
+                busy = false
+            }
         }
     }
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(Chandan)) {
-        // v4 #3+8: one looping Red Court player for the whole onboarding graph,
-        // behind every step; steps never restart or reload it.
+    BoxWithConstraints(Modifier.fillMaxSize().background(MorColor.FrameCream)) {
         val videoPlayer = rememberNeeluPlayer()
         val sheetTop = remember { mutableStateOf(0.dp) }
-        val bandTop = with(density) {
-            WindowInsets.statusBars.getTop(density).toDp()
-        }
+        val bandTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
         CompositionLocalProvider(LocalV2SheetTop provides sheetTop) {
             NeeluVideoBackground(
                 videoPlayer, maxWidth, maxHeight, bandTop,
-                // v5 #4: the building screen has no ivory sheet — run the palace
-                // behind the whole screen instead of leaving a black band.
                 if (step == "building") maxHeight else sheetTop.value,
                 Modifier.fillMaxSize(),
             )
             // System back walks the reverse direction through the steps.
-            BackHandler(enabled = step !in listOf("journey", "allset") && !busy) { go(-1) }
-            AnimatedContent(
-            targetState = step,
-            contentKey = { it },
-            transitionSpec = {
-                if (reduced) {
-                    (fadeIn(tween(180)) togetherWith fadeOut(tween(150)))
-                } else {
-                    val enter = fadeIn(tween(300, easing = FastOutSlowInEasing)) +
-                        slideInHorizontally(tween(300, easing = FastOutSlowInEasing)) { full -> (full * 0.135f).toInt() * dir }
-                    enter togetherWith
-                        (fadeOut(tween(200, easing = ExitEasing)) + slideOutHorizontally(tween(200, easing = ExitEasing)) { full -> (-full * 0.1f).toInt() * dir })
-                }
-            },
-            label = "v2journey",
-        ) { s ->
+            BackHandler(enabled = step != "journey" && !busy) { go(-1) }
             Box(Modifier.fillMaxSize()) {
-                when (s) {
-                    "journey" -> WelcomeJourney(draft, videoPlayer) { go(1) }
-                    "goal" -> GoalStep(draft, dir) { go(1) }
-                    "diet" -> DietStep(draft, dir) { go(1) }
-                    "body" -> BodyStep(draft, dir) { go(1) }
-                    "target" -> TargetStep(draft, dir) { go(1) }
-                    "activity" -> ActivityStep(draft, dir) { go(1) }
-                    "meals" -> MealsStep(draft, dir) { go(1) }
-                    "building" -> V2BuildingScreen(
-                        draft, vm,
-                        onPlan = { planShown = it },
-                        advance = { go(1) },
-                    )
-                    "plan" -> PlanStep(planShown ?: Plan(), draft) { go(1) }
-                    "allset" -> AllSetScreen(nav, vm, draft)
+                V2Screen(step, draft, vm, nav, planShown, { planShown = it }) { go(1) }
+                leaving?.let { old ->
+                    Box(Modifier.fillMaxSize().peelOut(peel.value)) {
+                        V2Screen(old, draft, vm, nav, planShown, { planShown = it }) { go(1) }
+                    }
                 }
             }
-        }
         }
     }
 }

@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -173,6 +174,7 @@ fun WelcomeJourney(draft: V2Draft, sharedPlayer: Player? = null, onBegin: () -> 
         when (stage) {
             0 -> if (!reduced) {
                 exoA.repeatMode = Player.REPEAT_MODE_ONE
+                exoA.setPlaybackSpeed(1f)
                 exoA.setMediaItem(rawMi(ctx, R.raw.journey_c0_bw))
                 exoA.prepare()
                 exoA.playWhenReady = true
@@ -186,6 +188,9 @@ fun WelcomeJourney(draft: V2Draft, sharedPlayer: Player? = null, onBegin: () -> 
             } else {
                 exoA.repeatMode = Player.REPEAT_MODE_OFF
                 exoA.setMediaItem(rawMi(ctx, R.raw.journey_c1))
+                // Next version #1: the door phase is retimed to ~2s (1.7x);
+                // the reveal that follows stays at 1x with its sound sync.
+                exoA.setPlaybackSpeed(1.7f)
                 exoA.prepare()
                 exoA.playWhenReady = true
             }
@@ -195,6 +200,7 @@ fun WelcomeJourney(draft: V2Draft, sharedPlayer: Player? = null, onBegin: () -> 
                 // v5 #1: the reveal — the doors are open and Neelu walks in.
                 // This clip has no caption; the greeting waits for C3.
                 exoA.repeatMode = Player.REPEAT_MODE_OFF
+                exoA.setPlaybackSpeed(1f)
                 exoA.setMediaItem(rawMi(ctx, R.raw.journey_c2))
                 exoA.prepare()
                 exoA.playWhenReady = true
@@ -204,6 +210,7 @@ fun WelcomeJourney(draft: V2Draft, sharedPlayer: Player? = null, onBegin: () -> 
                 // lands on the palace interior instead of an empty doorway.
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                 exoA.repeatMode = Player.REPEAT_MODE_ONE
+                exoA.setPlaybackSpeed(1f)
                 exoA.setMediaItem(rawMi(ctx, R.raw.journey_c3))
                 exoA.prepare()
                 exoA.playWhenReady = true
@@ -560,13 +567,15 @@ private fun TldrSheet(visible: Boolean, reduced: Boolean, onBegin: () -> Unit) {
                     },
             ) {
                 Column(
-                    Modifier.fillMaxWidth().height(596.dp).background(JIvory).drawBehind {
+                    Modifier.fillMaxWidth().background(JIvory).drawBehind {
                         drawLine(JGold, Offset(0f, 0.6f.dp.toPx()), Offset(size.width, 0.6f.dp.toPx()), 1.2f.dp.toPx())
                     }.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 22.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Avatar()
+                        // Issue 2: a visible gap between the avatar ring and the label.
+                        Spacer(Modifier.width(10.dp))
                         Text(
                             buildAnnotatedString {
                                 withStyle(SpanStyle(fontWeight = FontWeight.SemiBold, color = JInk)) {
@@ -587,8 +596,8 @@ private fun TldrSheet(visible: Boolean, reduced: Boolean, onBegin: () -> Unit) {
                         Bullet("A plan built for your goal, diet and day")
                         Bullet("Gentle nudges at mealtimes, if you want them")
                     }
-                    Spacer(Modifier.weight(1f))
-                    Cta("Let’s begin", enabled = true, onClick = onBegin)
+                    Spacer(Modifier.height(4.dp))
+                    Cta("Let’s begin", enabled = true, onClick = { onBegin() })
                     Text(
                         "6 quick questions · No sign-up needed",
                         fontFamily = JourneySans, fontSize = 12.5.sp, color = JInk3,

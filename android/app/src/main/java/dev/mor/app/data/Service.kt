@@ -1,6 +1,7 @@
 package dev.mor.app.data
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.GsonBuilder
@@ -18,6 +19,10 @@ import java.util.concurrent.TimeUnit
  *  Profile → Backend URL. */
 const val DEFAULT_SERVER_URL = "http://15.135.140.52:4000"
 
+/** Next-version builds run as a separate test account on the same backend, so
+ *  testing this app can never write to the live user's data. */
+const val MOR_USER_ID = "2"
+
 class ServerStore(ctx: Context) {
     private val prefs = ctx.getSharedPreferences("mor", Context.MODE_PRIVATE)
 
@@ -33,7 +38,7 @@ fun buildApi(baseUrl: String): MorApi {
     val http = OkHttpClient.Builder()
         .addInterceptor { chain ->
             chain.proceed(chain.request().newBuilder()
-                .header("x-user-id", "1").build())
+                .header("x-user-id", MOR_USER_ID).build())
         }
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(120, TimeUnit.SECONDS)
@@ -67,6 +72,10 @@ class AppVm : ViewModel() {
     var lastScan: ScanResult? = null
     var lastLog: MealLog? = null
     var pendingSlot: String = "lunch"
+
+    /** Issue 27: the last macro percentages the rings showed, so returning to
+     *  Home animates from these values instead of dropping to 0% and restarting. */
+    val macroPct = mutableStateMapOf<String, Float>()
 
     fun init(store: ServerStore) {
         this.store = store

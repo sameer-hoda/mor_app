@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +52,7 @@ import dev.mor.app.ui.InboxScreen
 import dev.mor.app.ui.InsightsScreen
 import dev.mor.app.ui.LoggedScreen
 import dev.mor.app.ui.MealDetailScreen
+import dev.mor.app.ui.NextLogScreen
 import dev.mor.app.ui.MorButton
 import dev.mor.app.ui.MorColor
 import dev.mor.app.ui.MorField
@@ -180,7 +184,14 @@ fun AppNav(vm: AppVm) {
     NavHost(nav, startDestination = "boot") {
         composable("boot") { BootScreen(nav, vm) }
         composable("v2") { V2Onboarding(nav, vm) }
-        composable("home") { HomeScreen2(nav, vm) }
+        composable(
+            "home",
+            // Next-version item 16: after the logged celebration the updated
+            // home slides in over it instead of jump-cutting.
+            enterTransition = {
+                slideInVertically(tween(300)) { it } + fadeIn(tween(220))
+            },
+        ) { HomeScreen2(nav, vm) }
         composable(
             "add?slot={slot}",
             arguments = listOf(navArgument("slot") { defaultValue = "" }),
@@ -189,6 +200,21 @@ fun AppNav(vm: AppVm) {
             HomeScreen2(nav, vm)
             val arg = back.arguments?.getString("slot") ?: ""
             AddSheet(nav, vm, initialSlot = arg.ifEmpty { null }) { nav.popBackStack() }
+        }
+        composable(
+            "nextlog?slot={slot}&mode={mode}&q={q}&auto={auto}",
+            arguments = listOf(
+                navArgument("slot") { defaultValue = "dinner" },
+                navArgument("mode") { defaultValue = "text" },
+                navArgument("q") { defaultValue = "" },
+                navArgument("auto") { defaultValue = 0 },
+            ),
+        ) { back ->
+            NextLogScreen(nav, vm,
+                back.arguments?.getString("slot") ?: "dinner",
+                back.arguments?.getString("mode") ?: "text",
+                dec(back.arguments?.getString("q") ?: ""),
+                (back.arguments?.getInt("auto") ?: 0) == 1)
         }
         composable(
             "camera?slot={slot}&gallery={gallery}",

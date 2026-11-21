@@ -84,7 +84,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -118,6 +120,7 @@ import dev.mor.app.data.AppVm
 import dev.mor.app.data.ScanResult
 import dev.mor.app.data.friendlyErr
 import kotlinx.coroutines.Dispatchers
+import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -364,7 +367,7 @@ fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) 
                             fontWeight = FontWeight.ExtraBold)
                         Text("Neelu needs to see your food.", color = Color(0xFFC3D1D4), fontSize = 17.sp)
                         Spacer(Modifier.height(8.dp))
-                        MorButton("Search food instead") { nav.navigate("search?slot=$slot") }
+                        MorButton("Search food instead") { nav.navigate("nextlog?slot=$slot&mode=text") }
                     }
                 }
             }
@@ -473,7 +476,7 @@ fun CameraScreen(nav: NavController, vm: AppVm, slot: String, gallery: Boolean) 
                                 .clickable {
                                     MorSound.ensure(ctx)
                                     MorSound.select(1)
-                                    nav.navigate("search?slot=$slot&voice=1")
+                                    nav.navigate("nextlog?slot=$slot&mode=voice")
                                 }
                                 .semantics { this.contentDescription = "Describe by voice" },
                             contentAlignment = Alignment.Center,
@@ -621,6 +624,9 @@ object ScanState {
     var fromGallery: Boolean = false
     /** Camera mode that captured the photo — drives the "Reading …" copy. */
     var mode: String = "meal"
+    /** Next-version flow: after the read, route to the AI + web chooser
+     *  instead of the legacy result screen. Set by the next log screen. */
+    var next: Boolean = false
 
     fun imageBitmap(): Bitmap? = try {
         imageB64?.let {
@@ -654,7 +660,17 @@ fun ScanningScreen(nav: NavController, vm: AppVm) {
                 ))
                 vm.lastScan = r
                 withContext(Dispatchers.Main) {
-                    nav.navigate("result/${r.scan_id}") { popUpTo("scanning") { inclusive = true } }
+                    if (ScanState.next) {
+                        // Items 12 + 15: photo lookups end in the same
+                        // AI + web candidate chooser as text and voice.
+                        val q = java.net.URLEncoder.encode(
+                            (r.meal_name ?: "").ifBlank { "my meal" }, "UTF-8")
+                        nav.navigate("nextlog?slot=${vm.pendingSlot}&mode=text&q=$q&auto=1") {
+                            popUpTo("scanning") { inclusive = true }
+                        }
+                    } else {
+                        nav.navigate("result/${r.scan_id}") { popUpTo("scanning") { inclusive = true } }
+                    }
                 }
             } catch (e: Exception) {
                 // Network/processing failure is NOT a "not food" verdict: the photo is
@@ -857,10 +873,14 @@ fun ResultScreen(nav: NavController, vm: AppVm, scanId: Long) {
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Box(Modifier.weight(1f)) {
-                            MorSecondaryButton("Search food") { nav.navigate("search?slot=${vm.pendingSlot}") }
+                            MorSecondaryButton("Search food") {
+                                nav.navigate("nextlog?slot=${vm.pendingSlot}&mode=text")
+                            }
                         }
                         Box(Modifier.weight(1f)) {
-                            MorSecondaryButton("Speak") { nav.navigate("search?slot=${vm.pendingSlot}&voice=1") }
+                            MorSecondaryButton("Speak") {
+                                nav.navigate("nextlog?slot=${vm.pendingSlot}&mode=voice")
+                            }
                         }
                     }
                 }
@@ -991,31 +1011,190 @@ private fun swapItem(
 
 // ---------- Logged ----------
 
+/**
+ * Next-version item 16 (S16, "Growing bar") + item 18 beat 2.
+ *
+ * The real screen chrome stays: perched Neelu, "Logged!", the kcal line and
+ * See details / Done. The celebration is the day's bar: the existing progress
+ * holds, then a gold segment grows by the meal's share, the add label lands,
+ * and the macro lines tick in one by one. About 2.6s in, the already-updated
+ * home slides in over it (see the "home" enter transition) - the totals are
+ * already written, so there is no stale flash.
+ */
 @Composable
 fun LoggedScreen(nav: NavController, vm: AppVm) {
     MorSystemBars(dark = false)
     val log = vm.lastLog
     val home by vm.home.collectAsState()
     LaunchedEffect(Unit) { vm.refreshHome() }
-    val left = home?.let { maxOf(0.0, it.kcal_target - it.kcal_eaten).toInt() } ?: 940
-    Column(
-        Modifier.fillMaxSize().background(Color(0xFFFDEBC8)).statusBarsPadding()
-            .navigationBarsPadding().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Pill("+${log?.coins_awarded ?: 10} coins", Color(0xFFFFF3DC), Amber)
-        Neelu("hop", 200.dp, enter = true)
-        H1("Logged!", 40, TextAlign.Center)
-        Muted("${log?.kcal?.toInt() ?: 0} kcal · ${"%,d".format(left)} kcal left today", 18, TextAlign.Center)
-        Spacer(Modifier.height(26.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Box(Modifier.weight(1f)) {
-                MorSecondaryButton("See details") { log?.let { nav.navigate("meal/${it.id}") } }
-            }
-            Box(Modifier.weight(1f)) {
-                MorButton("Done") { nav.navigate("home") { popUpTo("home") { inclusive = true } } }
+
+    val reduced = rememberReducedMotion()
+    val target = (home?.kcal_target ?: 2000.0).coerceAtLeast(1.0)
+    val mealKcal = log?.kcal ?: 0.0
+    val postKcal = (home?.kcal_eaten ?: mealKcal).coerceAtLeast(mealKcal)
+    val preKcal = (postKcal - mealKcal).coerceAtLeast(0.0)
+    val left = (target - postKcal).coerceAtLeast(0.0)
+    val mealName = log?.name?.takeIf { it.isNotBlank() } ?: "meal"
+
+    val preFrac = (preKcal / target).coerceIn(0.0, 1.0).toFloat()
+    val goldFrac = remember { Animatable(preFrac) }
+    LaunchedEffect(postKcal) {
+        if (reduced) {
+            goldFrac.snapTo((postKcal / target).coerceIn(0.0, 1.0).toFloat())
+        } else {
+            delay(320)
+            goldFrac.animateTo(
+                (postKcal / target).coerceIn(0.0, 1.0).toFloat(),
+                tween(900, easing = H2OutCubic),
+            )
+        }
+    }
+
+    // Item 18 beat 2: hop -> the fan opens in the Red Court frame.
+    var fanIn by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(if (reduced) 0 else 520)
+        fanIn = true
+    }
+
+    // Continuity: the updated home slides in over the celebration.
+    LaunchedEffect(Unit) {
+        // Issue 25: measured code baseline 2,600ms + 300ms transition; +5s.
+        delay(7600)
+        if (nav.currentDestination?.route?.startsWith("logged") == true) {
+            nav.navigate("home") {
+                popUpTo("home") { inclusive = false }
+                launchSingleTop = true
             }
         }
+    }
+
+    val eaten = home?.macros?.eaten
+    val goal = home?.macros?.goal
+    val macroRows = listOf(
+        Triple("Protein", eaten?.protein_g ?: 0.0, goal?.protein_g ?: 0.0) to MorColor.Protein,
+        Triple("Carbs", eaten?.carbs_g ?: 0.0, goal?.carbs_g ?: 0.0) to MorColor.Carbs,
+        Triple("Fat", eaten?.fat_g ?: 0.0, goal?.fat_g ?: 0.0) to MorColor.Fat,
+    )
+
+    Column(
+        Modifier.fillMaxSize().background(MorColor.ScreenCream)
+            .statusBarsPadding().navigationBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 22.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(Modifier.height(150.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            // The fan reveal sits behind the perched bird, in a court frame.
+            if (fanIn) {
+                val fanScale by animateFloatAsState(1f, tween(520), label = "fanScale")
+                Box(
+                    Modifier.size(132.dp).clip(RoundedCornerShape(18.dp))
+                        .background(MorColor.MaroonDark)
+                        .border(2.dp, MorColor.Gold, RoundedCornerShape(18.dp))
+                        .graphicsLayer { scaleX = fanScale; scaleY = fanScale },
+                ) {
+                    Image(
+                        painterResource(R.drawable.neelu_fan), "Neelu's fan",
+                        Modifier.fillMaxSize(), contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+            Image(
+                painterResource(R.drawable.neelu_cut), "Neelu",
+                Modifier.size(118.dp).offset(y = if (fanIn) (-6).dp else 0.dp),
+                contentScale = ContentScale.Fit,
+            )
+        }
+
+        Spacer(Modifier.height(10.dp))
+        Text(
+            "Logged!", fontSize = 40.sp, color = MorColor.Ink,
+            fontFamily = Cormorant, fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+            "${h2fmt(mealKcal)} kcal · ${h2fmt(left)} kcal left today",
+            fontSize = 13.5.sp, color = MorColor.Ink2, fontFamily = MorInter,
+        )
+
+        Spacer(Modifier.height(26.dp))
+
+        // The day's bar: existing progress first, then the gold add segment.
+        Canvas(Modifier.fillMaxWidth().height(12.dp)) {
+            val r = size.height / 2f
+            drawRoundRect(MorColor.Track, size = size, cornerRadius = CornerRadius(r))
+            val preW = size.width * preFrac
+            if (preW > 0f) {
+                drawRoundRect(
+                    Color(0xFF0F5560),
+                    size = Size(preW, size.height),
+                    cornerRadius = CornerRadius(r),
+                )
+            }
+            val g = goldFrac.value.coerceAtLeast(preFrac)
+            val gW = size.width * g
+            if (gW > preW) {
+                drawRoundRect(
+                    MorColor.Carbs,
+                    topLeft = Offset(preW, 0f),
+                    size = Size(gW - preW, size.height),
+                    cornerRadius = CornerRadius(r),
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                "${h2fmt(postKcal)} of ${h2fmt(target)} kcal",
+                fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold,
+                color = MorColor.Ink, fontFamily = MorInter, modifier = Modifier.weight(1f),
+            )
+            Text(
+                "${h2fmt(left)} left", fontSize = 12.5.sp,
+                color = MorColor.Ink2, fontFamily = MorInter,
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "+${h2fmt(mealKcal)} from the $mealName",
+            fontSize = 11.5.sp, color = MorColor.GoldText, fontFamily = MorInter,
+        )
+
+        Spacer(Modifier.height(18.dp))
+        macroRows.forEachIndexed { i, (row, color) ->
+            val (label, g, t) = row
+            var shown by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                delay(if (reduced) 0 else 900L + i * 200L)
+                shown = true
+            }
+            val a by animateFloatAsState(if (shown) 1f else 0f, tween(300), label = "macro$i")
+            Text(
+                "$label ${g.roundToInt()} / ${t.roundToInt()} g",
+                fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = color,
+                fontFamily = MorInter,
+                modifier = Modifier.alpha(a),
+            )
+            Spacer(Modifier.height(3.dp))
+        }
+
+        Spacer(Modifier.height(28.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(Modifier.weight(1f)) {
+                MorSecondaryButton("See details") {
+                    log?.let { nav.navigate("meal/${it.id}") }
+                }
+            }
+            Box(Modifier.weight(1f)) {
+                MorButton("Done") {
+                    nav.navigate("home") {
+                        popUpTo("home") { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(12.dp))
     }
 }

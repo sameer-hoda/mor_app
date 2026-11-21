@@ -12,7 +12,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -62,6 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -82,6 +87,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
@@ -259,12 +265,16 @@ fun HomeScreen2(nav: NavController, vm: AppVm) {
     // morning cream, from 19:00 dusk plum. Status-bar icons flip with it.
     val night = rememberIsNight()
     val onBg = if (night) NightOnBackground else DayOnBackground
-    MorScreen(dark = night, background = { HomeBackground(night) }) {
+    // Item 18 states: behind on water by afternoon, nothing logged late evening.
+    val nowHour = java.time.LocalTime.now().hour
+    val behindWater = nowHour in 14..20 && h.water < h.water_goal
+    val quietEvening = (nowHour >= 21 || nowHour < 5) && h.kcal_eaten <= 0.0
+    MorScreen(dark = night, background = { HomeBackground(night, dim = quietEvening) }) {
         Column(Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(4.dp))
             // A2: top bar, 68 tall, side padding 16.
             Row(
-                Modifier.fillMaxWidth().padding(16.dp, 0.dp).height(68.dp),
+                Modifier.fillMaxWidth().padding(16.dp, 0.dp).height(60.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
@@ -322,15 +332,31 @@ fun HomeScreen2(nav: NavController, vm: AppVm) {
                 }
             }
 
-            Bubble(bubbleText(h))
+            // Next-version item 10 (S9) + item 18: Neelu stands beside the tip
+            // bubble on the real artwork, bottom-aligned, never over the text.
+            // She breathes slowly; waddles when you are behind on water.
+            Row(Modifier.fillMaxWidth().padding(end = 16.dp), verticalAlignment = Alignment.Bottom) {
+                // Issue 15: no "Eat anything?" bubble before the first meal of the day.
+                if (h.kcal_eaten > 0.0) {
+                    Box(Modifier.weight(1f)) { Bubble(bubbleText(h)) }
+                } else {
+                    Spacer(Modifier.weight(1f))
+                }
+                HomeNeelu(
+                    56.dp,
+                    waddle = behindWater,
+                    sleepy = quietEvening || neeluAnim == "sleep",
+                    modifier = Modifier.padding(start = 6.dp, bottom = 2.dp),
+                )
+            }
 
-            Tracker(h, neeluAnim)
+            // Next-version item 11: one quiet hairline nudge row, near the
+            // calorie area (above the tracker so the hanging mascot can't cover it).
+            Tracker(h, neeluAnim, behindWater, vm)
 
-            // 07-plan-ready-flow item 5: reminders were left off, so after the
-            // first logged meal offer them once from here instead of a screen.
-            if (h.kcal_eaten > 0 && p.reminders_on != 1) ReminderNudgeCard(vm, p)
-
-            Spacer(Modifier.weight(1f).heightIn(min = 150.dp))
+            // The mascot no longer hangs off the tracker, so the old 150dp
+            // clearance is gone and the action pair fits on one screen.
+            Spacer(Modifier.weight(1f).heightIn(min = 0.dp))
 
             // A8 week strip data: the app's existing streak API lights the days.
             var weekFlags by remember { mutableStateOf<List<Boolean?>?>(null) }
@@ -346,9 +372,11 @@ fun HomeScreen2(nav: NavController, vm: AppVm) {
                     withContext(Dispatchers.Main) { weekFlags = flags }
                 }
             }
+            // Issues 14/16/17: one rotating permission row above the weekly streak.
+            PermissionRow(vm, p)
             WeekStrip(h, weekFlags) { trendsOpen = true }
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(6.dp))
             ActionsRow(nav, vm, h)
         }
 
@@ -579,12 +607,73 @@ private fun Bubble(text: String) {
     }
 }
 
+/**
+ * Item 18 (proposed starting behaviours, open to adjustment): the perched
+ * peacock from the pack artwork sits directly on the UI - no frame - with a
+ * slow breathing bob and a soft contact shadow. Behind on water by afternoon
+ * she waddles (a small tilt+bob per step); late evening with nothing logged
+ * she settles. Whole-artwork motion only: an articulated walk rig is an art
+ * task and is not claimed here.
+ */
+@Composable
+private fun HomeNeelu(
+    size: androidx.compose.ui.unit.Dp,
+    waddle: Boolean,
+    sleepy: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val reduced = rememberReducedMotion()
+    val inf = rememberInfiniteTransition(label = "homeNeelu")
+    val phase by inf.animateFloat(
+        0f, 1f,
+        infiniteRepeatable(
+            tween(if (sleepy) 4200 else 2800, easing = H2OutCubic),
+            androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "bob",
+    )
+    val tilt by inf.animateFloat(
+        -3f, 3f,
+        infiniteRepeatable(tween(520, easing = LinearEasing), androidx.compose.animation.core.RepeatMode.Reverse),
+        label = "tilt",
+    )
+    val shadow by inf.animateFloat(
+        0.12f, 0.18f,
+        infiniteRepeatable(tween(2800, easing = H2OutCubic), androidx.compose.animation.core.RepeatMode.Reverse),
+        label = "shadow",
+    )
+    val bobY = if (reduced) 0f else if (sleepy) -1.5f * phase else -3f * phase
+    Box(modifier.size(size), contentAlignment = Alignment.BottomCenter) {
+        Canvas(
+            Modifier.align(Alignment.BottomCenter)
+                .size(width = size * 0.62f, height = 9.dp)
+                .offset(y = 2.dp),
+        ) {
+            drawOval(Color(0x33140C08).copy(alpha = if (reduced) 0.15f else shadow))
+        }
+        Image(
+            painterResource(R.drawable.neelu_cut), "Neelu",
+            Modifier.fillMaxSize().graphicsLayer {
+                translationY = bobY.dp.toPx()
+                rotationZ = if (waddle && !reduced) tilt else 0f
+                alpha = if (sleepy) 0.85f else 1f
+            },
+            contentScale = ContentScale.Fit,
+        )
+    }
+}
+
 /** A5: calorie tracker panel, max 78% wide, with Neelu leaning on its
  *  bottom right — her feet 14dp below the panel's bottom edge (A6). */
 @Composable
-private fun Tracker(h: dev.mor.app.data.Home, anim: String) {
+private fun Tracker(
+    h: dev.mor.app.data.Home,
+    anim: String,
+    glowWater: Boolean,
+    vm: dev.mor.app.data.AppVm,
+) {
     val reduced = rememberReducedMotion()
-    val fs = if (h2ScreenW() <= 320) 74 else 90
+    val fs = if (h2ScreenW() <= 320) 42 else 48
     val target = h.kcal_target.coerceAtLeast(1.0)
     val frac = (h.kcal_eaten / target).coerceIn(0.0, 1.0).toFloat()
 
@@ -604,12 +693,12 @@ private fun Tracker(h: dev.mor.app.data.Home, anim: String) {
     }
     val barFrac by animateFloatAsState(frac, tween(700, easing = H2OutCubic), label = "kbar")
 
-    Box(Modifier.padding(start = 16.dp, top = 16.dp)) {
+    Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp)) {
         Column(
             Modifier
-                .widthIn(max = (h2ScreenW() * 0.78f).dp)
+                .fillMaxWidth()
                 .background(H2TrackerBg, RoundedCornerShape(22.dp))
-                .padding(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 14.dp),
+                .padding(start = 14.dp, end = 14.dp, top = 4.dp, bottom = 8.dp),
         ) {
             Text(
                 h2fmt(shownK), fontSize = fs.sp,
@@ -617,15 +706,15 @@ private fun Tracker(h: dev.mor.app.data.Home, anim: String) {
                 color = H2Ink, fontFamily = FontFamily.Serif,
                 style = TextStyle(fontFeatureSettings = "tnum"),
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 if (h.kcal_eaten > h.kcal_target)
                     "of ${h2fmt(h.kcal_target)} kcal, over by ${h2fmt(h.kcal_eaten - h.kcal_target)}"
                 else
                     "of ${h2fmt(h.kcal_target)} kcal, ${h2fmt(h.kcal_target - h.kcal_eaten)} left",
-                fontSize = 14.sp, color = H2Ink2, fontFamily = FontFamily.Default,
+                fontSize = 12.5.sp, color = H2Ink2, fontFamily = FontFamily.Default,
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -642,7 +731,14 @@ private fun Tracker(h: dev.mor.app.data.Home, anim: String) {
                 )
             }
             Spacer(Modifier.height(8.dp))
+            // Next-version item 9: the three gauge tiles (Donut variant).
+            MacroDonutRow(h, vm)
+            Spacer(Modifier.height(6.dp))
             // W2: the second line — one segment per glass goal, then the caption.
+            // Item 18: behind on water, the card answers with a soft gold glow.
+            val glow by animateFloatAsState(
+                if (glowWater) 1f else 0f, tween(900), label = "waterGlow",
+            )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                 repeat(h.water_goal.coerceAtLeast(1)) { i ->
                     Box(
@@ -650,29 +746,336 @@ private fun Tracker(h: dev.mor.app.data.Home, anim: String) {
                             .weight(1f)
                             .height(5.dp)
                             .clip(RoundedCornerShape(2.5.dp))
-                            .background(if (i < h.water) H2WaterSeg else H2WaterEmpty),
+                            .background(
+                                if (i < h.water) H2WaterSeg
+                                else H2WaterEmpty.copy(alpha = 0.22f + 0.5f * glow),
+                            ),
                     )
                 }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 "Water, ${h.water} of ${h.water_goal} glasses",
-                fontSize = 12.5.sp, color = H2Ink2, fontFamily = FontFamily.Default,
+                fontSize = 12.sp, color = H2Ink2, fontFamily = FontFamily.Default,
             )
         }
-        // Prototype: .neelu sits in a zero-height anchor right after the card
-        // (right:4px, top:-14px, width:184px) so the bird hangs BELOW the card,
-        // not inside it. Neelu paints ContentScale.Fit centered in a square box,
-        // so y = 78 + 92*aspect puts the painted top 14dp above the card bottom.
-        val neeluA = when (poseFor(anim)) {
-            "cool" -> 1.132f; "happy" -> 1.003f; "hungry" -> 0.963f
-            "love" -> 1.108f; "joy" -> 1.017f; "thinking" -> 0.99f
-            else -> 1.05f // sleepy
+    }
+}
+
+/**
+ * Issues 14/16/17 (settled): Home mock C. One quiet rotating permission row,
+ * placed just above the weekly streak card, in this order: notifications,
+ * camera, microphone, rate. Wording is the build's proposal (not approved).
+ * A denied permission moves on for the session and may return next launch.
+ */
+@Composable
+private fun PermissionRow(vm: AppVm, p: dev.mor.app.data.Profile) {
+    val ctx = LocalContext.current
+    val prefs = remember { ctx.getSharedPreferences("mor", Context.MODE_PRIVATE) }
+    var version by remember { mutableIntStateOf(0) }
+    var rateDone by remember { mutableStateOf(prefs.getBoolean("perm_row_done_rate", false)) }
+    var skip by remember { mutableStateOf(setOf<String>()) }
+
+    fun granted(perm: String) = ContextCompat.checkSelfPermission(ctx, perm) ==
+        PackageManager.PERMISSION_GRANTED
+    // `version` is read here so grant/deny results recompose the row.
+    val notifNeeded = version.let { Build.VERSION.SDK_INT >= 33 && !granted(Manifest.permission.POST_NOTIFICATIONS) }
+    val camNeeded = version.let { !granted(Manifest.permission.CAMERA) }
+    val micNeeded = version.let { !granted(Manifest.permission.RECORD_AUDIO) }
+
+    val state = when {
+        notifNeeded && "notif" !in skip -> "notif"
+        camNeeded && "camera" !in skip -> "camera"
+        micNeeded && "mic" !in skip -> "mic"
+        !rateDone && "rate" !in skip -> "rate"
+        else -> null
+    } ?: return
+
+    val title: String
+    val sub: String
+    val action: String
+    when (state) {
+        "notif" -> {
+            title = "Turn on meal reminders"
+            sub = "Allow notifications so Neelu can nudge you at your meal times."
+            action = "Allow"
         }
-        Neelu(
-            anim, 184.dp,
-            Modifier.align(Alignment.BottomEnd)
-                .offset(x = (-4).dp, y = (78f + 92f * neeluA).dp),
+        "camera" -> {
+            title = "Scan meals with your camera"
+            sub = "Allow camera access to log a plate in seconds. When asked, choose the option that allows access only while you're using the app."
+            action = "Allow"
+        }
+        "mic" -> {
+            title = "Log meals by voice"
+            sub = "Allow microphone access to describe a meal. When asked, choose the option that allows access only while you're using the app."
+            action = "Allow"
+        }
+        else -> {
+            title = "Enjoying Mor?"
+            sub = "Rate the app or tell us how your experience has been."
+            action = "Rate"
+        }
+    }
+
+    fun openSettings() {
+        runCatching {
+            ctx.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(android.net.Uri.parse("package:${ctx.packageName}")),
+            )
+        }
+    }
+
+    val notifLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { ok ->
+        version++
+        if (!ok) skip = skip + "notif"
+    }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { ok ->
+        version++
+        if (!ok) skip = skip + "camera"
+    }
+    val micLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { ok ->
+        version++
+        if (!ok) skip = skip + "mic"
+    }
+
+    fun ask(perm: String, key: String) {
+        val asked = prefs.getBoolean("perm_asked_$key", false)
+        val act = ctx as? android.app.Activity
+        if (asked && act != null &&
+            !androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(act, perm)
+        ) {
+            openSettings()
+        } else {
+            prefs.edit().putBoolean("perm_asked_$key", true).apply()
+            when (key) {
+                "notif" -> notifLauncher.launch(perm)
+                "camera" -> cameraLauncher.launch(perm)
+                "mic" -> micLauncher.launch(perm)
+            }
+        }
+    }
+
+    val slot = when (state) {
+        "notif" -> 0
+        "camera" -> 1
+        "mic" -> 2
+        else -> 3
+    }
+
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MorColor.Card)
+                .border(1.dp, MorColor.Sand, RoundedCornerShape(16.dp))
+                .padding(start = 12.dp, end = 10.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier.size(36.dp).clip(CircleShape).background(MorColor.Carbs),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (state == "rate") {
+                    Canvas(Modifier.size(19.dp)) {
+                        val c = center
+                        val p = Path()
+                        val r1 = size.minDimension * 0.46f
+                        val r2 = r1 * 0.45f
+                        for (i in 0 until 10) {
+                            val ang = (-90f + i * 36f) * (Math.PI / 180).toFloat()
+                            val rr = if (i % 2 == 0) r1 else r2
+                            val x = c.x + kotlin.math.cos(ang) * rr
+                            val y = c.y + kotlin.math.sin(ang) * rr
+                            if (i == 0) p.moveTo(x, y) else p.lineTo(x, y)
+                        }
+                        p.close()
+                        drawPath(p, MorColor.Ink)
+                    }
+                } else {
+                    Icon(
+                        painterResource(
+                            when (state) {
+                                "notif" -> R.drawable.ic_bell
+                                "camera" -> R.drawable.ic_scan_camera
+                                else -> R.drawable.ic_mic
+                            }
+                        ),
+                        null, tint = MorColor.Ink, modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    title, fontFamily = MorInter, fontSize = 14.5.sp,
+                    fontWeight = FontWeight.SemiBold, color = MorColor.Ink,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    sub, fontFamily = MorInter, fontSize = 11.sp, lineHeight = 14.5.sp,
+                    color = MorColor.Ink2,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(MorColor.Maroon)
+                    .clickable {
+                        when (state) {
+                            "notif" -> ask(Manifest.permission.POST_NOTIFICATIONS, "notif")
+                            "camera" -> ask(Manifest.permission.CAMERA, "camera")
+                            "mic" -> ask(Manifest.permission.RECORD_AUDIO, "mic")
+                            else -> {
+                                rateDone = true
+                                prefs.edit().putBoolean("perm_row_done_rate", true).apply()
+                                runCatching {
+                                    ctx.startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            android.net.Uri.parse("market://details?id=${ctx.packageName}"),
+                                        )
+                                    )
+                                }.onFailure {
+                                    runCatching {
+                                        ctx.startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                android.net.Uri.parse(
+                                                    "https://play.google.com/store/apps/details?id=${ctx.packageName}",
+                                                ),
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    action, fontFamily = MorInter, fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold, color = MorColor.CreamText,
+                )
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            repeat(4) { i ->
+                Box(
+                    Modifier
+                        .padding(horizontal = 3.dp)
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(
+                            when {
+                                i < slot -> MorColor.Sand.copy(alpha = 0.5f)
+                                i == slot -> MorColor.Gold
+                                else -> MorColor.Sand
+                            }
+                        ),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Next-version item 9 (S10): full-ring donut tiles, protein / carbs / fat.
+ * Issue 27: the last-shown percentages live in AppVm, so returning Home animates
+ * from them instead of restarting at 0%.
+ */
+/** Next-version item 9 (S10): full-ring donut tiles, protein / carbs / fat. */
+@Composable
+private fun MacroDonutRow(h: dev.mor.app.data.Home, vm: dev.mor.app.data.AppVm) {
+    val reduced = rememberReducedMotion()
+    val m = h.macros
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top,
+    ) {
+        DonutTile("Protein", m.eaten.protein_g, m.goal.protein_g, MorColor.Protein, 0, reduced, vm)
+        DonutTile("Carbs", m.eaten.carbs_g, m.goal.carbs_g, MorColor.Carbs, 1, reduced, vm)
+        DonutTile("Fat", m.eaten.fat_g, m.goal.fat_g, MorColor.Fat, 2, reduced, vm)
+    }
+}
+
+@Composable
+private fun DonutTile(
+    label: String, eaten: Double, goal: Double, color: Color, index: Int, reduced: Boolean,
+    vm: dev.mor.app.data.AppVm,
+) {
+    val key = label
+    // Issue 27: start from the last value the tile showed (0 only on a cold start),
+    // and move the arc and the number together. Never animate to a fake 0.
+    val startPct = vm.macroPct[key] ?: 0f
+    val p = if (goal > 0) (eaten / goal).coerceIn(0.0, 1.0).toFloat() else startPct
+    val sweep = remember { Animatable(startPct) }
+    val num = remember { Animatable(startPct * 100f) }
+    val appear = remember { Animatable(if (reduced) 1f else 0f) }
+    LaunchedEffect(p, goal, reduced) {
+        if (goal <= 0) return@LaunchedEffect
+        if (reduced) {
+            sweep.snapTo(p); num.snapTo(p * 100f); appear.snapTo(1f)
+            vm.macroPct[key] = p
+            return@LaunchedEffect
+        }
+        launch { appear.animateTo(1f, tween(400, delayMillis = 350 + index * 150, easing = H2OutCubic)) }
+        val d = 350 + index * 180 + 100
+        launch { sweep.animateTo(p, tween(1100, delayMillis = d, easing = H2OutCubic)) }
+        launch { num.animateTo(p * 100f, tween(1100, delayMillis = d, easing = H2OutCubic)) }
+        vm.macroPct[key] = p
+    }
+    val track = Color(0xFFEFE8D3)
+    Column(
+        Modifier.width(54.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            Modifier
+                .size(52.dp)
+                .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 8.dp.toPx() },
+            contentAlignment = Alignment.Center,
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                val stroke = 10.dp.toPx()
+                val r = (size.minDimension - stroke) / 2f
+                drawArc(
+                    color = track, startAngle = 0f, sweepAngle = 360f, useCenter = false,
+                    topLeft = Offset((size.width - 2 * r) / 2f, (size.height - 2 * r) / 2f),
+                    size = Size(2 * r, 2 * r),
+                    style = Stroke(stroke, cap = StrokeCap.Round),
+                )
+                drawArc(
+                    color = color, startAngle = -90f, sweepAngle = sweep.value * 360f, useCenter = false,
+                    topLeft = Offset((size.width - 2 * r) / 2f, (size.height - 2 * r) / 2f),
+                    size = Size(2 * r, 2 * r),
+                    style = Stroke(stroke, cap = StrokeCap.Round),
+                )
+            }
+            Text(
+                "${num.value.roundToInt()}%", fontSize = 16.sp, fontWeight = FontWeight.Bold,
+                color = MorColor.Ink,
+            )
+        }
+        Spacer(Modifier.height(3.dp))
+        Text(label, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = color)
+        Text(
+            "${eaten.roundToInt()} of ${goal.roundToInt()} g", fontSize = 9.5.sp,
+            color = MorColor.Muted,
         )
     }
 }
@@ -694,7 +1097,7 @@ private fun WeekStrip(
             .padding(horizontal = 16.dp)
             .background(H2WeekBg, RoundedCornerShape(22.dp))
             .clickable(onClick = onOpen)
-            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
+            .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 4.dp),
     ) {
         Column {
             Row(Modifier.fillMaxWidth()) {
@@ -705,7 +1108,7 @@ private fun WeekStrip(
                 Spacer(Modifier.weight(1f))
                 Text("Trends ›", fontSize = 13.sp, color = H2Teal, fontFamily = FontFamily.Default)
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth()) {
                 (0..6).forEach { i ->
                     val flag = weekFlags?.getOrNull(i)
@@ -715,7 +1118,7 @@ private fun WeekStrip(
                         Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) {
+                        Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
                             if (done) {
                                 Box(
                                     Modifier.fillMaxSize().clip(CircleShape).background(H2Teal),
@@ -779,7 +1182,7 @@ private fun ActionsRow(nav: NavController, vm: AppVm, h: dev.mor.app.data.Home) 
         Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(start = 18.dp, end = 18.dp, bottom = 24.dp),
+            .padding(start = 18.dp, end = 18.dp, bottom = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         val wInter = remember { MutableInteractionSource() }
@@ -787,7 +1190,7 @@ private fun ActionsRow(nav: NavController, vm: AppVm, h: dev.mor.app.data.Home) 
         BoxWithConstraints(
             Modifier
                 .weight(1f)
-                .height(54.dp)
+                .height(50.dp)
                 .graphicsLayer { scaleX = wScale; scaleY = wScale }
                 .background(H2Water, RoundedCornerShape(27.dp))
                 .border(1.5.dp, H2WaterBorder, RoundedCornerShape(27.dp))
@@ -846,7 +1249,7 @@ private fun ActionsRow(nav: NavController, vm: AppVm, h: dev.mor.app.data.Home) 
         Box(
             Modifier
                 .weight(1f)
-                .height(54.dp)
+                .height(50.dp)
                 .graphicsLayer { scaleX = mScale; scaleY = mScale }
                 .background(H2Teal, RoundedCornerShape(27.dp))
                 .clickable(interactionSource = mInter, indication = null) { nav.navigate("add") }
@@ -871,7 +1274,11 @@ private fun ActionsRow(nav: NavController, vm: AppVm, h: dev.mor.app.data.Home) 
 
 // ---------- Part C: TRENDS SHEET ----------
 
-private data class TrendDay(val letter: String, val kcal: Double?, val isToday: Boolean)
+private data class TrendDay(
+    val letter: String, val kcal: Double?, val isToday: Boolean,
+    val p: Double = 0.0, val c: Double = 0.0, val f: Double = 0.0,
+    val logged: Boolean = false,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -901,7 +1308,13 @@ fun TrendsSheet(h: dev.mor.app.data.Home, vm: AppVm, onClose: () -> Unit) {
                     i < todayIdx -> dk?.kcal ?: 0.0
                     else -> if (dk != null && dk.kcal > 0.0) dk.kcal else h.kcal_eaten
                 }
-                TrendDay(WEEK_LETTERS[i], kcal, i == todayIdx)
+                // Item 17: each day carries its own macro split. No logs means
+                // an empty track (a visible gap), never a zero-height fake bar.
+                TrendDay(
+                    WEEK_LETTERS[i], kcal, i == todayIdx,
+                    p = dk?.protein_g ?: 0.0, c = dk?.carbs_g ?: 0.0, f = dk?.fat_g ?: 0.0,
+                    logged = kcal != null && kcal > 0.0 && (dk?.logged ?: false),
+                )
             }
             var sel by remember { mutableStateOf(todayIdx) }
             val max = maxOf(
@@ -920,28 +1333,44 @@ fun TrendsSheet(h: dev.mor.app.data.Home, vm: AppVm, onClose: () -> Unit) {
                 )
             }
             Spacer(Modifier.height(14.dp))
-            TrendChart(goal, max, trend, sel) { sel = it }
-            Spacer(Modifier.height(14.dp))
+            val gP = (h.macros.goal.protein_g).coerceAtLeast(1.0)
+            val gC = (h.macros.goal.carbs_g).coerceAtLeast(1.0)
+            val gF = (h.macros.goal.fat_g).coerceAtLeast(1.0)
+            StackedWeek(trend, gP, gC, gF, sel) { sel = it }
+            Spacer(Modifier.height(12.dp))
             val day = trend[sel]
             val dayDate = monday.plusDays(sel.toLong())
             Row(
-                Modifier
-                    .fillMaxWidth()
-                    .background(H2DetailBg, RoundedCornerShape(14.dp))
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    dayDate.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH),
-                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = H2Ink,
+                    dayDate.dayOfWeek
+                        .getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH),
+                    fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = H2Ink,
                     fontFamily = FontFamily.Default,
                 )
                 Spacer(Modifier.weight(1f))
+                if (day.kcal != null && day.kcal > 0.0) Text(
+                    "${h2fmt(day.kcal)} kcal",
+                    fontSize = 13.sp, color = H2Ink2, fontFamily = FontFamily.Default,
+                )
+            }
+            if (day.logged) {
+                Row(
+                    Modifier.padding(top = 8.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    MacroChip("Protein ${day.p.roundToInt()}g", MorColor.Protein)
+                    MacroChip("Carbs ${day.c.roundToInt()}g", MorColor.Carbs)
+                    MacroChip("Fat ${day.f.roundToInt()}g", MorColor.Fat)
+                }
+            } else {
                 Text(
-                    if (day.kcal == null) ""
-                    else (if (day.isToday) "Today, " else "") +
-                        "${h2fmt(day.kcal!!)} kcal" +
-                        if (day.isToday) " · ${h.water} glasses" else "",
-                    fontSize = 14.sp, color = H2Ink2, fontFamily = FontFamily.Default,
+                    "No logs on this day — the track stays empty.",
+                    fontSize = 11.5.sp, color = H2Muted, fontFamily = FontFamily.Default,
+                    modifier = Modifier.padding(top = 8.dp),
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -977,85 +1406,97 @@ private fun StatCell(value: String, label: String, modifier: Modifier) {
     }
 }
 
+/** Item 17 (S17): one stacked vertical bar per day - protein, carbs and fat
+ *  bottom-up, each proportional to its share of that macro's target. Days with
+ *  no logs or in the future render as the empty track - a visible gap. */
 @Composable
-private fun TrendChart(
-    goal: Double,
-    max: Double,
+private fun StackedWeek(
     days: List<TrendDay>,
+    goalP: Double,
+    goalC: Double,
+    goalF: Double,
     sel: Int,
     onSel: (Int) -> Unit,
 ) {
-    val chartH = if (h2ScreenW() <= 320) 116.dp else 150.dp
     var shown by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { shown = true }
-    Box(Modifier.fillMaxWidth().height(chartH)) {
-        Row(Modifier.fillMaxSize()) {
-            days.forEachIndexed { i, day ->
-                Column(
-                    Modifier.weight(1f).fillMaxHeight(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+    Row(
+        Modifier.fillMaxWidth().height(132.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        days.forEachIndexed { i, day ->
+            Column(
+                Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(
+                    Modifier
+                        .width(18.dp).height(100.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color(0xFFF3EAD3))
+                        .border(
+                            if (i == sel) 1.5.dp else 0.dp,
+                            if (i == sel) H2Ink else Color.Transparent,
+                            RoundedCornerShape(4.dp),
+                        )
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) { onSel(i) },
                 ) {
-                    Box(
-                        Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(H2Track)
-                            .border(2.dp, if (i == sel) H2Ink else Color.Transparent, RoundedCornerShape(12.dp))
-                            .clickable(
-                                enabled = day.kcal != null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) { onSel(i) },
-                    ) {
-                        if (day.kcal != null) {
-                            val target = (day.kcal / max).toFloat().coerceIn(0f, 1f)
-                            val f by animateFloatAsState(
-                                if (shown) target else 0f,
-                                tween(600, easing = H2Ease), label = "bar",
-                            )
-                            Box(
-                                Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(f)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(if (day.isToday) H2Gold else H2WaterSeg),
-                            )
+                    if (day.logged) {
+                        val trackPx = 100f
+                        val segP = (day.p / goalP).coerceIn(0.0, 1.0).toFloat() * 0.6f
+                        val segC = (day.c / goalC).coerceIn(0.0, 1.0).toFloat() * 0.6f
+                        val segF = (day.f / goalF).coerceIn(0.0, 1.0).toFloat() * 0.6f
+                        // Bottom-up: fat sits at the base, then carbs, then protein.
+                        Column(
+                            Modifier.fillMaxHeight(),
+                            verticalArrangement = Arrangement.Bottom,
+                        ) {
+                            listOf(
+                                MorColor.Fat to segF,
+                                MorColor.Carbs to segC,
+                                MorColor.Protein to segP,
+                            ).forEachIndexed { si, (col, frac) ->
+                                val h by animateFloatAsState(
+                                    if (shown) frac else 0f,
+                                    tween(520, easing = H2Ease),
+                                    label = "seg$i$si",
+                                )
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height((trackPx * h).dp)
+                                        .background(col),
+                                )
+                            }
                         }
                     }
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        day.letter, fontSize = 12.sp,
-                        color = if (day.isToday) H2Ink else H2Muted,
-                        fontWeight = if (day.isToday) FontWeight.Bold else FontWeight.Normal,
-                        fontFamily = FontFamily.Default,
-                    )
                 }
-            }
-        }
-        // Dashed goal line + the goal number label (right aligned, above the line).
-        Canvas(Modifier.fillMaxSize()) {
-            val letterZone = 26.dp.toPx()
-            val trackH = size.height - letterZone
-            val frac = (goal / max).toFloat().coerceIn(0.02f, 1f)
-            val y = letterZone + trackH * (1f - frac)
-            drawLine(
-                H2Gold, Offset(0f, y), Offset(size.width, y),
-                strokeWidth = 1.5.dp.toPx(),
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f)),
-            )
-            drawIntoCanvas { c ->
-                val paint = android.graphics.Paint().apply {
-                    color = 0xFFA37419.toInt()
-                    textSize = 10.sp.toPx()
-                    textAlign = android.graphics.Paint.Align.RIGHT
-                    isAntiAlias = true
-                }
-                c.nativeCanvas.drawText(h2fmt(goal), size.width, y - 6.dp.toPx(), paint)
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    day.letter, fontSize = 10.sp,
+                    color = if (day.isToday) H2Ink else H2Muted,
+                    fontWeight = if (day.isToday) FontWeight.Bold else FontWeight.Normal,
+                    fontFamily = FontFamily.Default,
+                )
             }
         }
     }
+}
+
+@Composable
+private fun MacroChip(label: String, color: Color) {
+    Text(
+        label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+        color = color, fontFamily = FontFamily.Default,
+        modifier = Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(Color.White)
+            .border(1.2.dp, color, RoundedCornerShape(999.dp))
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+    )
 }
 
 // ---------- NOTIFICATIONS SHEET ----------
@@ -1333,8 +1774,15 @@ private fun ProfileContent(
             val plan = p.plan
             val kcal = plan?.kcal_target?.toDouble() ?: h.kcal_target
             PHeading("YOUR PLAN")
-            PRow("Goal", value = if (plan != null)
-                "${fmtKg(p.weight_kg)} → ${fmtKg(p.target_weight_kg)} kg" else "—") { nav.navigate("weight") }
+            // Issue 13: no Goal row when there is no weight change (Maintain /
+            // Eat healthier), so no "73 → 73 kg" or stale target is shown.
+            val hasGoalChange = p.target_weight_kg != null && p.weight_kg != null &&
+                kotlin.math.abs(p.target_weight_kg!! - p.weight_kg!!) >= 0.05
+            if (hasGoalChange) {
+                PRow("Goal", value = "${fmtKg(p.weight_kg)} → ${fmtKg(p.target_weight_kg)} kg") {
+                    nav.navigate("weight")
+                }
+            }
             PRow("Daily target", value = "${h2fmt(kcal)} kcal")
             PRow("Diet", value = dietDisplay(p.diet))
 
@@ -1395,6 +1843,7 @@ private fun ProfileContent(
                     confirmDelete = false
                     scope.launch(Dispatchers.IO) {
                         try { vm.api().reset() } catch (_: Exception) { }
+                        vm.macroPct.clear()
                         withContext(Dispatchers.Main) {
                             vm.showSnack("Data cleared")
                             V2Draft(ctx).clear()
